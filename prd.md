@@ -148,6 +148,8 @@ has_variants: Boolean,
 status: "active | inactive",
 created_at: Timestamp,
 updated_at: Timestamp
+
+//Skip This varient for now
 } 6. Product Variants
 
 Examples:
