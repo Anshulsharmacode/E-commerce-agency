@@ -1,4 +1,4 @@
-import { UserRole } from "src/db/schema/user.schema";
+import { UserRole } from 'src/db/schema/user.schema';
 
 export class SignupDto {
   name: string;

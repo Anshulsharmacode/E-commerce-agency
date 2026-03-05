@@ -3,6 +3,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DataBaseModule } from './db/db';
+import { CategoryController } from './restapi/category/category.controller';
+import { CategoryService } from './restapi/category/category.service';
 import { UserController } from './restapi/user/user.controller';
 import { UserService } from './restapi/user/user.service';
 
@@ -14,7 +16,7 @@ import { UserService } from './restapi/user/user.service';
       signOptions: { expiresIn: '7d' },
     }),
   ],
-  controllers: [AppController, UserController],
-  providers: [AppService, UserService],
+  controllers: [AppController, UserController, CategoryController],
+  providers: [AppService, UserService, CategoryService],
 })
 export class AppModule {}
