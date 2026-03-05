@@ -5,6 +5,8 @@ import { AppService } from './app.service';
 import { DataBaseModule } from './db/db';
 import { CategoryController } from './restapi/category/category.controller';
 import { CategoryService } from './restapi/category/category.service';
+import { ProductController } from './restapi/product/product.controller';
+import { ProductService } from './restapi/product/product.service';
 import { UserController } from './restapi/user/user.controller';
 import { UserService } from './restapi/user/user.service';
 
@@ -16,7 +18,12 @@ import { UserService } from './restapi/user/user.service';
       signOptions: { expiresIn: '7d' },
     }),
   ],
-  controllers: [AppController, UserController, CategoryController],
-  providers: [AppService, UserService, CategoryService],
+  controllers: [
+    AppController,
+    UserController,
+    CategoryController,
+    ProductController,
+  ],
+  providers: [AppService, UserService, CategoryService, ProductService],
 })
 export class AppModule {}
