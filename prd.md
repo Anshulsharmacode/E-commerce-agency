@@ -1,443 +1,727 @@
-Bulk B2B eCommerce Platform – Product Requirements Document (PRD)
+Below is a **complete `PRD.md` tailored to your requirements**:
 
-1. Product Overview
-   1.1 Purpose
+- **Backend:** NestJS
+- **Database:** MongoDB
+- **Structure:** flat module files like
+  `user.controller.ts`, `user.service.ts`, `user.dto.ts`
+- **Frontend:** React Native
+- **Architecture:** REST + WebSocket
+- **Ordering:** Box-based
 
-Build a B2B eCommerce platform designed for agencies, wholesalers, and bulk buyers. The platform enables verified businesses to purchase products in bulk (box-based ordering), access advanced discount systems, and manage repeat purchases efficiently.
+This PRD is derived from the plan you shared.
 
-1.2 Target Users
+---
 
-Retail agencies
+# PRD.md
 
-Distributors
+B2B E-Commerce Platform
+Box-Based Ordering System
 
-Institutional buyers
+React Native • NestJS • MongoDB • AWS
 
-Franchise operators
+Version 1.0
+March 2026
 
-Bulk procurement managers
+---
 
-1.3 Business Objective
+# 1. Product Overview
 
-Increase bulk transaction volume
+The platform is a **B2B mobile commerce application** where businesses order products in **box quantities only**.
 
-Enable recurring purchases
+The system includes:
 
-Provide flexible discount and pricing models
+- Product catalog
+- Category management
+- Cart and order management
+- Offer & discount engine
+- Invoice & billing system
+- Real-time chat between admin and customers
+- Analytics dashboard
+- Push notifications
 
-Support credit-based B2B commerce
+---
 
-2. Core Features
+# 2. Technology Stack
 
-Agency Signup & Verification
+## Backend
 
-Product Category Management
+- NestJS
+- MongoDB (Mongoose)
+- Redis (cache & queues)
+- Socket.IO (chat)
+- JWT authentication
 
-Product & Variant Management (Box-based pricing)
+## Frontend
 
-Advanced Offer & Discount Engine
+- React Native
+- Redux Toolkit
+- RTK Query
+- React Navigation
+- Socket.IO client
 
-Tiered Pricing System
+## Cloud
 
-Cart & Checkout
+- AWS EC2
+- AWS S3
+- AWS SES
+- AWS SNS
+- Redis (ElastiCache)
 
-Wishlist / Like System
+---
 
-Order Management
+# 3. Backend Folder Structure (Your Preferred Structure)
 
-Credit Wallet System (Phase 2)
+Each module contains only **3 main files**.
 
-Admin Dashboard
+```
+src
+│
+├── user
+│   ├── user.controller.ts
+│   ├── user.service.ts
+│   └── user.dto.ts
+│
+├── category
+│   ├── category.controller.ts
+│   ├── category.service.ts
+│   └── category.dto.ts
+│
+├── product
+│   ├── product.controller.ts
+│   ├── product.service.ts
+│   └── product.dto.ts
+│
+├── cart
+│   ├── cart.controller.ts
+│   ├── cart.service.ts
+│   └── cart.dto.ts
+│
+├── order
+│   ├── order.controller.ts
+│   ├── order.service.ts
+│   └── order.dto.ts
+│
+├── bill
+│   ├── bill.controller.ts
+│   ├── bill.service.ts
+│   └── bill.dto.ts
+│
+├── offer
+│   ├── offer.controller.ts
+│   ├── offer.service.ts
+│   └── offer.dto.ts
+│
+├── chat
+│   ├── chat.controller.ts
+│   ├── chat.service.ts
+│   └── chat.dto.ts
+│
+├── app.module.ts
+└── main.ts
+```
 
-3. User Authentication & Verification
-   3.1 Signup Requirements
-   Required Fields
+---
 
-Full Name
+# 4. User Roles
 
-Shop Name
+## Admin
 
-Phone Number (OTP verified)
+Admin can:
 
-Email (optional but recommended)
+- create/edit products
+- manage categories
+- manage offers
+- view all orders
+- generate invoices
+- manage payments
+- chat with customers
+- view analytics
+- manage users
 
-Password
+---
 
-Business Address
+## Customer (Buyer)
 
-GST / Business ID (optional in MVP)
+Customer can:
 
-User Schema
-{
-user_id: UUID,
-name: String,
-shop_name: String,
-phone: String,
-email: String,
-password_hash: String,
-is_verified_user: Boolean,
-verification_status: "pending | approved | rejected",
-credit_limit: Decimal,
-available_credit: Decimal,
-due_amount: Decimal,
-created_at: Timestamp
-}
-Verification Flow
+- browse products
+- add items to cart
+- place orders
+- view invoices
+- chat with admin
+- see discounts
 
-OTP verification via phone
+---
 
-Admin approval
+# 5. User Schema (MongoDB)
 
-Verified badge enabled
+```
+User
 
-Only approved users can place orders
+_id
+name
+email
+phone
+password
+role
+isActive
+address
+createdAt
+updatedAt
+```
 
-4. Product Category Module
+### Role
 
-Supports hierarchical categories.
+```
+admin
+user
+```
 
-Examples:
+---
 
+# 6. Category System
+
+Categories support **nested hierarchy**.
+
+Example:
+
+```
 Beverages
+   ├ Coffee
+   ├ Tea
+   └ Soft Drinks
+```
 
-Cold Drink
+### Category Schema
 
-Juice
+```
+_id
+name
+description
+image
+parentId
+isActive
+sortOrder
+createdAt
+```
 
-Grocery
+---
 
-Dry Fruits
+# 7. Product Management
 
-Category Schema
-{
-category_id: UUID,
-category_name: String,
-category_slug: String,
-parent_category_id: UUID | null,
-description: Text,
-image_url: String,
-status: "active | inactive",
-created_at: Timestamp
-} 5. Product Management
-5.1 Product Rules
+Products are sold **only in boxes**.
 
-Products are sold in boxes only.
+### Product Schema
 
-Unit price means price per box.
+```
+_id
+name
+description
+categoryId
+unit
+piecesPerBox
+sellingPriceBox
+purchasePriceBox
+purchasePricePiece
+images
+stockBoxes
+isActive
+createdAt
+updatedAt
+```
 
-Minimum order quantity defined in boxes.
+### Derived Values
 
-5.2 Product Schema
-{
-product_id: UUID,
-product_name: String,
-product_description: Text,
-sku_code: String,
-brand: String,
+```
+sellingPricePiece = sellingPriceBox / piecesPerBox
 
-unit_price_per_box: Decimal,
-cost_price_per_box: Decimal,
+marginPerBox = sellingPriceBox − purchasePriceBox
 
-pieces_per_box: Integer,
-minimum_order_boxes: Integer,
-stock_boxes: Integer,
+stockPieces = stockBoxes × piecesPerBox
+```
 
-category_id: UUID,
-has_variants: Boolean,
+---
 
-status: "active | inactive",
-created_at: Timestamp,
-updated_at: Timestamp
+# 8. Cart System
 
-//Skip This varient for now
-} 6. Product Variants
+Cart is stored server-side.
 
-Examples:
+### Cart Schema
 
-250ml
+```
+_id
+userId
+items
+totalAmount
+totalDiscount
+finalAmount
+updatedAt
+```
 
-500ml
+### Cart Item
 
-2kg
+```
+productId
+quantityBoxes
+pricePerBox
+appliedOfferId
+totalPrice
+```
 
-20ml
+### Rules
 
-Variant Schema
-{
-variant_id: UUID,
-product_id: UUID,
-variant_name: String,
-sku_code: String,
-unit_price_per_box: Decimal,
-pieces_per_box: Integer,
-stock_boxes: Integer,
-status: "active | inactive"
-} 7. Tiered Pricing (Volume-Based Pricing)
+- quantities only in **boxes**
+- best offer applied automatically
+- price snapshot stored
 
-Encourages larger purchases.
+---
+
+# 9. Order Management
+
+### Order Schema
+
+```
+_id
+userId
+items
+status
+totalAmount
+totalDiscount
+finalAmount
+deliveryAddress
+notes
+appliedOffers
+createdAt
+updatedAt
+```
+
+### Order Status
+
+```
+pending
+confirmed
+processing
+shipped
+delivered
+cancelled
+```
+
+---
+
+# 10. Billing System
+
+Each order generates **1 invoice**.
+
+### Bill Schema
+
+```
+_id
+orderId
+userId
+billNumber
+itemsSnapshot
+subtotal
+discountAmount
+taxAmount
+finalAmount
+paymentMethod
+paymentStatus
+amountPaid
+amountDue
+dueDate
+paymentReference
+pdfUrl
+createdAt
+```
+
+---
+
+### Payment Methods
+
+```
+cash
+upi
+bank_transfer
+cheque
+credit
+cod
+```
+
+---
+
+### Payment Status
+
+```
+pending
+partial
+paid
+overdue
+refunded
+```
+
+---
+
+# 11. Offer Engine
+
+Offer system supports **multiple types**.
+
+### Offer Schema
+
+```
+_id
+offerName
+offerType
+discountType
+discountValue
+minOrderValue
+minOrderBoxes
+applicableProductIds
+applicableCategoryIds
+buyQuantity
+freeQuantity
+freeProductId
+targetBoxes
+rewardAmount
+startDate
+endDate
+usageLimit
+usageCount
+isActive
+```
+
+---
+
+## Offer Types
+
+### Order Offer
 
 Example:
 
-Min Boxes Price Per Box
-1–50 ₹1000
-51–200 ₹950
-201+ ₹900
-Tier Pricing Schema
-{
-tier_id: UUID,
-product_id: UUID,
-min_boxes: Integer,
-price_per_box: Decimal
-}
+```
+₹1000 off on orders above ₹50000
+```
 
-System automatically applies best tier price.
+---
 
-8. Offer & Discount Engine
-
-Supports multiple offer types.
-
-8.1 Master Offer Schema
-{
-offer_id: UUID,
-offer_name: String,
-offer_type: "ORDER | PRODUCT | CATEGORY | TARGET | BXGY",
-discount_type: "flat | percentage | free_product",
-discount_value: Decimal,
-
-min_order_value: Decimal,
-min_order_boxes: Integer,
-
-applicable_product_ids: Array,
-applicable_category_ids: Array,
-
-start_date: Date,
-end_date: Date,
-usage_limit: Integer,
-is_active: Boolean
-}
-8.2 Offer Types
-
-1. Order-Level Offer
-
-Applies to entire cart.
-Example:
-
-₹1000 off above ₹50,000
-
-5% off above 100 boxes
-
-2. Product-Level Offer
-
-Applies to specific product.
-
-3. Category-Level Offer
-
-Applies to all products in a category.
-
-4. Target / Trip Offer
-
-Reward based on total purchase quantity.
+### Product Offer
 
 Example:
 
-Buy 500 boxes → Get ₹5000 reward
+```
+10% off on Product X
+```
 
-5. Buy X Get Y (BXGY)
+---
+
+### Category Offer
 
 Example:
 
+```
+8% off on Beverages
+```
+
+---
+
+### Target Offer
+
+Example:
+
+```
+Buy 500 boxes → get ₹5000 reward
+```
+
+---
+
+### BXGY
+
+Example:
+
+```
 Buy 10 boxes → Get 1 free
+```
 
-{
-buy_quantity: Integer,
-free_quantity: Integer
-} 9. Cart System
-9.1 Cart Schema
-{
-cart_id: UUID,
-user_id: UUID,
-items: [
-{
-product_id: UUID,
-variant_id: UUID,
-quantity_boxes: Integer,
-price_per_box: Decimal,
-applied_offer_id: UUID,
-total_price: Decimal
-}
-],
-total_amount: Decimal,
-total_discount: Decimal,
-final_amount: Decimal,
-updated_at: Timestamp
-}
-9.2 Cart Logic
+---
 
-Box-based quantity only
+# 12. Chat System
 
-Auto-apply best eligible offer
+Real-time messaging between **admin and customers**.
 
-Persistent cart
+### Conversation Schema
 
-Stock validation
+```
+_id
+userId
+adminId
+status
+createdAt
+updatedAt
+```
 
-Show savings summary
+### Message Schema
 
-10. Wishlist / Like System
-    Like Schema
-    {
-    like_id: UUID,
-    user_id: UUID,
-    product_id: UUID,
-    created_at: Timestamp
-    }
-    Features
+```
+_id
+conversationId
+senderId
+senderRole
+messageType
+content
+isRead
+readAt
+createdAt
+```
 
-Save products
+### Message Types
 
-Quick reorder
+```
+text
+image
+file
+order_link
+```
 
-Show trending liked products
+---
 
-11. Order Management
-    Order Schema
-    {
-    order_id: UUID,
-    user_id: UUID,
+# 13. Notifications
 
-total_boxes: Integer,
-total_amount: Decimal,
-total_discount: Decimal,
-final_amount: Decimal,
+Push notifications sent for:
 
-applied_offer_ids: Array,
+```
+new order
+order status update
+invoice generated
+new chat message
+offer alerts
+low stock alert
+```
 
-payment_status: "pending | paid | credit",
-order_status: "placed | confirmed | shipped | delivered | cancelled",
+---
 
-created_at: Timestamp
-} 12. Payment System
-Phase 1
+# 14. Analytics Dashboard (Admin)
 
-UPI
+Admin dashboard shows:
 
-Net Banking
+```
+daily revenue
+monthly revenue
+orders today
+top selling products
+low stock products
+outstanding payments
+```
 
-COD (optional)
+---
 
-Phase 2
+# 15. API Endpoints
 
-Credit limit system
+### Authentication
 
-Partial payments
+```
+POST /auth/login
+POST /auth/register
+POST /auth/refresh
+```
 
-Due tracking
+---
 
-Monthly statement
+### Users
 
-13. Admin Panel Requirements
+```
+GET /users
+GET /users/:id
+PATCH /users/:id
+DELETE /users/:id
+```
 
-Approve/reject users
+---
 
-Add/edit categories
+### Categories
 
-Add/edit products & variants
+```
+POST /categories
+GET /categories
+PATCH /categories/:id
+DELETE /categories/:id
+```
 
-Manage stock
+---
 
-Create/manage offers
+### Products
 
-View orders
+```
+POST /products
+GET /products
+GET /products/:id
+PATCH /products/:id
+DELETE /products/:id
+```
 
-Sales analytics
+---
 
-Bulk product upload (CSV)
+### Cart
 
-User credit management
+```
+POST /cart/add
+PUT /cart/update
+GET /cart
+DELETE /cart/item/:id
+```
 
-14. Business Logic Rules
+---
 
-Only verified users can place orders
+### Orders
 
-Orders must meet minimum box quantity
+```
+POST /orders
+GET /orders
+GET /orders/:id
+PUT /orders/:id/status
+```
 
-Offers cannot stack unless explicitly allowed
+---
 
-System applies highest benefit offer
+### Bills
 
-Stock deducted after order confirmation
+```
+GET /bills/:id
+PUT /bills/:id/payment
+```
 
-Cart reserves stock temporarily
+---
 
-15. Non-Functional Requirements
+### Offers
 
-Scalable to 100k+ products
+```
+POST /offers
+GET /offers
+PATCH /offers/:id
+DELETE /offers/:id
+```
 
-High concurrency support
+---
 
-Secure authentication (JWT)
+### Chat
 
-Optimized DB indexing
+```
+POST /chat/message
+GET /chat/:conversationId
+```
 
-Audit logs for admin changes
+WebSocket:
 
-16. MVP Scope
-    Must Have
+```
+WS /chat
+```
 
-Signup + Verification
+---
 
-Category management
+# 16. Redis Usage
 
-Product listing
+Redis used for:
 
-Box pricing
+```
+product caching
+offer caching
+session storage
+cart caching
+job queues
+```
 
-Cart
+---
 
-Basic offers (flat + percentage)
+# 17. Background Jobs
 
-Order placement
+Using **BullMQ**
 
-Admin panel
+Queues:
 
-Phase 2
+```
+invoice generation
+overdue bill detection
+abandoned cart reminder
+offer expiry cleanup
+```
 
-Tier pricing
+---
 
-Credit system
+# 18. AWS Architecture
 
-Target offers
+Infrastructure:
 
-CSV quick order upload
+```
+EC2 → NestJS backend
+MongoDB Atlas → database
+S3 → images & invoices
+Redis → cache
+SES → email invoices
+SNS → push notifications
+CloudFront → CDN
+```
 
-Analytics dashboard
+---
 
-Smart recommendations
+# 19. Security
 
-17. Key KPIs
+Security measures:
 
-Average Order Value (AOV)
+```
+JWT authentication
+bcrypt password hashing
+role-based guards
+rate limiting
+request validation
+HTTPS enforced
+```
 
-Repeat Purchase Rate
+---
 
-Monthly GMV
+# 20. Performance Requirements
 
-Cart Abandonment Rate
+```
+API response < 400ms
+chat latency < 200ms
+mobile app launch < 3 seconds
+```
 
-Offer Utilization Rate
+---
 
-Credit Recovery Rate
+# 21. Development Order (Important)
 
-18. Future Enhancements
+Build modules in this order:
 
-One-click reorder
+```
+1 Auth
+2 Users
+3 Categories
+4 Products
+5 Cart
+6 Orders
+7 Bills
+8 Offers
+9 Chat
+10 Notifications
+11 Analytics
+```
 
-Subscription-based auto-refill
+---
 
-Geo-based offers
+If you want, I can also generate **a full NestJS + MongoDB starter backend with your exact structure**:
 
-Sales rep assignment
+```
+user.controller.ts
+user.service.ts
+user.dto.ts
+```
 
-Territory management
+including:
 
-Mobile app (Flutter/React Native)
+- JWT auth
+- MongoDB schemas
+- product module
+- cart system
+- order system
+- offer engine
+- chat gateway
+
+So you can **run the backend in ~10 minutes**.
