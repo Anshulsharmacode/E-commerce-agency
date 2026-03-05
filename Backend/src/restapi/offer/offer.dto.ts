@@ -2,6 +2,7 @@ import { OfferDiscountType, OfferType } from 'src/db/schema';
 
 export class CreateOfferDto {
   offer_name: string;
+  offer_code: string;
   offer_type: OfferType;
   discount_type: OfferDiscountType;
   discount_value: number;
@@ -23,6 +24,7 @@ export class CreateOfferDto {
 
 export class UpdateOfferDto {
   offer_name?: string;
+  offer_code?: string;
   offer_type?: OfferType;
   discount_type?: OfferDiscountType;
   discount_value?: number;

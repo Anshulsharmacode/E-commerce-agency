@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   HttpStatus,
   Injectable,
   NotFoundException,
@@ -211,6 +212,7 @@ export class OfferService {
   async createOffer(createOfferDto: CreateOfferDto, createdBy: string) {
     const {
       offer_name,
+      offer_code,
       offer_type,
       discount_type,
       discount_value,
@@ -232,6 +234,7 @@ export class OfferService {
 
     if (
       !offer_name ||
+      !offer_code ||
       !offer_type ||
       !discount_type ||
       discount_value === undefined ||
@@ -253,6 +256,7 @@ export class OfferService {
 
     const parsedStartDate = this.parseDate(start_date, 'start_date');
     const parsedEndDate = this.parseDate(end_date, 'end_date');
+    const normalizedOfferCode = offer_code.trim().toUpperCase();
 
     if (parsedStartDate > parsedEndDate) {
       apiError(
@@ -274,9 +278,17 @@ export class OfferService {
       reward_amount,
     });
 
+    const existingOfferCode = await this.offerModel.findOne({
+      offer_code: normalizedOfferCode,
+    });
+    if (existingOfferCode) {
+      throw new ConflictException('Offer code already exists');
+    }
+
     try {
       return await this.offerModel.create({
         offer_name: offer_name.trim(),
+        offer_code: normalizedOfferCode,
         offer_type,
         discount_type,
         discount_value,
@@ -403,6 +415,19 @@ export class OfferService {
 
     if (updateOfferDto.offer_name) {
       updateOfferDto.offer_name = updateOfferDto.offer_name.trim();
+    }
+
+    if (updateOfferDto.offer_code) {
+      const normalizedOfferCode = updateOfferDto.offer_code.trim().toUpperCase();
+      const duplicateOfferCode = await this.offerModel.findOne({
+        _id: { $ne: existingOffer._id },
+        offer_code: normalizedOfferCode,
+      });
+      if (duplicateOfferCode) {
+        throw new ConflictException('Offer code already exists');
+      }
+
+      updateOfferDto.offer_code = normalizedOfferCode;
     }
 
     const updatedOffer = await this.offerModel.findOneAndUpdate(

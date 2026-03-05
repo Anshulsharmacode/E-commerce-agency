@@ -29,6 +29,15 @@ export class Offer {
   @Prop({ required: true, trim: true })
   offer_name: string;
 
+  @Prop({
+    required: true,
+    trim: true,
+    uppercase: true,
+    unique: true,
+    index: true,
+  })
+  offer_code: string;
+
   @Prop({ type: String, enum: OfferType, required: true, index: true })
   offer_type: OfferType;
 
