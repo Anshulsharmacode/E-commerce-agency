@@ -7,6 +7,7 @@ export type UserDocument = HydratedDocument<User>;
 export enum UserRole {
   ADMIN = 'admin',
   USER = 'user',
+  EMPLOYEE = 'employee',
 }
 
 @Schema({
@@ -33,7 +34,7 @@ export class User {
   phone: string;
 
   @Prop({ required: true })
-  password_hash: string;
+  password: string;
 
   @Prop({
     type: String,
