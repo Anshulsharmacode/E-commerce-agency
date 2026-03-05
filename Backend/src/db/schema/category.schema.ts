@@ -18,17 +18,20 @@ export class Category {
   @Prop({ required: false, trim: true })
   description?: string;
 
-  @Prop({ required: false, trim: true })
-  image_url?: string;
+  // @Prop({ required: false, trim: true })
+  // image_url?: string;
 
-  @Prop({ type: String, required: false, index: true })
-  parent_id?: string;
+  // @Prop({ type: String, required: false, index: true })
+  // parent_id?: string;
 
   @Prop({ required: true, default: true, index: true })
   is_active: boolean;
 
-  @Prop({ required: false, min: 0, default: 0 })
-  sort_order?: number;
+  @Prop({ type: String, required: true, index: true })
+  created_by: string;
+
+  // @Prop({ required: false, min: 0, default: 0 })
+  // sort_order?: number;
 
   created_at: Date;
   updated_at: Date;
