@@ -34,6 +34,9 @@ export class Product {
   @Prop({ type: String, enum: ProductUnit, required: true })
   unit: ProductUnit;
 
+  @Prop({ required: true, min: 0.001 })
+  unit_weight: number;
+
   @Prop({ required: true, min: 1 })
   pieces_per_box: number;
 
@@ -43,8 +46,8 @@ export class Product {
   @Prop({ required: true, min: 0 })
   purchase_price_box: number;
 
-  @Prop({ required: true, min: 0 })
-  purchase_price_piece: number;
+  // @Prop({ required: true, min: 0 })
+  // purchase_price_piece: number;
 
   @Prop({ type: [String], required: false, default: [] })
   image_urls?: string[];
@@ -52,8 +55,8 @@ export class Product {
   @Prop({ required: true, default: true, index: true })
   is_active: boolean;
 
-  @Prop({ required: false, min: 0, default: 0 })
-  stock_boxes?: number;
+  // @Prop({ required: false, min: 0, default: 0 })
+  // stock_boxes?: number;
 
   created_at: Date;
   updated_at: Date;
@@ -61,15 +64,15 @@ export class Product {
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
 
-ProductSchema.virtual('selling_price_piece').get(function (this: Product) {
-  if (this.pieces_per_box) return 0;
-  return this.selling_price_box / this.pieces_per_box;
-});
+// ProductSchema.virtual('selling_price_piece').get(function (this: Product) {
+//   if (this.pieces_per_box) return 0;
+//   return this.selling_price_box / this.pieces_per_box;
+// });
 
-ProductSchema.virtual('margin_per_box').get(function (this: Product) {
-  return this.selling_price_box - this.purchase_price_box;
-});
+// ProductSchema.virtual('margin_per_box').get(function (this: Product) {
+//   return this.selling_price_box - this.purchase_price_box;
+// });
 
-ProductSchema.virtual('stock_pieces').get(function (this: Product) {
-  return (this.stock_boxes ?? 0) * this.pieces_per_box;
-});
+// ProductSchema.virtual('stock_pieces').get(function (this: Product) {
+//   return (this.stock_boxes ?? 0) * this.pieces_per_box;
+// });
