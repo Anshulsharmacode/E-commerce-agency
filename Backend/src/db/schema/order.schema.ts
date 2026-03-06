@@ -60,6 +60,9 @@ export class Order {
   @Prop({ required: false, trim: true })
   cancelled_by?: string;
 
+  @Prop({ required: false, trim: true })
+  created_by?: string;
+
   created_at: Date;
   updated_at: Date;
 }

@@ -9,6 +9,8 @@ import { CategoryController } from './restapi/category/category.controller';
 import { CategoryService } from './restapi/category/category.service';
 import { OfferController } from './restapi/offer/offer.controller';
 import { OfferService } from './restapi/offer/offer.service';
+import { OrderController } from './restapi/order/order.controller';
+import { OrderService } from './restapi/order/order.service';
 import { ProductController } from './restapi/product/product.controller';
 import { ProductService } from './restapi/product/product.service';
 import { UserController } from './restapi/user/user.controller';
@@ -29,6 +31,7 @@ import { UserService } from './restapi/user/user.service';
     ProductController,
     CartController,
     OfferController,
+    OrderController,
   ],
   providers: [
     AppService,
@@ -37,6 +40,7 @@ import { UserService } from './restapi/user/user.service';
     ProductService,
     CartService,
     OfferService,
+    OrderService,
   ],
 })
 export class AppModule {}
