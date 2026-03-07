@@ -69,12 +69,18 @@ export class ProductController {
 
   @Get('all')
   @HttpCode(HttpStatus.OK)
-  async getAllProducts(@Query('limit') limit?: string) {
-    const products = await this.productService.getAllProducts(Number(limit));
+  async getAllProducts(
+    @Query('limit') limit?: string,
+    @Query('page') page?: string,
+  ) {
+    const result = await this.productService.getAllProducts(
+      Number(limit),
+      Number(page),
+    );
 
     return {
       message: 'Products fetched successfully',
-      data: products,
+      ...result,
     };
   }
 }

@@ -14,6 +14,7 @@ import {
 } from 'src/db/schema';
 import { apiError } from 'src/utills/apiResponse';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
+import { parsePagination, calculatePaginationMeta } from 'src/utills/utills';
 
 @Injectable()
 export class ProductService {
@@ -213,12 +214,23 @@ export class ProductService {
     return deletedProduct;
   }
 
-  async getAllProducts(limit?: number) {
-    const parsedLimit = Number(limit ?? 50);
-    const safeLimit = Number.isNaN(parsedLimit)
-      ? 50
-      : Math.min(Math.max(parsedLimit, 1), 50);
+  async getAllProducts(limit?: number, page?: number) {
+    const { limit: safeLimit, skip } = parsePagination(limit, page, 'PRODUCT');
 
-    return this.productModel.find().sort({ created_at: -1 }).limit(safeLimit);
+    const [products, total] = await Promise.all([
+      this.productModel
+        .find()
+        .sort({ created_at: -1 })
+        .skip(skip)
+        .limit(safeLimit),
+      this.productModel.countDocuments(),
+    ]);
+
+    const currentPage = page && !Number.isNaN(Number(page)) ? Number(page) : 1;
+
+    return {
+      data: products,
+      ...calculatePaginationMeta(total, safeLimit, currentPage),
+    };
   }
 }

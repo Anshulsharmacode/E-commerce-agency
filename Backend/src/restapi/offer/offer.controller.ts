@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   SetMetadata,
   UseGuards,
@@ -46,23 +47,35 @@ export class OfferController {
 
   @Get('all')
   @HttpCode(HttpStatus.OK)
-  async getAllOffers() {
-    const offers = await this.offerService.getAllOffers();
+  async getAllOffers(
+    @Query('limit') limit?: string,
+    @Query('page') page?: string,
+  ) {
+    const result = await this.offerService.getAllOffers(
+      Number(limit),
+      Number(page),
+    );
 
     return {
       message: 'Offers fetched successfully',
-      data: offers,
+      ...result,
     };
   }
 
   @Get('active')
   @HttpCode(HttpStatus.OK)
-  async getActiveOffers() {
-    const offers = await this.offerService.getActiveOffers();
+  async getActiveOffers(
+    @Query('limit') limit?: string,
+    @Query('page') page?: string,
+  ) {
+    const result = await this.offerService.getActiveOffers(
+      Number(limit),
+      Number(page),
+    );
 
     return {
       message: 'Active offers fetched successfully',
-      data: offers,
+      ...result,
     };
   }
 

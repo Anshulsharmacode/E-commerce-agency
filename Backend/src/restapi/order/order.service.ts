@@ -20,6 +20,7 @@ import {
   CreateOrderDto,
   UpdateOrderStatusDto,
 } from './order.dto';
+import { parsePagination, calculatePaginationMeta } from 'src/utills/utills';
 
 @Injectable()
 export class OrderService {
@@ -92,16 +93,48 @@ export class OrderService {
     return order;
   }
 
-  async getMyOrders(user_id: string) {
+  async getMyOrders(user_id: string, limit?: number, page?: number) {
     if (!user_id) {
       apiError('User not found in token', null, HttpStatus.UNAUTHORIZED);
     }
 
-    return this.orderModel.find({ user_id: user_id }).sort({ created_at: -1 });
+    const { limit: safeLimit, skip } = parsePagination(limit, page, 'ORDER');
+
+    const [orders, total] = await Promise.all([
+      this.orderModel
+        .find({ user_id: user_id })
+        .sort({ created_at: -1 })
+        .skip(skip)
+        .limit(safeLimit),
+      this.orderModel.countDocuments({ user_id: user_id }),
+    ]);
+
+    const currentPage = page && !Number.isNaN(Number(page)) ? Number(page) : 1;
+
+    return {
+      data: orders,
+      ...calculatePaginationMeta(total, safeLimit, currentPage),
+    };
   }
 
-  async getAllOrders() {
-    return this.orderModel.find().sort({ created_at: -1 });
+  async getAllOrders(limit?: number, page?: number) {
+    const { limit: safeLimit, skip } = parsePagination(limit, page, 'ORDER');
+
+    const [orders, total] = await Promise.all([
+      this.orderModel
+        .find()
+        .sort({ created_at: -1 })
+        .skip(skip)
+        .limit(safeLimit),
+      this.orderModel.countDocuments(),
+    ]);
+
+    const currentPage = page && !Number.isNaN(Number(page)) ? Number(page) : 1;
+
+    return {
+      data: orders,
+      ...calculatePaginationMeta(total, safeLimit, currentPage),
+    };
   }
 
   async getOrderById(order_id: string) {

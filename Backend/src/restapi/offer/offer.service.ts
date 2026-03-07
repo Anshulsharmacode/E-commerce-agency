@@ -20,6 +20,7 @@ import {
 } from 'src/db/schema';
 import { apiError } from 'src/utills/apiResponse';
 import { CreateOfferDto, UpdateOfferDto } from './offer.dto';
+import { parsePagination, calculatePaginationMeta } from 'src/utills/utills';
 
 @Injectable()
 export class OfferService {
@@ -313,25 +314,56 @@ export class OfferService {
     }
   }
 
-  async getAllOffers() {
-    return this.offerModel.find().sort({ created_at: -1 });
+  async getAllOffers(limit?: number, page?: number) {
+    const { limit: safeLimit, skip } = parsePagination(limit, page, 'OFFER');
+
+    const [offers, total] = await Promise.all([
+      this.offerModel
+        .find()
+        .sort({ created_at: -1 })
+        .skip(skip)
+        .limit(safeLimit),
+      this.offerModel.countDocuments(),
+    ]);
+
+    const currentPage = page && !Number.isNaN(Number(page)) ? Number(page) : 1;
+
+    return {
+      data: offers,
+      ...calculatePaginationMeta(total, safeLimit, currentPage),
+    };
   }
 
-  async getActiveOffers() {
+  async getActiveOffers(limit?: number, page?: number) {
+    const { limit: safeLimit, skip } = parsePagination(limit, page, 'OFFER');
+
     const now = new Date();
     const dayStart = new Date(now);
     dayStart.setHours(0, 0, 0, 0);
     const dayEnd = new Date(now);
     dayEnd.setHours(23, 59, 59, 999);
 
-    return this.offerModel
-      .find({
-        is_active: true,
+    const query = {
+      is_active: true,
+      start_date: { $lte: dayEnd },
+      end_date: { $gte: dayStart },
+    };
 
-        start_date: { $lte: dayEnd },
-        end_date: { $gte: dayStart },
-      })
-      .sort({ created_at: -1 });
+    const [offers, total] = await Promise.all([
+      this.offerModel
+        .find(query)
+        .sort({ created_at: -1 })
+        .skip(skip)
+        .limit(safeLimit),
+      this.offerModel.countDocuments(query),
+    ]);
+
+    const currentPage = page && !Number.isNaN(Number(page)) ? Number(page) : 1;
+
+    return {
+      data: offers,
+      ...calculatePaginationMeta(total, safeLimit, currentPage),
+    };
   }
 
   async getOfferById(offer_id: string) {
@@ -418,7 +450,9 @@ export class OfferService {
     }
 
     if (updateOfferDto.offer_code) {
-      const normalizedOfferCode = updateOfferDto.offer_code.trim().toUpperCase();
+      const normalizedOfferCode = updateOfferDto.offer_code
+        .trim()
+        .toUpperCase();
       const duplicateOfferCode = await this.offerModel.findOne({
         _id: { $ne: existingOffer._id },
         offer_code: normalizedOfferCode,

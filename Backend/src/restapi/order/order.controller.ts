@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   SetMetadata,
   UseGuards,
@@ -51,12 +52,20 @@ export class OrderController {
 
   @Get('my')
   @HttpCode(HttpStatus.OK)
-  async getMyOrders(@Req() req: Request & { user?: AuthUser }) {
-    const orders = await this.orderService.getMyOrders(req.user?._id ?? '');
+  async getMyOrders(
+    @Req() req: Request & { user?: AuthUser },
+    @Query('limit') limit?: string,
+    @Query('page') page?: string,
+  ) {
+    const result = await this.orderService.getMyOrders(
+      req.user?._id ?? '',
+      Number(limit),
+      Number(page),
+    );
 
     return {
       message: 'My orders fetched successfully',
-      data: orders,
+      ...result,
     };
   }
 
@@ -100,12 +109,18 @@ export class OrderController {
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('roles', [UserRole.ADMIN, UserRole.EMPLOYEE])
   @HttpCode(HttpStatus.OK)
-  async getAllOrders() {
-    const orders = await this.orderService.getAllOrders();
+  async getAllOrders(
+    @Query('limit') limit?: string,
+    @Query('page') page?: string,
+  ) {
+    const result = await this.orderService.getAllOrders(
+      Number(limit),
+      Number(page),
+    );
 
     return {
       message: 'Orders fetched successfully',
-      data: orders,
+      ...result,
     };
   }
 
