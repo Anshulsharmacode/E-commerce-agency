@@ -12,17 +12,27 @@ import {
   SetMetadata,
   UseGuards,
 } from '@nestjs/common';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { AuthGuard } from 'src/common/guards/auth/auth.guard';
 import { RolesGuard } from 'src/common/guards/roles/roles.guard';
 import { UserRole } from 'src/db/schema/user.schema';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
 import { ProductService } from './product.service';
+import { RATE_LIMITS } from 'src/common/constant/constant';
 
 @Controller('product')
+@UseGuards(ThrottlerGuard)
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  // Write operations - stricter rate limit
   @Post('create')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('roles', [UserRole.ADMIN])
   @HttpCode(HttpStatus.CREATED)
@@ -35,7 +45,14 @@ export class ProductController {
     };
   }
 
+
   @Patch(':product_id')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('roles', [UserRole.ADMIN])
   @HttpCode(HttpStatus.OK)
@@ -54,7 +71,14 @@ export class ProductController {
     };
   }
 
+  
   @Delete(':product_id')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('roles', [UserRole.ADMIN])
   @HttpCode(HttpStatus.OK)
@@ -68,6 +92,12 @@ export class ProductController {
   }
 
   @Get('all')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.PUBLIC.limit,
+      ttl: RATE_LIMITS.PUBLIC.ttl * 1000,
+    },
+  })
   @HttpCode(HttpStatus.OK)
   async getAllProducts(
     @Query('limit') limit?: string,

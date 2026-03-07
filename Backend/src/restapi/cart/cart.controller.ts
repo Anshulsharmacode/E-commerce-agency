@@ -12,9 +12,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { AuthGuard } from 'src/common/guards/auth/auth.guard';
 import { AddCartItemDto, UpdateCartItemDto } from './cart.dto';
 import { CartService } from './cart.service';
+import { RATE_LIMITS } from 'src/common/constant/constant';
 
 interface AuthUser {
   _id: string;
@@ -22,11 +24,19 @@ interface AuthUser {
 }
 
 @Controller('cart')
+@UseGuards(ThrottlerGuard)
 @UseGuards(AuthGuard)
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
+
   @Get('my')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.READ.limit,
+      ttl: RATE_LIMITS.READ.ttl * 1000,
+    },
+  })
   @HttpCode(HttpStatus.OK)
   async getMyCart(@Req() req: Request & { user?: AuthUser }) {
     const cart = await this.cartService.getOrCreateCart(req.user?._id ?? '');
@@ -39,6 +49,12 @@ export class CartController {
   }
 
   @Post('add-item')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @HttpCode(HttpStatus.OK)
   async addItem(
     @Req() req: Request & { user?: AuthUser },
@@ -54,8 +70,13 @@ export class CartController {
       data: cart,
     };
   }
-
   @Patch('item/:product_id')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @HttpCode(HttpStatus.OK)
   async updateItem(
     @Req() req: Request & { user?: AuthUser },
@@ -75,6 +96,12 @@ export class CartController {
   }
 
   @Delete('item/:product_id')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @HttpCode(HttpStatus.OK)
   async removeItem(
     @Req() req: Request & { user?: AuthUser },
@@ -92,6 +119,12 @@ export class CartController {
   }
 
   @Delete('clear')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @HttpCode(HttpStatus.OK)
   async clearCart(@Req() req: Request & { user?: AuthUser }) {
     const cart = await this.cartService.clearCart(req.user?._id ?? '');

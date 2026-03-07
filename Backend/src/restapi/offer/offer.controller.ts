@@ -14,18 +14,28 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { AuthGuard } from 'src/common/guards/auth/auth.guard';
 import { RolesGuard } from 'src/common/guards/roles/roles.guard';
 import { UserRole } from 'src/db/schema/user.schema';
 import { CreateOfferDto, UpdateOfferDto } from './offer.dto';
 import { OfferService } from './offer.service';
 import { AuthUser } from 'src/common/types/types';
+import { RATE_LIMITS } from 'src/common/constant/constant';
 
 @Controller('offer')
+@UseGuards(ThrottlerGuard)
 export class OfferController {
   constructor(private readonly offerService: OfferService) {}
 
+ 
   @Post('create')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('roles', [UserRole.ADMIN])
   @HttpCode(HttpStatus.CREATED)
@@ -45,7 +55,14 @@ export class OfferController {
     };
   }
 
+ 
   @Get('all')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.PUBLIC.limit,
+      ttl: RATE_LIMITS.PUBLIC.ttl * 1000,
+    },
+  })
   @HttpCode(HttpStatus.OK)
   async getAllOffers(
     @Query('limit') limit?: string,
@@ -62,7 +79,14 @@ export class OfferController {
     };
   }
 
+ 
   @Get('active')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.PUBLIC.limit,
+      ttl: RATE_LIMITS.PUBLIC.ttl * 1000,
+    },
+  })
   @HttpCode(HttpStatus.OK)
   async getActiveOffers(
     @Query('limit') limit?: string,
@@ -79,7 +103,14 @@ export class OfferController {
     };
   }
 
+
   @Get(':offer_id')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.PUBLIC.limit,
+      ttl: RATE_LIMITS.PUBLIC.ttl * 1000,
+    },
+  })
   @HttpCode(HttpStatus.OK)
   async getOfferById(@Param('offer_id') offer_id: string) {
     const offer = await this.offerService.getOfferById(offer_id);
@@ -90,7 +121,14 @@ export class OfferController {
     };
   }
 
+  
   @Patch(':offer_id')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('roles', [UserRole.ADMIN])
   @HttpCode(HttpStatus.OK)
@@ -106,7 +144,14 @@ export class OfferController {
     };
   }
 
+  
   @Delete(':offer_id')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('roles', [UserRole.ADMIN])
   @HttpCode(HttpStatus.OK)

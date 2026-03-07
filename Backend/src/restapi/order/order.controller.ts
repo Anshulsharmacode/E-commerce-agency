@@ -13,6 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { AuthGuard } from 'src/common/guards/auth/auth.guard';
 import { RolesGuard } from 'src/common/guards/roles/roles.guard';
 import { UserRole } from 'src/db/schema';
@@ -22,6 +23,7 @@ import {
   UpdateOrderStatusDto,
 } from './order.dto';
 import { OrderService } from './order.service';
+import { RATE_LIMITS } from 'src/common/constant/constant';
 
 interface AuthUser {
   _id: string;
@@ -29,11 +31,19 @@ interface AuthUser {
 }
 
 @Controller('order')
+@UseGuards(ThrottlerGuard)
 @UseGuards(AuthGuard)
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
+
   @Post('create')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @HttpCode(HttpStatus.CREATED)
   async createOrder(
     @Req() req: Request & { user?: AuthUser },
@@ -50,7 +60,14 @@ export class OrderController {
     };
   }
 
+
   @Get('my')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.READ.limit,
+      ttl: RATE_LIMITS.READ.ttl * 1000,
+    },
+  })
   @HttpCode(HttpStatus.OK)
   async getMyOrders(
     @Req() req: Request & { user?: AuthUser },
@@ -69,7 +86,14 @@ export class OrderController {
     };
   }
 
+
   @Get('my/:order_id')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.READ.limit,
+      ttl: RATE_LIMITS.READ.ttl * 1000,
+    },
+  })
   @HttpCode(HttpStatus.OK)
   async getMyOrderById(
     @Req() req: Request & { user?: AuthUser },
@@ -87,6 +111,12 @@ export class OrderController {
   }
 
   @Patch('my/:order_id/cancel')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @HttpCode(HttpStatus.OK)
   async cancelMyOrder(
     @Req() req: Request & { user?: AuthUser },
@@ -105,7 +135,14 @@ export class OrderController {
     };
   }
 
+
   @Get('all')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.READ.limit,
+      ttl: RATE_LIMITS.READ.ttl * 1000,
+    },
+  })
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('roles', [UserRole.ADMIN, UserRole.EMPLOYEE])
   @HttpCode(HttpStatus.OK)
@@ -124,7 +161,14 @@ export class OrderController {
     };
   }
 
+
   @Get(':order_id')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.READ.limit,
+      ttl: RATE_LIMITS.READ.ttl * 1000,
+    },
+  })
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('roles', [UserRole.ADMIN, UserRole.EMPLOYEE])
   @HttpCode(HttpStatus.OK)
@@ -138,6 +182,12 @@ export class OrderController {
   }
 
   @Patch(':order_id/status')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('roles', [UserRole.ADMIN, UserRole.EMPLOYEE])
   @HttpCode(HttpStatus.OK)

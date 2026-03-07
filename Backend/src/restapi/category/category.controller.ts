@@ -14,17 +14,27 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
 import { AuthGuard } from 'src/common/guards/auth/auth.guard';
 import { RolesGuard } from 'src/common/guards/roles/roles.guard';
 import { UserRole } from 'src/db/schema/user.schema';
 import { CreateCategoryDto, UpdateCategoryDto } from './category.dto';
 import { CategoryService } from './category.service';
+import { RATE_LIMITS } from 'src/common/constant/constant';
 
 @Controller('category')
+@UseGuards(ThrottlerGuard)
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
+ 
   @Post('create')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('roles', [UserRole.ADMIN])
   @HttpCode(HttpStatus.CREATED)
@@ -46,6 +56,12 @@ export class CategoryController {
   }
 
   @Get('all')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.PUBLIC.limit,
+      ttl: RATE_LIMITS.PUBLIC.ttl * 1000,
+    },
+  })
   @HttpCode(HttpStatus.OK)
   async getAllCategories(
     @Query('limit') limit?: string,
@@ -62,7 +78,14 @@ export class CategoryController {
     };
   }
 
+ 
   @Get(':category_id')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.PUBLIC.limit,
+      ttl: RATE_LIMITS.PUBLIC.ttl * 1000,
+    },
+  })
   @HttpCode(HttpStatus.OK)
   async getCategoryById(@Param('category_id') category_id: string) {
     const category = await this.categoryService.getCategoryById(category_id);
@@ -73,7 +96,14 @@ export class CategoryController {
     };
   }
 
+
   @Patch(':category_id')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('roles', [UserRole.ADMIN])
   @HttpCode(HttpStatus.OK)
@@ -92,7 +122,14 @@ export class CategoryController {
     };
   }
 
+  
   @Delete(':category_id')
+  @Throttle({
+    default: {
+      limit: RATE_LIMITS.WRITE.limit,
+      ttl: RATE_LIMITS.WRITE.ttl * 1000,
+    },
+  })
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('roles', [UserRole.ADMIN])
   @HttpCode(HttpStatus.OK)
