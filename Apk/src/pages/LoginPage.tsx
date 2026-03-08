@@ -1,36 +1,41 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { login } from '@/api';
-import { Eye, EyeOff, Mail, Lock, ShoppingBag } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { login } from "@/api";
+import { Eye, EyeOff, Mail, Lock, ShoppingBag } from "lucide-react";
 
-/**
- * Login Page - Mobile APK Design
- *
- * Full-screen mobile login page with a professional look.
- * Uses shadcn/ui components and Tailwind CSS color variables.
- */
 function LoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/", { replace: true });
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
     try {
       const response = await login({ email, password });
-      localStorage.setItem('token', response.access_token);
-      navigate('/');
-    } catch (err) {
-      setError('Invalid email or password. Please try again.');
-      console.error('Login error:', err);
+      localStorage.setItem("token", response.access_token);
+      localStorage.setItem("user_name", response.user.name);
+      navigate("/", { replace: true });
+    } catch (err: unknown) {
+      const apiErr = err as { response?: { data?: { message?: string } } };
+      setError(
+        apiErr.response?.data?.message ??
+          "Invalid email or password. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -53,7 +58,10 @@ function LoginPage() {
       </div>
 
       {/* Form area */}
-      <div className="flex flex-col gap-4 rounded-t-3xl border-t border-border bg-card px-6 pb-10 pt-8 shadow-[0_-4px_24px_rgba(0,0,0,0.06)]">
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-4 rounded-t-3xl border-t border-border bg-card px-6 pb-10 pt-8 shadow-[0_-4px_24px_rgba(0,0,0,0.06)]"
+      >
         {/* Error banner */}
         {error && (
           <div className="flex items-center gap-2 rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -64,7 +72,10 @@ function LoginPage() {
 
         {/* Email field */}
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <Label
+            htmlFor="email"
+            className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+          >
             Email Address
           </Label>
           <div className="relative">
@@ -83,14 +94,17 @@ function LoginPage() {
 
         {/* Password field */}
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <Label
+            htmlFor="password"
+            className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+          >
             Password
           </Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="password"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -102,14 +116,21 @@ function LoginPage() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
             >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
             </button>
           </div>
         </div>
 
         {/* Forgot password */}
         <div className="text-right">
-          <Link to="/forgot-password" className="text-sm font-medium text-foreground underline-offset-4 hover:underline">
+          <Link
+            to="/forgot-password"
+            className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
+          >
             Forgot Password?
           </Link>
         </div>
@@ -117,7 +138,6 @@ function LoginPage() {
         {/* Submit button */}
         <Button
           type="submit"
-          onClick={handleSubmit as React.MouseEventHandler}
           disabled={isLoading}
           className="mt-2 h-12 w-full rounded-xl bg-foreground text-base font-semibold text-background active:scale-[0.98]"
         >
@@ -127,7 +147,7 @@ function LoginPage() {
               Signing in...
             </span>
           ) : (
-            'Sign In'
+            "Sign In"
           )}
         </Button>
 
@@ -140,12 +160,15 @@ function LoginPage() {
 
         {/* Sign up link */}
         <p className="text-center text-sm text-muted-foreground">
-          Don't have an account?{' '}
-          <Link to="/signup" className="font-semibold text-foreground underline-offset-4 hover:underline">
+          Don't have an account?{" "}
+          <Link
+            to="/signup"
+            className="font-semibold text-foreground underline-offset-4 hover:underline"
+          >
             Create Account
           </Link>
         </p>
-      </div>
+      </form>
     </div>
   );
 }

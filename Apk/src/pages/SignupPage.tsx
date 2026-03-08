@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { signup, verifyOtp } from '@/api';
+import { resendOtp, signup, verifyOtp } from '@/api';
 import {
   Eye,
   EyeOff,
@@ -183,11 +183,27 @@ function SignupPage() {
     }
     setIsLoading(true);
     try {
-      await verifyOtp({ emailOrPhone: personal.email, otp: code });
-      navigate('/login');
+      const response = await verifyOtp({ emailOrPhone: personal.email, otp: code });
+      localStorage.setItem('token', response.access_token);
+      localStorage.setItem('user_name', response.user.name);
+      navigate('/', { replace: true });
     } catch (err: unknown) {
       const e = err as { response?: { data?: { message?: string } } };
       setError(e?.response?.data?.message ?? 'Invalid OTP. Try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setError('');
+    setIsLoading(true);
+    try {
+      await resendOtp({ emailOrPhone: personal.email });
+      setOtp(['', '', '', '', '', '']);
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      setError(e?.response?.data?.message ?? 'Failed to resend OTP. Try again.');
     } finally {
       setIsLoading(false);
     }
@@ -473,8 +489,7 @@ function SignupPage() {
               type="button"
               className="font-semibold text-foreground underline-offset-4 hover:underline"
               onClick={() => {
-                setOtp(['', '', '', '', '', '']);
-                setError('');
+                void handleResendOtp();
               }}
             >
               Resend OTP

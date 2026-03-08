@@ -35,6 +35,7 @@ api.interceptors.response.use(
     // Handle 401 Unauthorized - token expired or invalid
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
+      localStorage.removeItem('user_name');
 
       window.location.href = '/login';
     }
