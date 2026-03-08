@@ -7,7 +7,17 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cap:sync": "npm run build && npx cap sync android",
+    "cap:sync:dev": "npx cap sync android",
+    "android:build": "npm run cap:sync && cd android && ./gradlew assembleDebug",
+    "android:build:release": "npm run cap:sync && cd android && ./gradlew assembleRelease",
+    "android:install": "npm run android:build && adb install -r android/app/build/outputs/apk/debug/app-debug.apk",
+    "android:run": "npm run android:install && adb shell am start -n com.shopease.app/.MainActivity",
+    "android:dev": "npm run cap:sync:dev && cd android && ./gradlew assembleDebug && adb install -r android/app/build/outputs/apk/debug/app-debug.apk && adb shell am start -n com.shopease.app/.MainActivity",
+    "android:live": "concurrently -n 'DEV,ANDROID' -c 'cyan,magenta' 'npm run dev' 'npm run android:dev'",
+    "cap:open": "CAPACITOR_ANDROID_STUDIO_PATH=/opt/android-studio/bin/studio.sh npx cap open android",
+    "android": "npm run build && npx cap sync android && CAPACITOR_ANDROID_STUDIO_PATH=/opt/android-studio/bin/studio.sh npx cap open android"
   },
   "dependencies": {
     "@capacitor/android": "^8.2.0",
@@ -34,6 +44,7 @@
     "@vitejs/plugin-react": "^5.1.1",
     "autoprefixer": "^10.4.27",
     "babel-plugin-react-compiler": "^1.0.0",
+    "concurrently": "^9.2.1",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
