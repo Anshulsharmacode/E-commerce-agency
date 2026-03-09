@@ -84,7 +84,12 @@ function CategoryProductsPage() {
         ) : (
           <div className="grid grid-cols-2 gap-2.5">
             {filteredProducts.map((product) => (
-              <div key={product.product_id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <Link
+                to={`/products/${product.product_id}`}
+                state={{ product, backTo: `/categories/${categoryId}`, backLabel: 'Category' }}
+                key={product.product_id}
+                className="overflow-hidden rounded-2xl border border-slate-200 bg-white"
+              >
                 {product.image_urls?.[0] ? (
                   <img src={product.image_urls[0]} alt={product.name} className="h-24 w-full object-cover" />
                 ) : (
@@ -100,7 +105,7 @@ function CategoryProductsPage() {
                   <p className="mt-1 text-[14px] font-semibold text-[#0f172a]">Rs. {inr.format(product.selling_price_box)}</p>
                   <p className="mt-0.5 text-[11px] text-slate-500">{product.pieces_per_box} pcs/box</p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

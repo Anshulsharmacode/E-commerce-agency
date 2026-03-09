@@ -5,6 +5,7 @@ import SignupPage from './pages/SignupPage';
 import CategoriesPage from './pages/category/CategoriesPage';
 import CategoryProductsPage from './pages/category/CategoryProductsPage';
 import ProductsPage from './pages/product/ProductsPage';
+import ProductDetialsPage from './pages/product/productDetials';
 import CartPage from './pages/CartPage';
 import OrdersPage from './pages/OrdersPage';
 import ProfilePage from './pages/ProfilePage';
@@ -23,6 +24,7 @@ function AppContent() {
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/categories/:categoryId" element={<CategoryProductsPage />} />
           <Route path="/products" element={<ProductsPage />} />
+          <Route path="/products/:productId" element={<ProductDetialsPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/profile" element={<ProfilePage />} />

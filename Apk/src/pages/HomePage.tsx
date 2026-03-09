@@ -214,7 +214,8 @@ function HomePage() {
                   className="group relative flex flex-col overflow-hidden rounded-[2.5rem] border border-border bg-card transition-all hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5"
                 >
                   <Link
-                    to="/products"
+                    to={`/products/${product.product_id}`}
+                    state={{ product, backTo: "/", backLabel: "Home" }}
                     className="relative h-36 w-full overflow-hidden"
                   >
                     {product.image_urls?.[0] ? (
@@ -247,7 +248,7 @@ function HomePage() {
                         ₹{product.selling_price_box}
                       </p>
                       <button
-                        onClick={() => handleAddToCart(product.product_id)}
+                        onClick={() => handleAddToCart(product._id)}
                         className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground text-background shadow-lg shadow-black/10 active:scale-90 transition-transform"
                       >
                         <Plus className="h-5 w-5" />
