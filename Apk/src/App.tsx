@@ -8,6 +8,7 @@ import ProductsPage from './pages/product/ProductsPage';
 import ProductDetialsPage from './pages/product/productDetials';
 import CartPage from './pages/CartPage';
 import OrdersPage from './pages/OrdersPage';
+import OrderDetailsPage from './pages/order/OrderDetailsPage';
 import ProfilePage from './pages/ProfilePage';
 import BottomNav from './components/BottomNav';
 
@@ -27,6 +28,7 @@ function AppContent() {
           <Route path="/products/:productId" element={<ProductDetialsPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/orders/:orderId" element={<OrderDetailsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />

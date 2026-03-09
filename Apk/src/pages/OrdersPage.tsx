@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getMyOrders, type Order } from "@/api";
 import { Package, ChevronRight, Clock } from "lucide-react";
 
@@ -20,7 +21,12 @@ function OrdersPage() {
     void fetchOrders();
   }, []);
 
-  if (isLoading) return <div className="flex h-screen items-center justify-center">Loading orders...</div>;
+  if (isLoading)
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading orders...
+      </div>
+    );
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-32">
@@ -37,23 +43,33 @@ function OrdersPage() {
           </div>
         ) : (
           orders.map((order) => (
-            <div key={order._id} className="rounded-2xl border bg-card p-4 flex items-center justify-between">
+            <Link
+              to={`/orders/${order._id}`}
+              key={order._id}
+              className="rounded-2xl border bg-card p-4 flex items-center justify-between"
+            >
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                   <Package className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold">Order #{order.order_id.slice(-6).toUpperCase()}</h3>
+                  <h3 className="font-bold">
+                    Order #{order._id.slice(-6).toUpperCase()}
+                  </h3>
                   <div className="flex items-center gap-1.5 mt-1">
                     <Clock className="h-3 w-3 text-muted-foreground" />
                     <span className="text-xs text-muted-foreground">
                       {new Date(order.created_at).toLocaleDateString()}
                     </span>
-                    <span className={`ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                      order.status === 'DELIVERED' ? 'bg-green-100 text-green-700' :
-                      order.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
-                      'bg-blue-100 text-blue-700'
-                    }`}>
+                    <span
+                      className={`ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        order.status === "DELIVERED"
+                          ? "bg-green-100 text-green-700"
+                          : order.status === "CANCELLED"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-blue-100 text-blue-700"
+                      }`}
+                    >
                       {order.status}
                     </span>
                   </div>
@@ -63,7 +79,7 @@ function OrdersPage() {
                 <p className="font-bold">Rs. {order.final_amount}</p>
                 <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground mt-1" />
               </div>
-            </div>
+            </Link>
           ))
         )}
       </main>
