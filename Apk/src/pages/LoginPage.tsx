@@ -23,12 +23,20 @@ function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return;
     setError("");
     setIsLoading(true);
     try {
       const response = await login({ email, password });
-      localStorage.setItem("token", response.access_token);
-      localStorage.setItem("user_name", response.user.name);
+      const authToken = response.token ?? response.access_token;
+      if (!authToken) {
+        throw new Error("Token missing in login response.");
+      }
+      const resolvedUserName =
+        response.user?.name ?? response.email?.split("@")[0] ?? "User";
+
+      localStorage.setItem("token", authToken);
+      localStorage.setItem("user_name", resolvedUserName);
       navigate("/", { replace: true });
     } catch (err: unknown) {
       const apiErr = err as { response?: { data?: { message?: string } } };

@@ -53,6 +53,7 @@ export class CartService {
 
   async addItem(user_id: string, addCartItemDto: AddCartItemDto) {
     const { product_id, quantity_boxes, applied_offer_id } = addCartItemDto;
+    console.log('dto', addCartItemDto);
 
     if (!product_id || quantity_boxes === undefined) {
       apiError(
@@ -71,6 +72,7 @@ export class CartService {
     }
 
     const product = await this.productModel.findOne({ _id: product_id });
+    console.log('product id', product_id);
 
     if (!product) {
       throw new NotFoundException('Product not found');

@@ -184,8 +184,13 @@ function SignupPage() {
     setIsLoading(true);
     try {
       const response = await verifyOtp({ emailOrPhone: personal.email, otp: code });
-      localStorage.setItem('token', response.access_token);
-      localStorage.setItem('user_name', response.user.name);
+      const authToken = response.token ?? response.access_token;
+      if (!authToken) {
+        throw new Error('Token missing in verify response.');
+      }
+      const resolvedUserName = response.user?.name ?? personal.name ?? 'User';
+      localStorage.setItem('token', authToken);
+      localStorage.setItem('user_name', resolvedUserName);
       navigate('/', { replace: true });
     } catch (err: unknown) {
       const e = err as { response?: { data?: { message?: string } } };

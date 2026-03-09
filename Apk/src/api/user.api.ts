@@ -43,8 +43,10 @@ export interface VerifyOtpData {
 
 export interface LoginResponse {
   message: string;
-  access_token: string;
-  user: User;
+  token?: string;
+  access_token?: string;
+  email?: string;
+  user?: User;
 }
 
 
