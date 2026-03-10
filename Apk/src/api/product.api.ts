@@ -1,13 +1,12 @@
-import api from './config';
-import type { ApiResponse } from './types';
-
+import api from "./config";
+import type { ApiResponse } from "./types";
 
 // Types for Product
-export type ProductUnit = 'KG' | 'LITRE' | 'PIECE' | 'BOX';
+export type ProductUnit = "KG" | "LITRE" | "PIECE" | "BOX";
 
 export interface Product {
   _id: string;
-  product_id: string;
+
   category_id: string;
   name: string;
   description?: string;
@@ -48,30 +47,42 @@ export interface UpdateProductData {
   is_active?: boolean;
 }
 
-
-export const getAllProducts = async (limit?: number): Promise<ApiResponse<Product[]>> => {
+export const getAllProducts = async (
+  limit?: number,
+): Promise<ApiResponse<Product[]>> => {
   const params = limit ? { limit } : {};
-  const response = await api.get<ApiResponse<Product[]>>('/product/all', { params });
+  const response = await api.get<ApiResponse<Product[]>>("/product/all", {
+    params,
+  });
   return response.data;
 };
 
-
-export const createProduct = async (data: CreateProductData): Promise<ApiResponse<Product>> => {
-  const response = await api.post<ApiResponse<Product>>('/product/create', data);
+export const createProduct = async (
+  data: CreateProductData,
+): Promise<ApiResponse<Product>> => {
+  const response = await api.post<ApiResponse<Product>>(
+    "/product/create",
+    data,
+  );
   return response.data;
 };
-
 
 export const updateProduct = async (
   productId: string,
-  data: UpdateProductData
+  data: UpdateProductData,
 ): Promise<ApiResponse<Product>> => {
-  const response = await api.patch<ApiResponse<Product>>(`/product/${productId}`, data);
+  const response = await api.patch<ApiResponse<Product>>(
+    `/product/${productId}`,
+    data,
+  );
   return response.data;
 };
 
-
-export const deleteProduct = async (productId: string): Promise<ApiResponse<Product>> => {
-  const response = await api.delete<ApiResponse<Product>>(`/product/${productId}`);
+export const deleteProduct = async (
+  productId: string,
+): Promise<ApiResponse<Product>> => {
+  const response = await api.delete<ApiResponse<Product>>(
+    `/product/${productId}`,
+  );
   return response.data;
 };

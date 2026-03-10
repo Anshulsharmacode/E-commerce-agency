@@ -1,14 +1,13 @@
-import api from './config';
-import type { ApiResponse } from './types';
-
+import api from "./config";
+import type { ApiResponse } from "./types";
 
 // Types for Offer
-export type OfferType = 'PRODUCT' | 'CATEGORY' | 'BXGY' | 'TARGET' | 'GLOBAL';
-export type OfferDiscountType = 'PERCENTAGE' | 'FIXED' | 'FREE_PRODUCT';
+export type OfferType = "PRODUCT" | "CATEGORY" | "BXGY" | "TARGET" | "GLOBAL";
+export type OfferDiscountType = "PERCENTAGE" | "FIXED" | "FREE_PRODUCT";
 
 export interface Offer {
   _id: string;
-  offer_id: string;
+
   offer_name: string;
   offer_code: string;
   offer_type: OfferType;
@@ -77,9 +76,8 @@ export interface UpdateOfferData {
   is_active?: boolean;
 }
 
-
 export const getAllOffers = async (): Promise<ApiResponse<Offer[]>> => {
-  const response = await api.get<ApiResponse<Offer[]>>('/offer/all');
+  const response = await api.get<ApiResponse<Offer[]>>("/offer/all");
   return response.data;
 };
 
@@ -87,7 +85,7 @@ export const getAllOffers = async (): Promise<ApiResponse<Offer[]>> => {
  * Get active offers only
  */
 export const getActiveOffers = async (): Promise<ApiResponse<Offer[]>> => {
-  const response = await api.get<ApiResponse<Offer[]>>('/offer/active');
+  const response = await api.get<ApiResponse<Offer[]>>("/offer/active");
   return response.data;
 };
 
@@ -95,28 +93,34 @@ export const getActiveOffers = async (): Promise<ApiResponse<Offer[]>> => {
  * Get a single offer by ID
  * @param offerId - ID of the offer
  */
-export const getOfferById = async (offerId: string): Promise<ApiResponse<Offer>> => {
+export const getOfferById = async (
+  offerId: string,
+): Promise<ApiResponse<Offer>> => {
   const response = await api.get<ApiResponse<Offer>>(`/offer/${offerId}`);
   return response.data;
 };
 
-
-export const createOffer = async (data: CreateOfferData): Promise<ApiResponse<Offer>> => {
-  const response = await api.post<ApiResponse<Offer>>('/offer/create', data);
+export const createOffer = async (
+  data: CreateOfferData,
+): Promise<ApiResponse<Offer>> => {
+  const response = await api.post<ApiResponse<Offer>>("/offer/create", data);
   return response.data;
 };
-
 
 export const updateOffer = async (
   offerId: string,
-  data: UpdateOfferData
+  data: UpdateOfferData,
 ): Promise<ApiResponse<Offer>> => {
-  const response = await api.patch<ApiResponse<Offer>>(`/offer/${offerId}`, data);
+  const response = await api.patch<ApiResponse<Offer>>(
+    `/offer/${offerId}`,
+    data,
+  );
   return response.data;
 };
 
-
-export const deleteOffer = async (offerId: string): Promise<ApiResponse<Offer>> => {
+export const deleteOffer = async (
+  offerId: string,
+): Promise<ApiResponse<Offer>> => {
   const response = await api.delete<ApiResponse<Offer>>(`/offer/${offerId}`);
   return response.data;
 };

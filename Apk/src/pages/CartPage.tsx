@@ -1,20 +1,27 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { 
-  getMyCart, 
-  updateCartItem, 
-  removeCartItem, 
-  clearCart, 
+import {
+  getMyCart,
+  updateCartItem,
+  removeCartItem,
+  clearCart,
   createOrder,
-  type Cart 
+  type Cart,
 } from "@/api";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Trash2, Plus, Minus, ArrowRight, ChevronLeft } from "lucide-react";
+import {
+  ShoppingCart,
+  Trash2,
+  Plus,
+  Minus,
+  ArrowRight,
+  ChevronLeft,
+} from "lucide-react";
 
 function CartPage() {
   const [cart, setCart] = useState<Cart | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [, setError] = useState("");
 
   const loadCart = async () => {
     setIsLoading(true);
@@ -32,7 +39,11 @@ function CartPage() {
     void loadCart();
   }, []);
 
-  const handleUpdateQuantity = async (productId: string, currentQty: number, delta: number) => {
+  const handleUpdateQuantity = async (
+    productId: string,
+    currentQty: number,
+    delta: number,
+  ) => {
     const newQty = currentQty + delta;
     if (newQty < 1) return;
     try {
@@ -56,9 +67,9 @@ function CartPage() {
     try {
       // For simplicity, we assume the user has a default address or we prompt for one
       // Here we just use a placeholder address as per API type Record<string, unknown>
-      await createOrder({ 
+      await createOrder({
         delivery_address: { type: "DEFAULT" },
-        notes: "Ordered from Mobile App" 
+        notes: "Ordered from Mobile App",
       });
       await clearCart();
       setCart(null);
@@ -68,7 +79,12 @@ function CartPage() {
     }
   };
 
-  if (isLoading) return <div className="flex h-screen items-center justify-center">Loading cart...</div>;
+  if (isLoading)
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading cart...
+      </div>
+    );
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-32">
@@ -96,21 +112,51 @@ function CartPage() {
         ) : (
           <div className="space-y-4">
             {cart.items.map((item) => (
-              <div key={item.product_id} className="flex gap-4 rounded-2xl border bg-card p-4">
+              <div
+                key={item.product_id}
+                className="flex gap-4 rounded-2xl border bg-card p-4"
+              >
                 <div className="flex-1">
-                  <h3 className="font-semibold">Product {item.product_id.slice(-4)}</h3>
-                  <p className="text-sm text-muted-foreground">Rs. {item.price_per_box} / box</p>
+                  <h3 className="font-semibold">
+                    Product {item.product_id.slice(-4)}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Rs. {item.price_per_box} / box
+                  </p>
                   <div className="mt-4 flex items-center justify-between">
                     <div className="flex items-center gap-3 rounded-lg bg-secondary px-2 py-1">
-                      <button onClick={() => handleUpdateQuantity(item.product_id, item.quantity_boxes, -1)} className="p-1">
+                      <button
+                        onClick={() =>
+                          handleUpdateQuantity(
+                            item.product_id,
+                            item.quantity_boxes,
+                            -1,
+                          )
+                        }
+                        className="p-1"
+                      >
                         <Minus className="h-4 w-4" />
                       </button>
-                      <span className="min-w-6 text-center font-bold">{item.quantity_boxes}</span>
-                      <button onClick={() => handleUpdateQuantity(item.product_id, item.quantity_boxes, 1)} className="p-1">
+                      <span className="min-w-6 text-center font-bold">
+                        {item.quantity_boxes}
+                      </span>
+                      <button
+                        onClick={() =>
+                          handleUpdateQuantity(
+                            item.product_id,
+                            item.quantity_boxes,
+                            1,
+                          )
+                        }
+                        className="p-1"
+                      >
                         <Plus className="h-4 w-4" />
                       </button>
                     </div>
-                    <button onClick={() => handleRemove(item.product_id)} className="text-destructive">
+                    <button
+                      onClick={() => handleRemove(item.product_id)}
+                      className="text-destructive"
+                    >
                       <Trash2 className="h-5 w-5" />
                     </button>
                   </div>
@@ -128,7 +174,9 @@ function CartPage() {
               </div>
               <div className="mt-2 flex justify-between text-sm">
                 <span className="text-muted-foreground">Discount</span>
-                <span className="text-green-600">- Rs. {cart.total_discount}</span>
+                <span className="text-green-600">
+                  - Rs. {cart.total_discount}
+                </span>
               </div>
               <div className="mt-4 flex justify-between border-t border-border pt-4 font-bold text-lg">
                 <span>Total</span>
@@ -136,7 +184,10 @@ function CartPage() {
               </div>
             </section>
 
-            <Button onClick={handleCheckout} className="mt-6 h-14 w-full rounded-2xl text-lg font-bold shadow-lg shadow-primary/20">
+            <Button
+              onClick={handleCheckout}
+              className="mt-6 h-14 w-full rounded-2xl text-lg font-bold shadow-lg shadow-primary/20"
+            >
               Checkout <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>

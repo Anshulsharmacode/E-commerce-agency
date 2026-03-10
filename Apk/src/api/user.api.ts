@@ -1,13 +1,12 @@
-import api from './config';
-import type { ApiResponse } from './types';
-
+import api from "./config";
+import type { ApiResponse } from "./types";
 
 // Types for User
-export type UserRole = 'ADMIN' | 'EMPLOYEE' | 'USER';
+export type UserRole = "ADMIN" | "EMPLOYEE" | "USER";
 
 export interface User {
   _id: string;
-  user_id: string;
+
   name: string;
   email: string;
   phone: string;
@@ -49,44 +48,46 @@ export interface LoginResponse {
   user?: User;
 }
 
-
 export const signup = async (data: SignupData): Promise<ApiResponse<void>> => {
-  const response = await api.post<ApiResponse<void>>('/user/signup', data);
+  const response = await api.post<ApiResponse<void>>("/user/signup", data);
   return response.data;
 };
 
-
-export const verifyOtp = async (data: VerifyOtpData): Promise<LoginResponse> => {
-  const response = await api.post<LoginResponse>('/user/verify-otp', data);
+export const verifyOtp = async (
+  data: VerifyOtpData,
+): Promise<LoginResponse> => {
+  const response = await api.post<LoginResponse>("/user/verify-otp", data);
   return response.data;
 };
 
-
-export const resendOtp = async (data: GenerateOtpData): Promise<ApiResponse<void>> => {
-  const response = await api.post<ApiResponse<void>>('/user/resend-otp', data);
+export const resendOtp = async (
+  data: GenerateOtpData,
+): Promise<ApiResponse<void>> => {
+  const response = await api.post<ApiResponse<void>>("/user/resend-otp", data);
   return response.data;
 };
-
 
 export const login = async (data: LoginData): Promise<LoginResponse> => {
-  const response = await api.post<LoginResponse>('/user/login', data);
+  const response = await api.post<LoginResponse>("/user/login", data);
   return response.data;
 };
 
-
-export const createStaff = async (data: SignupData): Promise<ApiResponse<User>> => {
-  const response = await api.post<ApiResponse<User>>('/user/create-staff', data);
+export const createStaff = async (
+  data: SignupData,
+): Promise<ApiResponse<User>> => {
+  const response = await api.post<ApiResponse<User>>(
+    "/user/create-staff",
+    data,
+  );
   return response.data;
 };
-
 
 export const getProfile = async (): Promise<ApiResponse<User>> => {
-  const response = await api.get<ApiResponse<User>>('/user/profile');
+  const response = await api.get<ApiResponse<User>>("/user/profile");
   return response.data;
 };
 
-
 export const checkAdminAccess = async (): Promise<ApiResponse<User>> => {
-  const response = await api.get<ApiResponse<User>>('/user/admin');
+  const response = await api.get<ApiResponse<User>>("/user/admin");
   return response.data;
 };

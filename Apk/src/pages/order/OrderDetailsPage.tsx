@@ -71,7 +71,7 @@ function OrderDetailsPage() {
             <section className="rounded-2xl border bg-card p-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold">
-                  Order #{order.order_id.slice(-6).toUpperCase()}
+                  Order #{order._id.slice(-6).toUpperCase()}
                 </p>
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${

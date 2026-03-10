@@ -46,7 +46,7 @@ function ProductsPage() {
 
   const categoryNameMap = useMemo(() => {
     return categories.reduce<Record<string, string>>((acc, category) => {
-      acc[category.category_id] = category.name;
+      acc[category._id] = category.name;
       return acc;
     }, {});
   }, [categories]);
@@ -66,9 +66,7 @@ function ProductsPage() {
   };
 
   const canShowImage = (product: Product) => {
-    return (
-      Boolean(product.image_urls?.[0]) && !imageErrorMap[product.product_id]
-    );
+    return Boolean(product.image_urls?.[0]) && !imageErrorMap[product._id];
   };
 
   return (
@@ -121,8 +119,8 @@ function ProductsPage() {
             <div className="grid grid-cols-2 gap-4">
               {paginatedProducts.map((product) => (
                 <Link
-                  key={product.product_id}
-                  to={`/products/${product.product_id}`}
+                  key={product._id}
+                  to={`/products/${product._id}`}
                   state={{
                     product,
                     backTo: "/products",
@@ -134,7 +132,7 @@ function ProductsPage() {
                     <img
                       src={product.image_urls?.[0]}
                       alt={product.name}
-                      onError={() => markImageError(product.product_id)}
+                      onError={() => markImageError(product._id)}
                       className="h-32 w-full object-cover"
                     />
                   ) : (

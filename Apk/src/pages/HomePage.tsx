@@ -76,7 +76,7 @@ function HomePage() {
 
   const categoryNameMap = useMemo(() => {
     return categories.reduce<Record<string, string>>((acc, category) => {
-      acc[category.category_id] = category.name;
+      acc[category._id] = category.name;
       return acc;
     }, {});
   }, [categories]);
@@ -163,8 +163,8 @@ function HomePage() {
               ))
             : topCategories.map((category) => (
                 <Link
-                  key={category.category_id}
-                  to={`/categories/${category.category_id}`}
+                  key={category._id}
+                  to={`/categories/${category._id}`}
                   className="group relative overflow-hidden rounded-[2rem] border border-border bg-card p-5 active:scale-95 transition-all hover:border-primary/30"
                 >
                   <div className="relative z-10">
@@ -210,11 +210,11 @@ function HomePage() {
               ))
             : featuredProducts.map((product) => (
                 <div
-                  key={product.product_id}
+                  key={product._id}
                   className="group relative flex flex-col overflow-hidden rounded-[2.5rem] border border-border bg-card transition-all hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5"
                 >
                   <Link
-                    to={`/products/${product.product_id}`}
+                    to={`/products/${product._id}`}
                     state={{ product, backTo: "/", backLabel: "Home" }}
                     className="relative h-36 w-full overflow-hidden"
                   >

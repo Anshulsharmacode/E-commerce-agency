@@ -1,9 +1,14 @@
-import api from './config';
-import type { ApiResponse } from './types';
-
+import api from "./config";
+import type { ApiResponse } from "./types";
 
 // Types for Order
-export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+export type OrderStatus =
+  | "PENDING"
+  | "CONFIRMED"
+  | "PROCESSING"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED";
 
 export interface OrderItem {
   product_id: string;
@@ -15,7 +20,7 @@ export interface OrderItem {
 
 export interface Order {
   _id: string;
-  order_id: string;
+
   user_id: string;
   items: OrderItem[];
   status: OrderStatus;
@@ -49,50 +54,55 @@ export interface CancelOrderData {
   cancellation_reason: string;
 }
 
-
-export const createOrder = async (data: CreateOrderData): Promise<ApiResponse<Order>> => {
-  const response = await api.post<ApiResponse<Order>>('/order/create', data);
+export const createOrder = async (
+  data: CreateOrderData,
+): Promise<ApiResponse<Order>> => {
+  const response = await api.post<ApiResponse<Order>>("/order/create", data);
   return response.data;
 };
-
 
 export const getMyOrders = async (): Promise<ApiResponse<Order[]>> => {
-  const response = await api.get<ApiResponse<Order[]>>('/order/my');
+  const response = await api.get<ApiResponse<Order[]>>("/order/my");
   return response.data;
 };
 
-
-export const getMyOrderById = async (orderId: string): Promise<ApiResponse<Order>> => {
+export const getMyOrderById = async (
+  orderId: string,
+): Promise<ApiResponse<Order>> => {
   const response = await api.get<ApiResponse<Order>>(`/order/my/${orderId}`);
   return response.data;
 };
 
-
 export const cancelMyOrder = async (
   orderId: string,
-  data: CancelOrderData
+  data: CancelOrderData,
 ): Promise<ApiResponse<Order>> => {
-  const response = await api.patch<ApiResponse<Order>>(`/order/my/${orderId}/cancel`, data);
+  const response = await api.patch<ApiResponse<Order>>(
+    `/order/my/${orderId}/cancel`,
+    data,
+  );
   return response.data;
 };
-
 
 export const getAllOrders = async (): Promise<ApiResponse<Order[]>> => {
-  const response = await api.get<ApiResponse<Order[]>>('/order/all');
+  const response = await api.get<ApiResponse<Order[]>>("/order/all");
   return response.data;
 };
 
-
-export const getOrderById = async (orderId: string): Promise<ApiResponse<Order>> => {
+export const getOrderById = async (
+  orderId: string,
+): Promise<ApiResponse<Order>> => {
   const response = await api.get<ApiResponse<Order>>(`/order/${orderId}`);
   return response.data;
 };
 
-
 export const updateOrderStatus = async (
   orderId: string,
-  data: UpdateOrderStatusData
+  data: UpdateOrderStatusData,
 ): Promise<ApiResponse<Order>> => {
-  const response = await api.patch<ApiResponse<Order>>(`/order/${orderId}/status`, data);
+  const response = await api.patch<ApiResponse<Order>>(
+    `/order/${orderId}/status`,
+    data,
+  );
   return response.data;
 };
