@@ -47,9 +47,6 @@ const PaymentTransactionSchema =
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 })
 export class Bill {
-  @Prop({ type: String, default: randomUUID, unique: true, index: true })
-  bill_id: string;
-
   @Prop({ type: String, required: true, unique: true, index: true })
   order_id: string;
 

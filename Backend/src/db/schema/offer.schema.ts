@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { randomUUID } from 'node:crypto';
 
 export type OfferDocument = HydratedDocument<Offer>;
 
@@ -23,9 +22,6 @@ export enum OfferDiscountType {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 })
 export class Offer {
-  @Prop({ type: String, default: randomUUID, unique: true, index: true })
-  offer_id: string;
-
   @Prop({ required: true, trim: true })
   offer_name: string;
 

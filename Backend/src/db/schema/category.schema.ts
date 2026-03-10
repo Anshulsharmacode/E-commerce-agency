@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { randomUUID } from 'node:crypto';
 
 export type CategoryDocument = HydratedDocument<Category>;
 
@@ -9,9 +8,6 @@ export type CategoryDocument = HydratedDocument<Category>;
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
 })
 export class Category {
-  @Prop({ type: String, default: randomUUID, unique: true, index: true })
-  category_id: string;
-
   @Prop({ required: true, trim: true, index: true })
   name: string;
 

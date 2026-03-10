@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { randomUUID } from 'node:crypto';
 
 export type ProductDocument = HydratedDocument<Product>;
 
@@ -19,9 +18,6 @@ export enum ProductUnit {
   toObject: { virtuals: true },
 })
 export class Product {
-  @Prop({ type: String, default: randomUUID, unique: true, index: true })
-  product_id: string;
-
   @Prop({ type: String, required: true, index: true })
   category_id: string;
 
