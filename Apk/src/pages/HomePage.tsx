@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import OfferDetailsModal from "@/components/OfferDetailsModal";
 import {
   getAllCategories,
   getAllProducts,
@@ -28,6 +29,7 @@ function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState(() =>
     Boolean(localStorage.getItem("token")),
   );
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
 
   useEffect(() => {
     const loadHomeData = async () => {
@@ -44,6 +46,7 @@ function HomePage() {
         );
         setProducts(productRes.data.filter((product) => product.is_active));
         setOffers(offerRes.data);
+        console.log("offer", offerRes);
       } catch (err: unknown) {
         const apiErr = err as { response?: { data?: { message?: string } } };
         setError(apiErr.response?.data?.message ?? "Failed to load products.");
@@ -287,9 +290,10 @@ function HomePage() {
                   </p>
                   <Button
                     size="sm"
+                    onClick={() => setSelectedOffer(offer)}
                     className="mt-5 rounded-xl bg-primary-foreground text-primary font-bold shadow-lg shadow-black/5 active:scale-95"
                   >
-                    Claim Offer <ArrowRight className="ml-1.5 h-4 w-4" />
+                    View Details <ArrowRight className="ml-1.5 h-4 w-4" />
                   </Button>
                 </div>
                 <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-3xl" />
@@ -337,6 +341,12 @@ function HomePage() {
           </Link>
         </section>
       )}
+
+      <OfferDetailsModal
+        isOpen={Boolean(selectedOffer)}
+        offer={selectedOffer}
+        onClose={() => setSelectedOffer(null)}
+      />
     </div>
   );
 }
