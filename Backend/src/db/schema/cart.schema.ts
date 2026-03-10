@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { randomUUID } from 'node:crypto';
 
 export type CartDocument = HydratedDocument<Cart>;
 
@@ -29,9 +28,6 @@ const CartItemSchema = SchemaFactory.createForClass(CartItem);
   timestamps: { createdAt: false, updatedAt: 'updated_at' },
 })
 export class Cart {
-  @Prop({ type: String, default: randomUUID, unique: true, index: true })
-  cart_id: string;
-
   @Prop({ type: String, required: true, unique: true, index: true })
   user_id: string;
 

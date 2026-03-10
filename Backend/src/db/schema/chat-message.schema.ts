@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { randomUUID } from 'node:crypto';
 
 export type ChatMessageDocument = HydratedDocument<ChatMessage>;
 
@@ -21,9 +20,6 @@ export enum ChatMessageType {
   timestamps: { createdAt: 'created_at', updatedAt: false },
 })
 export class ChatMessage {
-  @Prop({ type: String, default: randomUUID, unique: true, index: true })
-  message_id: string;
-
   @Prop({ type: String, required: true, index: true })
   conversation_id: string;
 
