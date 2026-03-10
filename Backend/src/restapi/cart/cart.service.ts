@@ -83,9 +83,10 @@ export class CartService {
     }
 
     const cart = await this.getOrCreateCart(user_id);
+    const productObjectId = product.id;
 
     const existingItemIndex = cart.items.findIndex(
-      (item) => item.product_id === product.product_id,
+      (item) => item.product_id === productObjectId,
     );
 
     if (existingItemIndex >= 0) {
@@ -97,7 +98,7 @@ export class CartService {
         product.selling_price_box;
     } else {
       cart.items.push({
-        product_id: product.product_id,
+        product_id: productObjectId,
         quantity_boxes,
         price_per_box: product.selling_price_box,
         applied_offer_id,
@@ -141,9 +142,10 @@ export class CartService {
     }
 
     const cart = await this.getOrCreateCart(user_id);
+    const productObjectId = product.id;
 
     const targetIndex = cart.items.findIndex(
-      (item) => item.product_id === product.product_id,
+      (item) => item.product_id === productObjectId,
     );
 
     if (targetIndex < 0) {
@@ -176,8 +178,9 @@ export class CartService {
     }
 
     const previousLength = cart.items.length;
+    const productObjectId = product.id;
     cart.items = cart.items.filter(
-      (item) => item.product_id !== product.product_id,
+      (item) => item.product_id !== productObjectId,
     );
 
     if (previousLength === cart.items.length) {
