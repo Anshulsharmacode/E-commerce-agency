@@ -1,5 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Grid, ShoppingCart, User, ClipboardList } from "lucide-react";
+import {
+  Home,
+  Grid,
+  ShoppingCart,
+  User,
+  ClipboardList,
+  MessageSquare,
+} from "lucide-react";
 
 function BottomNav() {
   const location = useLocation();
@@ -9,6 +16,7 @@ function BottomNav() {
     { icon: Grid, label: "Explore", path: "/categories" },
     { icon: ShoppingCart, label: "Cart", path: "/cart" },
     { icon: ClipboardList, label: "Orders", path: "/orders" },
+    { icon: MessageSquare, label: "Chat", path: "/chat" },
     { icon: User, label: "Profile", path: "/profile" },
   ];
 

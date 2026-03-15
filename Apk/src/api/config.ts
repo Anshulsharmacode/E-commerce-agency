@@ -3,7 +3,7 @@ import axios from 'axios';
 
 
 // Backend API base URL - change this to your server address
-const BASE_URL = 'http://localhost:3000';
+export const BASE_URL = 'http://localhost:3000';
 
 const api = axios.create({
   baseURL: BASE_URL,

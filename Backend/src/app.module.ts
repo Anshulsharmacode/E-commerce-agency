@@ -7,6 +7,9 @@ import { CartController } from './restapi/cart/cart.controller';
 import { CartService } from './restapi/cart/cart.service';
 import { CategoryController } from './restapi/category/category.controller';
 import { CategoryService } from './restapi/category/category.service';
+import { ChatController } from './restapi/chat/chat.controller';
+import { ChatGateway } from './restapi/chat/chat.gateway';
+import { ChatService } from './restapi/chat/chat.service';
 import { OfferController } from './restapi/offer/offer.controller';
 import { OfferService } from './restapi/offer/offer.service';
 import { OrderController } from './restapi/order/order.controller';
@@ -30,6 +33,7 @@ import { WishlistService } from './restapi/wishlist/wishlist.service';
     AppController,
     UserController,
     CategoryController,
+    ChatController,
     ProductController,
     CartController,
     OfferController,
@@ -40,6 +44,8 @@ import { WishlistService } from './restapi/wishlist/wishlist.service';
     AppService,
     UserService,
     CategoryService,
+    ChatService,
+    ChatGateway,
     ProductService,
     CartService,
     OfferService,

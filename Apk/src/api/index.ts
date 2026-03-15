@@ -3,6 +3,7 @@ export * from './types';
 
 
 export { default as api } from './config';
+export { BASE_URL } from './config';
 
 
 export {
@@ -73,6 +74,17 @@ export {
   type AddCartItemData,
   type UpdateCartItemData,
 } from './cart.api';
+
+export {
+  getMyConversations,
+  getConversationMessages,
+  sendChatMessage,
+  type ChatConversation,
+  type ChatMessage,
+  type SendChatMessageData,
+  type SendChatMessageResult,
+  type ChatRole,
+} from './chat.api';
 
 export {
   // User API

@@ -1,18 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { UserRole } from './user.schema';
 
 export type ChatMessageDocument = HydratedDocument<ChatMessage>;
 
-export enum SenderRole {
-  ADMIN = 'admin',
-  USER = 'user',
-}
-
 export enum ChatMessageType {
   TEXT = 'text',
-  IMAGE = 'image',
-  ORDER_LINK = 'order_link',
-  FILE = 'file',
+  // IMAGE = 'image'
+
+  // FILE = 'file',
 }
 
 @Schema({
@@ -26,8 +22,8 @@ export class ChatMessage {
   @Prop({ type: String, required: true, index: true })
   sender_id: string;
 
-  @Prop({ type: String, enum: SenderRole, required: true })
-  sender_role: SenderRole;
+  @Prop({ type: String, enum: UserRole, required: true })
+  sender_role: UserRole;
 
   @Prop({
     type: String,
