@@ -171,4 +171,17 @@ export class UserService {
       token,
     };
   }
+
+  async getProfile(user_id: string) {
+    if (!user_id) {
+      throw new UnauthorizedException('User not found in token');
+    }
+
+    const user = await this.userModel.findById(user_id).select('-password');
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
 }

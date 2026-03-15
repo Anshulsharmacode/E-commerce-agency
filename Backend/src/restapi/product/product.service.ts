@@ -85,7 +85,7 @@ export class ProductService {
     }
 
     const existingProduct = await this.productModel.findOne({
-      category_id: category.category_id,
+      category_id: category.id,
       name: normalizedName,
     });
     if (existingProduct) {
@@ -94,7 +94,7 @@ export class ProductService {
 
     try {
       return await this.productModel.create({
-        category_id: category.category_id,
+        category_id: category.id,
         name: normalizedName,
         description: description?.trim() || undefined,
         unit,
@@ -165,7 +165,7 @@ export class ProductService {
       if (!category) {
         throw new NotFoundException('Category not found');
       }
-      updateProductDto.category_id = category.category_id;
+      updateProductDto.category_id = category.id;
     }
 
     if (updateProductDto.name) {

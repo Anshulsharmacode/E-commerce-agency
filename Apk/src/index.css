@@ -1,0 +1,107 @@
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Mobile-only layout lock ── */
+:root {
+  color-scheme: light dark;
+}
+
+html,
+body {
+  max-width: 430px;        /* Max phone width (iPhone Pro Max) */
+  margin: 0 auto;          /* Center on desktop browsers during dev */
+  min-height: 100dvh;      /* dvh = dynamic viewport height */
+  overflow-x: hidden;      /* No horizontal scroll */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  background-color: oklch(0.99 0.01 250); /* Force bg during load */
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Custom Theme ── */
+@layer base {
+  :root {
+    --background: oklch(0.99 0.01 250);
+    --foreground: oklch(0.15 0.05 260);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.15 0.05 260);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.15 0.05 260);
+    --primary: oklch(0.55 0.2 260); /* Vibrant Indigo */
+    --primary-foreground: oklch(0.98 0.01 260);
+    --secondary: oklch(0.96 0.02 260);
+    --secondary-foreground: oklch(0.2 0.05 260);
+    --muted: oklch(0.96 0.02 260);
+    --muted-foreground: oklch(0.45 0.05 260);
+    --accent: oklch(0.92 0.04 260);
+    --accent-foreground: oklch(0.2 0.05 260);
+    --destructive: oklch(0.6 0.2 25);
+    --destructive-foreground: oklch(0.98 0.01 260);
+    --border: oklch(0.9 0.02 260);
+    --input: oklch(0.9 0.02 260);
+    --ring: oklch(0.55 0.2 260 / 0.5);
+    --radius: 1.25rem;
+    --chart-1: oklch(0.809 0.105 251.813);
+    --chart-2: oklch(0.623 0.214 259.815);
+    --chart-3: oklch(0.546 0.245 262.881);
+    --chart-4: oklch(0.488 0.243 264.376);
+    --chart-5: oklch(0.424 0.199 265.638);
+  }
+  .dark {
+    --background: oklch(0.15 0.05 260);
+    --foreground: oklch(0.98 0.01 260);
+    --card: oklch(0.18 0.05 260);
+    --card-foreground: oklch(0.98 0.01 260);
+    --popover: oklch(0.18 0.05 260);
+    --popover-foreground: oklch(0.98 0.01 260);
+    --primary: oklch(0.7 0.15 260);
+    --primary-foreground: oklch(0.15 0.05 260);
+    --secondary: oklch(0.25 0.05 260);
+    --secondary-foreground: oklch(0.98 0.01 260);
+    --muted: oklch(0.25 0.05 260);
+    --muted-foreground: oklch(0.65 0.05 260);
+    --accent: oklch(0.3 0.05 260);
+    --accent-foreground: oklch(0.98 0.01 260);
+    --destructive: oklch(0.5 0.2 25);
+    --destructive-foreground: oklch(0.98 0.01 260);
+    --border: oklch(0.25 0.05 260);
+    --input: oklch(0.25 0.05 260);
+    --ring: oklch(0.7 0.15 260 / 0.5);
+  }
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Geist Variable', sans-serif;
+  }
+}
+
+/* ── Custom Utilities ── */
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .safe-bottom {
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+  }
+  .glass-effect {
+    @apply bg-background backdrop-blur-md;
+  }
+  .mobile-card {
+    @apply rounded-[1.5rem] border bg-card p-4 shadow-sm active:scale-[0.98] transition-all;
+  }
+}
