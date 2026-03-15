@@ -10,7 +10,7 @@ import LoginPage from "./components/LoginPage";
 import AdminLayout from "./components/admin/AdminLayout";
 import ProductManagement from "./components/admin/ProductManagement";
 import OfferManagement from "./components/admin/OfferManagement";
-// import ChatManagement from "./components/admin/ChatManagement";
+
 import CategoryManagement from "./components/admin/CategoryManagement";
 import Dashboard from "./components/admin/Dashboard";
 import "./App.css";

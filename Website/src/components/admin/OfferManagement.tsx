@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Edit, Loader2, Plus, RefreshCw, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { cn } from "@/lib/utils";
-import api from "../../lib/api";
+import { adminApi } from "../../lib/adminApi";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
@@ -64,8 +64,8 @@ export default function OfferManagement() {
   const fetchOffers = async () => {
     setIsLoading(true);
     try {
-      const response = await api.get("/offer/all");
-      setOffers(Array.isArray(response.data?.data) ? response.data.data : []);
+      const data = await adminApi.getOffers();
+      setOffers(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Failed to fetch offers", error);
       setOffers([]);
@@ -81,9 +81,9 @@ export default function OfferManagement() {
   const onSubmit = async (data: OfferFormData) => {
     try {
       if (editingOffer) {
-        await api.patch(`/offer/${editingOffer._id}`, data);
+        await adminApi.updateOffer(editingOffer._id, data);
       } else {
-        await api.post("/offer/create", data);
+        await adminApi.createOffer(data);
       }
 
       setIsDialogOpen(false);
@@ -122,10 +122,21 @@ export default function OfferManagement() {
     if (!window.confirm("Are you sure you want to delete this offer?")) return;
 
     try {
-      await api.delete(`/offer/${id}`);
+      await adminApi.deleteOffer(id);
       fetchOffers();
     } catch (error) {
       console.error("Failed to delete offer", error);
+    }
+  };
+
+  const handleToggleStatus = async (offer: Offer) => {
+    try {
+      await adminApi.updateOffer(offer._id, {
+        is_active: !offer.is_active,
+      });
+      fetchOffers();
+    } catch (error) {
+      console.error("Failed to update status", error);
     }
   };
 
@@ -301,6 +312,13 @@ export default function OfferManagement() {
                         </span>
                       </TableCell>
                       <TableCell className="space-x-2 text-right">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleToggleStatus(offer)}
+                        >
+                          {offer.is_active ? "Deactivate" : "Activate"}
+                        </Button>
                         <Button variant="ghost" size="icon" onClick={() => handleEdit(offer)}>
                           <Edit className="h-4 w-4" />
                         </Button>
