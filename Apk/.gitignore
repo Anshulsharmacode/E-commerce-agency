@@ -11,7 +11,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 android
-
+.vite
 node_modules
 dist
 dist-ssr
