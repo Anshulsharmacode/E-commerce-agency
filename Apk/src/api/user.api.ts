@@ -91,3 +91,17 @@ export const checkAdminAccess = async (): Promise<ApiResponse<User>> => {
   const response = await api.get<ApiResponse<User>>("/user/admin");
   return response.data;
 };
+
+export const toggleLikeProduct = async (
+  productId: string,
+): Promise<ApiResponse<string[]>> => {
+  const response = await api.post<ApiResponse<string[]>>(
+    `/wishlist/toggle/${productId}`,
+  );
+  return response.data;
+};
+
+export const getMyWishlist = async (): Promise<ApiResponse<string[]>> => {
+  const response = await api.get<ApiResponse<string[]>>('/wishlist/my');
+  return response.data;
+};

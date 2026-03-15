@@ -7,6 +7,8 @@ import {
   getAllProducts,
   getActiveOffers,
   addCartItem,
+  getMyWishlist,
+  toggleLikeProduct,
   type Category,
   type Product,
   type Offer,
@@ -15,14 +17,14 @@ import {
   ShoppingBag,
   ChevronRight,
   ArrowRight,
-  Star,
-  Plus,
 } from "lucide-react";
+import { ProductCard } from "@/components/ProductCard";
 
 function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [offers, setOffers] = useState<Offer[]>([]);
+  const [likedProductIds, setLikedProductIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [userName, setUserName] = useState("");
@@ -31,32 +33,60 @@ function HomePage() {
   );
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
 
-  useEffect(() => {
-    const loadHomeData = async () => {
-      setIsLoading(true);
-      setError("");
-      try {
-        const [categoryRes, productRes, offerRes] = await Promise.all([
-          getAllCategories(),
-          getAllProducts(60),
-          getActiveOffers(),
-        ]);
-        setCategories(
-          categoryRes.data.filter((category) => category.is_active),
-        );
-        setProducts(productRes.data.filter((product) => product.is_active));
-        setOffers(offerRes.data);
-        console.log("offer", offerRes);
-      } catch (err: unknown) {
-        const apiErr = err as { response?: { data?: { message?: string } } };
-        setError(apiErr.response?.data?.message ?? "Failed to load products.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const loadHomeData = async () => {
+    setIsLoading(true);
+    setError("");
+    try {
+      const [categoryResult, productResult, offerResult] = await Promise.allSettled([
+        getAllCategories(),
+        getAllProducts(60),
+        getActiveOffers(),
+      ]);
 
+      if (categoryResult.status === "fulfilled") {
+        setCategories(
+          categoryResult.value.data.filter((category) => category.is_active),
+        );
+      } else {
+        setCategories([]);
+      }
+
+      if (productResult.status === "fulfilled") {
+        setProducts(
+          productResult.value.data.filter((product) => product.is_active),
+        );
+      } else {
+        const apiErr = productResult.reason as {
+          response?: { data?: { message?: string } };
+        };
+        setProducts([]);
+        setError(apiErr.response?.data?.message ?? "Failed to load products.");
+      }
+
+      if (offerResult.status === "fulfilled") {
+        setOffers(offerResult.value.data);
+      } else {
+        setOffers([]);
+      }
+
+      if (isLoggedIn) {
+        try {
+          const wishlistRes = await getMyWishlist();
+          setLikedProductIds(wishlistRes.data || []);
+        } catch {
+          setLikedProductIds([]);
+        }
+      } else {
+        setLikedProductIds([]);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     void loadHomeData();
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -74,6 +104,19 @@ function HomePage() {
       alert("Added to cart!");
     } catch (err: unknown) {
       alert("Failed to add to cart");
+    }
+  };
+
+  const handleToggleLike = async (productId: string) => {
+    if (!isLoggedIn) {
+      alert("Please login to like products");
+      return;
+    }
+    try {
+      const res = await toggleLikeProduct(productId);
+      setLikedProductIds(res.data);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -198,7 +241,7 @@ function HomePage() {
             See all
           </Link>
         </div>
-        {error && (
+        {error && featuredProducts.length === 0 && (
           <div className="mb-4 rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-xs font-bold text-destructive">
             {error}
           </div>
@@ -212,53 +255,16 @@ function HomePage() {
                 />
               ))
             : featuredProducts.map((product) => (
-                <div
+                <ProductCard
                   key={product._id}
-                  className="group relative flex flex-col overflow-hidden rounded-[2.5rem] border border-border bg-card transition-all hover:border-primary/20 hover:shadow-xl hover:shadow-primary/5"
-                >
-                  <Link
-                    to={`/products/${product._id}`}
-                    state={{ product, backTo: "/", backLabel: "Home" }}
-                    className="relative h-36 w-full overflow-hidden"
-                  >
-                    {product.image_urls?.[0] ? (
-                      <img
-                        src={product.image_urls[0]}
-                        alt={product.name}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-secondary/50 text-2xl font-black text-primary/20">
-                        {product.name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <div className="absolute left-3 top-3 flex h-7 items-center gap-1 rounded-full bg-white/90 px-2.5 backdrop-blur-md shadow-sm">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      <span className="text-[10px] font-black text-foreground">
-                        4.8
-                      </span>
-                    </div>
-                  </Link>
-                  <div className="p-4 pt-3 flex-1 flex flex-col">
-                    <p className="line-clamp-1 text-sm font-black tracking-tight text-foreground">
-                      {product.name}
-                    </p>
-                    <p className="mt-0.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                      {categoryNameMap[product.category_id] ?? "Category"}
-                    </p>
-                    <div className="mt-auto pt-3 flex items-center justify-between">
-                      <p className="text-base font-black text-primary">
-                        ₹{product.selling_price_box}
-                      </p>
-                      <button
-                        onClick={() => handleAddToCart(product._id)}
-                        className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground text-background shadow-lg shadow-black/10 active:scale-90 transition-transform"
-                      >
-                        <Plus className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                  product={product}
+                  categoryName={categoryNameMap[product.category_id]}
+                  isLiked={likedProductIds.includes(product._id)}
+                  onToggleLike={handleToggleLike}
+                  onAddToCart={handleAddToCart}
+                  backTo="/"
+                  backLabel="Home"
+                />
               ))}
         </div>
       </section>

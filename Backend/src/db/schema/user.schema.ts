@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -46,12 +46,6 @@ export class User {
 
   @Prop({ type: Object, required: false })
   address?: Record<string, unknown>;
-
-  @Prop({
-    type: [{ type: Types.ObjectId, ref: 'prodcut' }],
-    default: [],
-  })
-  liked_product: Types.ObjectId[];
 
   created_at: Date;
   updated_at: Date;

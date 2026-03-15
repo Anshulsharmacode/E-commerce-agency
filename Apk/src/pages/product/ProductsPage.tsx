@@ -4,45 +4,81 @@ import { ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
 import {
   getAllCategories,
   getAllProducts,
+  getMyWishlist,
+  toggleLikeProduct,
+  addCartItem,
   type Category,
   type Product,
 } from "@/api";
+import { ProductCard } from "@/components/ProductCard";
 
 const PAGE_SIZE = 8;
 
 function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [likedProductIds, setLikedProductIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [imageErrorMap, setImageErrorMap] = useState<Record<string, boolean>>(
-    {},
-  );
+  const [isLoggedIn] = useState(() => Boolean(localStorage.getItem("token")));
+
+  const loadData = async () => {
+    setIsLoading(true);
+    setError("");
+    try {
+      const [productRes, categoryRes] = await Promise.all([
+        getAllProducts(300),
+        getAllCategories(),
+      ]);
+      setProducts(productRes.data.filter((product) => product.is_active));
+      setCategories(
+        categoryRes.data.filter((category) => category.is_active),
+      );
+
+      if (isLoggedIn) {
+        const wishlistRes = await getMyWishlist();
+        setLikedProductIds(wishlistRes.data || []);
+      } else {
+        setLikedProductIds([]);
+      }
+    } catch (err: unknown) {
+      const apiErr = err as { response?: { data?: { message?: string } } };
+      setError(apiErr.response?.data?.message ?? "Failed to load products.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      setError("");
-      try {
-        const [productRes, categoryRes] = await Promise.all([
-          getAllProducts(300),
-          getAllCategories(),
-        ]);
-        setProducts(productRes.data.filter((product) => product.is_active));
-        setCategories(
-          categoryRes.data.filter((category) => category.is_active),
-        );
-      } catch (err: unknown) {
-        const apiErr = err as { response?: { data?: { message?: string } } };
-        setError(apiErr.response?.data?.message ?? "Failed to load products.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     void loadData();
-  }, []);
+  }, [isLoggedIn]);
+
+  const handleToggleLike = async (productId: string) => {
+    if (!isLoggedIn) {
+      alert("Please login to like products");
+      return;
+    }
+    try {
+      const res = await toggleLikeProduct(productId);
+      setLikedProductIds(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleAddToCart = async (productId: string) => {
+    if (!isLoggedIn) {
+      alert("Please login to add items to cart");
+      return;
+    }
+    try {
+      await addCartItem({ product_id: productId, quantity_boxes: 1 });
+      alert("Added to cart!");
+    } catch (err) {
+      alert("Failed to add to cart");
+    }
+  };
 
   const categoryNameMap = useMemo(() => {
     return categories.reduce<Record<string, string>>((acc, category) => {
@@ -61,14 +97,6 @@ function ProductsPage() {
     }
   }, [currentPage, totalPages]);
 
-  const markImageError = (productId: string) => {
-    setImageErrorMap((prev) => ({ ...prev, [productId]: true }));
-  };
-
-  const canShowImage = (product: Product) => {
-    return Boolean(product.image_urls?.[0]) && !imageErrorMap[product._id];
-  };
-
   return (
     <div className="flex min-h-screen flex-col bg-background pb-24">
       <header className="sticky top-0 z-10 flex items-center justify-between bg-card/70 px-5 pb-4 pt-12 backdrop-blur-sm">
@@ -79,8 +107,8 @@ function ProductsPage() {
           <ChevronLeft className="h-4 w-4" /> Home
         </Link>
         <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground">
-            <ShoppingBag className="h-5 w-5 text-background" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground text-background">
+            <ShoppingBag className="h-5 w-5" />
           </div>
           <span className="text-lg font-black tracking-tight">
             All Products
@@ -118,43 +146,16 @@ function ProductsPage() {
 
             <div className="grid grid-cols-2 gap-4">
               {paginatedProducts.map((product) => (
-                <Link
+                <ProductCard
                   key={product._id}
-                  to={`/products/${product._id}`}
-                  state={{
-                    product,
-                    backTo: "/products",
-                    backLabel: "Products",
-                  }}
-                  className="overflow-hidden rounded-[2.2rem] border border-border bg-card text-left"
-                >
-                  {canShowImage(product) ? (
-                    <img
-                      src={product.image_urls?.[0]}
-                      alt={product.name}
-                      onError={() => markImageError(product._id)}
-                      className="h-32 w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-32 w-full items-center justify-center bg-secondary text-2xl font-black text-primary/30">
-                      {product.name.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-
-                  <div className="p-3">
-                    <p className="line-clamp-1 text-sm font-black tracking-tight text-foreground">
-                      {product.name}
-                    </p>
-                    <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      {categoryNameMap[product.category_id] ?? "Category"}
-                    </p>
-                    <div className="mt-2 flex items-center justify-between">
-                      <p className="text-sm font-black text-primary">
-                        ₹{product.selling_price_box}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
+                  product={product}
+                  categoryName={categoryNameMap[product.category_id]}
+                  isLiked={likedProductIds.includes(product._id)}
+                  onToggleLike={handleToggleLike}
+                  onAddToCart={handleAddToCart}
+                  backTo="/products"
+                  backLabel="Products"
+                />
               ))}
             </div>
 

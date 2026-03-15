@@ -12,6 +12,7 @@ import { Order, OrderSchema } from './order.schema';
 import { Product, ProductSchema } from './product.schema';
 import { User, UserSchema } from './user.schema';
 import { Otp, OtpSchema } from './otp.schema';
+import { Wishlist, WishlistSchema } from './wishlist.schema';
 
 export const DATABASE_MODELS: ModelDefinition[] = [
   { name: User.name, schema: UserSchema },
@@ -24,6 +25,7 @@ export const DATABASE_MODELS: ModelDefinition[] = [
   { name: ChatConversation.name, schema: ChatConversationSchema },
   { name: ChatMessage.name, schema: ChatMessageSchema },
   { name: Otp.name, schema: OtpSchema },
+  { name: Wishlist.name, schema: WishlistSchema },
 ];
 
 export * from './bill.schema';
@@ -36,3 +38,4 @@ export * from './order.schema';
 export * from './product.schema';
 export * from './user.schema';
 export * from './otp.schema';
+export * from './wishlist.schema';

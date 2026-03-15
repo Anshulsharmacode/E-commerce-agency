@@ -15,6 +15,8 @@ import { ProductController } from './restapi/product/product.controller';
 import { ProductService } from './restapi/product/product.service';
 import { UserController } from './restapi/user/user.controller';
 import { UserService } from './restapi/user/user.service';
+import { WishlistController } from './restapi/wishlist/wishlist.controller';
+import { WishlistService } from './restapi/wishlist/wishlist.service';
 
 @Module({
   imports: [
@@ -32,6 +34,7 @@ import { UserService } from './restapi/user/user.service';
     CartController,
     OfferController,
     OrderController,
+    WishlistController,
   ],
   providers: [
     AppService,
@@ -41,6 +44,7 @@ import { UserService } from './restapi/user/user.service';
     CartService,
     OfferService,
     OrderService,
+    WishlistService,
   ],
 })
 export class AppModule {}

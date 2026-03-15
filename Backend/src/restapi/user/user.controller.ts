@@ -11,10 +11,11 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { AuthGuard } from 'src/common/guards/auth/auth.guard';
-import { RolesGuard } from 'src/common/guards/roles/roles.guard';
+import { AuthUser } from 'src/common/types/types';
 import { GenerateOtpDto, LoginDto, SignupDto, VerifyOtpDto } from './user.dto';
 import { UserService } from './user.service';
 import { UserRole } from 'src/db/schema/user.schema';
+import { RolesGuard } from 'src/common/guards/roles/roles.guard';
 
 @Controller('user')
 export class UserController {
@@ -63,10 +64,12 @@ export class UserController {
 
   @Get('profile')
   @UseGuards(AuthGuard)
-  profile(@Req() req: Request & { user?: Record<string, unknown> }) {
+  async profile(@Req() req: Request & { user?: AuthUser }) {
+    const profile = await this.userService.getProfile(req.user?._id ?? '');
+
     return {
       message: 'Profile fetched successfully',
-      user: req.user ?? null,
+      data: profile,
     };
   }
 

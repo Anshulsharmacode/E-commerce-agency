@@ -1,50 +1,87 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ChevronLeft, ShoppingBag, Package } from "lucide-react";
+import { ChevronLeft, ShoppingBag } from "lucide-react";
 import {
   getAllProducts,
   getCategoryById,
+  getMyWishlist,
+  toggleLikeProduct,
+  addCartItem,
   type Category,
   type Product,
 } from "@/api";
-
-const inr = new Intl.NumberFormat("en-IN");
+import { ProductCard } from "@/components/ProductCard";
 
 function CategoryProductsPage() {
   const { categoryId = "" } = useParams();
   const [category, setCategory] = useState<Category | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
+  const [likedProductIds, setLikedProductIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isLoggedIn] = useState(() => Boolean(localStorage.getItem("token")));
+
+  const loadData = async () => {
+    if (!categoryId) {
+      setError("Category id is missing.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+    try {
+      const [categoryRes, productRes] = await Promise.all([
+        getCategoryById(categoryId),
+        getAllProducts(300),
+      ]);
+      setCategory(categoryRes.data);
+      setProducts(productRes.data.filter((product) => product.is_active));
+
+      if (isLoggedIn) {
+        const wishlistRes = await getMyWishlist();
+        setLikedProductIds(wishlistRes.data || []);
+      } else {
+        setLikedProductIds([]);
+      }
+    } catch (err: unknown) {
+      const apiErr = err as { response?: { data?: { message?: string } } };
+      setError(
+        apiErr.response?.data?.message ?? "Failed to load category products.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadData = async () => {
-      if (!categoryId) {
-        setError("Category id is missing.");
-        return;
-      }
-
-      setIsLoading(true);
-      setError("");
-      try {
-        const [categoryRes, productRes] = await Promise.all([
-          getCategoryById(categoryId),
-          getAllProducts(300),
-        ]);
-        setCategory(categoryRes.data);
-        setProducts(productRes.data.filter((product) => product.is_active));
-      } catch (err: unknown) {
-        const apiErr = err as { response?: { data?: { message?: string } } };
-        setError(
-          apiErr.response?.data?.message ?? "Failed to load category products.",
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     void loadData();
-  }, [categoryId]);
+  }, [categoryId, isLoggedIn]);
+
+  const handleToggleLike = async (productId: string) => {
+    if (!isLoggedIn) {
+      alert("Please login to like products");
+      return;
+    }
+    try {
+      const res = await toggleLikeProduct(productId);
+      setLikedProductIds(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleAddToCart = async (productId: string) => {
+    if (!isLoggedIn) {
+      alert("Please login to add items to cart");
+      return;
+    }
+    try {
+      await addCartItem({ product_id: productId, quantity_boxes: 1 });
+      alert("Added to cart!");
+    } catch (err) {
+      alert("Failed to add to cart");
+    }
+  };
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => product.category_id === categoryId);
@@ -99,44 +136,18 @@ function CategoryProductsPage() {
             No products found in this category.
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-4">
             {filteredProducts.map((product) => (
-              <Link
-                to={`/products/${product._id}`}
-                state={{
-                  product,
-                  backTo: `/categories/${categoryId}`,
-                  backLabel: "Category",
-                }}
+              <ProductCard
                 key={product._id}
-                className="overflow-hidden rounded-2xl border border-slate-200 bg-white"
-              >
-                {product.image_urls?.[0] ? (
-                  <img
-                    src={product.image_urls[0]}
-                    alt={product.name}
-                    className="h-24 w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-24 w-full items-center justify-center bg-slate-100 text-xl font-semibold text-slate-500">
-                    {product.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <div className="p-3">
-                  <div className="mb-1.5 inline-flex rounded-lg bg-[#eef2ff] p-1.5 text-[#3730a3]">
-                    <Package className="h-3 w-3" />
-                  </div>
-                  <p className="line-clamp-1 text-[13px] font-semibold tracking-tight">
-                    {product.name}
-                  </p>
-                  <p className="mt-1 text-[14px] font-semibold text-[#0f172a]">
-                    Rs. {inr.format(product.selling_price_box)}
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-slate-500">
-                    {product.pieces_per_box} pcs/box
-                  </p>
-                </div>
-              </Link>
+                product={product}
+                categoryName={category?.name}
+                isLiked={likedProductIds.includes(product._id)}
+                onToggleLike={handleToggleLike}
+                onAddToCart={handleAddToCart}
+                backTo={`/categories/${categoryId}`}
+                backLabel="Category"
+              />
             ))}
           </div>
         )}
