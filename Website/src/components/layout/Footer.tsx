@@ -3,12 +3,15 @@ import { ShoppingBag, Twitter, Linkedin, Github, Facebook } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="relative bg-slate-50 border-t border-slate-200 pt-16 pb-8 overflow-hidden">
-      <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#0f172a_1px,transparent_1px)] [background-size:26px_26px]" />
+    <footer className="relative bg-slate-50 border-t border-slate-200 pt-16 pb-10 overflow-hidden">
+      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#0f172a_1px,transparent_1px)] [background-size:24px_24px]" />
+      <div className="absolute -top-24 right-0 w-72 h-72 bg-indigo-200/40 blur-3xl rounded-full -z-10" />
+      <div className="absolute -bottom-24 left-0 w-72 h-72 bg-slate-300/40 blur-3xl rounded-full -z-10" />
+
       <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr] gap-10 mb-10">
           {/* Brand */}
-          <div className="md:col-span-1">
+          <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="bg-indigo-100 p-2 rounded-xl">
                 <ShoppingBag className="w-5 h-5 text-indigo-600" />
@@ -26,7 +29,7 @@ export function Footer() {
           {/* Links */}
           <div>
             <h4 className="font-semibold mb-4 text-slate-900">Product</h4>
-            <ul className="space-y-2 text-sm text-slate-600">
+            <ul className="grid grid-cols-1 gap-y-2 text-sm text-slate-600">
               <li>
                 <Link
                   to="/features"
@@ -61,74 +64,6 @@ export function Footer() {
               </li>
             </ul>
           </div>
-
-          <div>
-            <h4 className="font-semibold mb-4 text-slate-900">Company</h4>
-            <ul className="space-y-2 text-sm text-slate-600">
-              <li>
-                <Link
-                  to="/about"
-                  className="hover:text-indigo-600 transition-colors"
-                >
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/careers"
-                  className="hover:text-indigo-600 transition-colors"
-                >
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/blog"
-                  className="hover:text-indigo-600 transition-colors"
-                >
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/contact"
-                  className="hover:text-indigo-600 transition-colors"
-                >
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-4 text-slate-900">Legal</h4>
-            <ul className="space-y-2 text-sm text-slate-600">
-              <li>
-                <Link
-                  to="/privacy"
-                  className="hover:text-indigo-600 transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/terms"
-                  className="hover:text-indigo-600 transition-colors"
-                >
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/security"
-                  className="hover:text-indigo-600 transition-colors"
-                >
-                  Security
-                </Link>
-              </li>
-            </ul>
-          </div>
         </div>
 
         <div className="border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -138,25 +73,25 @@ export function Footer() {
           <div className="flex items-center gap-4">
             <a
               href="#"
-              className="text-slate-500 hover:text-indigo-600 transition-colors"
+              className="size-9 rounded-full border border-slate-200 bg-white text-slate-600 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-sm transition-all flex items-center justify-center"
             >
               <Twitter className="w-5 h-5" />
             </a>
             <a
               href="#"
-              className="text-slate-500 hover:text-indigo-600 transition-colors"
+              className="size-9 rounded-full border border-slate-200 bg-white text-slate-600 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-sm transition-all flex items-center justify-center"
             >
               <Linkedin className="w-5 h-5" />
             </a>
             <a
               href="#"
-              className="text-slate-500 hover:text-indigo-600 transition-colors"
+              className="size-9 rounded-full border border-slate-200 bg-white text-slate-600 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-sm transition-all flex items-center justify-center"
             >
               <Github className="w-5 h-5" />
             </a>
             <a
               href="#"
-              className="text-slate-500 hover:text-indigo-600 transition-colors"
+              className="size-9 rounded-full border border-slate-200 bg-white text-slate-600 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-sm transition-all flex items-center justify-center"
             >
               <Facebook className="w-5 h-5" />
             </a>
