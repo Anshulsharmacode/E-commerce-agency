@@ -4,35 +4,54 @@ import { Link } from "react-router-dom";
 
 export function CTASection() {
   return (
-    <section className="relative overflow-hidden py-20 bg-[linear-gradient(180deg,#FFC570_0%,#EFD2B0_100%)]">
-      <div className="pointer-events-none absolute inset-0 opacity-25 bg-[radial-gradient(#1A3263_1px,transparent_1px)] [background-size:26px_26px]"></div>
+    <section className="relative overflow-hidden py-24 bg-slate-900">
+      {/* Dot Pattern */}
+      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle,#ffffff_1px,transparent_1px)] [background-size:26px_26px]" />
+
+      {/* Glow Effects */}
+      <div className="absolute top-[-10%] left-[20%] w-[400px] h-[400px] bg-indigo-500/20 blur-[140px] rounded-full" />
+      <div className="absolute bottom-[-10%] right-[20%] w-[400px] h-[400px] bg-purple-500/10 blur-[160px] rounded-full" />
+
       <div className="container mx-auto px-6 relative z-10">
-        <div className="bg-[#1A3263] rounded-3xl p-10 md:p-16 text-center text-[#EFD2B0] relative overflow-hidden shadow-2xl">
-          <div className="absolute top-0 left-0 w-full h-full opacity-20 bg-[radial-gradient(#EFD2B0_1px,transparent_1px)] [background-size:20px_20px]"></div>
+        {/* CTA Card */}
+        <div
+          className="relative rounded-3xl p-10 md:p-16 text-center overflow-hidden 
+          bg-slate-800/60 backdrop-blur-xl border border-slate-700 shadow-2xl"
+        >
+          {/* Inner subtle pattern */}
+          <div
+            className="absolute inset-0 opacity-10 
+            bg-[radial-gradient(circle,#6366F1_1px,transparent_1px)] 
+            [background-size:22px_22px]"
+          />
 
           <div className="relative z-10 max-w-2xl mx-auto space-y-8">
-            <h2 className="text-3xl md:text-5xl font-bold font-display">
-              Visit it. First trial is free.
+            {/* Heading */}
+            <h2 className="text-3xl md:text-5xl font-bold text-white">
+              Ready to grow your business?
             </h2>
-            <p className="text-[#EFD2B0]/80 text-lg md:text-xl">
-              Experience the full platform before you commit.
+
+            {/* Subtext */}
+            <p className="text-slate-400 text-lg md:text-xl">
+              Join thousands of merchants managing their stores with
+              AgencyAdmin.
             </p>
+
+            {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/signup">
-                <Button
-                  size="lg"
-                  className="w-full sm:w-auto bg-[#FFC570] text-[#1A3263] hover:bg-[#EFD2B0] font-bold h-12 px-8 rounded-full shadow-lg"
-                >
-                  Start Free Trial
+                <Button className="group w-full sm:w-auto h-12 px-8 rounded-full bg-indigo-500 hover:bg-indigo-600 text-white shadow-lg">
+                  Get Started for Free
+                  <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
+
               <Link to="/contact">
                 <Button
-                  size="lg"
                   variant="outline"
-                  className="w-full sm:w-auto border-[#EFD2B0]/50 text-[#EFD2B0] hover:bg-[#EFD2B0]/10 h-12 px-8 rounded-full"
+                  className="w-full sm:w-auto h-12 px-8 rounded-full border-slate-600 text-slate-200 hover:bg-slate-700"
                 >
-                  Visit It <ArrowRight className="ml-2 w-4 h-4" />
+                  Contact Sales
                 </Button>
               </Link>
             </div>
