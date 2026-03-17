@@ -48,7 +48,7 @@ export function CTASection() {
 
               <Link to="/contact">
                 <Button
-                  variant="outline"
+                  // variant="secondary"
                   className="w-full sm:w-auto h-12 px-8 rounded-full border-slate-600 text-slate-200 hover:bg-slate-700"
                 >
                   Contact Sales

@@ -31,19 +31,19 @@ export function HeroSection({
           {/* LEFT */}
           <div className="lg:w-1/2 text-center lg:text-left space-y-8">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 text-sm font-medium shadow-sm text-slate-700">
+            {/* <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 text-sm font-medium shadow-sm text-slate-700">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-500 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
               </span>
               AI-powered analytics
-            </div>
+            </div> */}
 
-            {/* Live */}
+            {/* Live
             <div className="flex items-center justify-center lg:justify-start gap-2 text-sm text-slate-500">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               Live data updating
-            </div>
+            </div> */}
 
             {/* Heading */}
             <h1 className="text-4xl md:text-6xl font-bold leading-[1.05] tracking-tight">
@@ -64,21 +64,12 @@ export function HeroSection({
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link to="/signup">
+              <a href="/app.apk" download>
                 <Button className="group px-8 h-12 rounded-xl text-base bg-indigo-500 hover:bg-indigo-600 text-white shadow-lg">
-                  Start Free Trial
+                  Download APK
                   <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Button>
-              </Link>
-
-              <Link to="/features">
-                <Button
-                  variant="outline"
-                  className="px-8 h-12 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-slate-900"
-                >
-                  View Demo
-                </Button>
-              </Link>
+              </a>
             </div>
 
             {/* Trust */}
