@@ -1,7 +1,6 @@
 import type { Offer } from "@/types/offer";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
-import { Link } from "react-router-dom";
 
 type HeroProps = {
   offers: Offer[];

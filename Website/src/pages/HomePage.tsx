@@ -16,7 +16,7 @@ export default function HomePage() {
       <main className="flex-grow">
         <HeroSection
           offers={offers}
-          activeOfferCount={activeOfferCount} //
+          activeOfferCount={activeOfferCount}
           isLoadingOffers={isLoading}
         />
         {/* <StatsSection /> */}
