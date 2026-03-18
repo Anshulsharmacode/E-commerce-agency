@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "../ui/table";
 import { Card, CardContent } from "../ui/card";
-import { Plus, Edit, Trash2, Loader2, RefreshCw } from "lucide-react";
+import { Plus, Edit, Trash2, Loader2, RefreshCw, Package, Search } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -123,18 +123,29 @@ export default function ProductManagement() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tight">Products</h1>
-        <div className="flex gap-2">
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/40 backdrop-blur-md p-6 rounded-3xl border border-slate-200/60 shadow-xl shadow-slate-200/40">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+            <Package className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Product Inventory</h1>
+            <p className="text-slate-500 text-sm font-medium">Manage your agency's product catalog.</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
           <Button
             variant="outline"
             size="icon"
             onClick={fetchData}
             disabled={isLoading}
+            className="rounded-xl border-slate-200 hover:bg-slate-50 hover:text-indigo-600 transition-all"
           >
             <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
           </Button>
+
           <Dialog
             open={isDialogOpen}
             onOpenChange={(open) => {
@@ -145,37 +156,40 @@ export default function ProductManagement() {
               }
             }}
           >
-            <DialogTrigger>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" /> Add Product
+            <DialogTrigger asChild>
+              <Button className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100 px-6 py-6 font-bold h-auto">
+                <Plus className="mr-2 h-5 w-5" /> Add New Product
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[500px] rounded-3xl border-none shadow-2xl">
               <DialogHeader>
-                <DialogTitle>
-                  {editingProduct ? "Edit Product" : "Add New Product"}
+                <DialogTitle className="text-2xl font-bold">
+                  {editingProduct ? "Edit Product" : "Create Product"}
                 </DialogTitle>
-                <DialogDescription>
-                  Enter the product details below. Click save when you're done.
+                <DialogDescription className="font-medium">
+                  Fill in the details to {editingProduct ? "update" : "create"} a product.
                 </DialogDescription>
               </DialogHeader>
               <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="space-y-4 py-4"
+                className="space-y-5 py-4"
               >
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input id="name" {...register("name", { required: true })} />
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="font-bold text-slate-700">Name</Label>
+                    <Input id="name" {...register("name", { required: true })} className="rounded-xl border-slate-200 focus:ring-indigo-500 h-11" placeholder="Premium Coffee Box" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description" className="font-bold text-slate-700">Description</Label>
+                    <Input id="description" {...register("description")} className="rounded-xl border-slate-200 focus:ring-indigo-500 h-11" placeholder="Short description..." />
+                  </div>
                 </div>
+
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Input id="description" {...register("description")} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
+                  <Label htmlFor="category" className="font-bold text-slate-700">Category</Label>
                   <select
                     id="category"
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 font-medium"
                     {...register("category_id", { required: true })}
                   >
                     <option value="">Select Category</option>
@@ -186,9 +200,10 @@ export default function ProductManagement() {
                     ))}
                   </select>
                 </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="price">Price (per box)</Label>
+                    <Label htmlFor="price" className="font-bold text-slate-700">Selling Price</Label>
                     <Input
                       id="price"
                       type="number"
@@ -196,10 +211,11 @@ export default function ProductManagement() {
                         required: true,
                         valueAsNumber: true,
                       })}
+                      className="rounded-xl border-slate-200 h-11"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="purchase_price_box">Purchase Price</Label>
+                    <Label htmlFor="purchase_price_box" className="font-bold text-slate-700">Purchase Price</Label>
                     <Input
                       id="purchase_price_box"
                       type="number"
@@ -207,12 +223,14 @@ export default function ProductManagement() {
                         required: true,
                         valueAsNumber: true,
                       })}
+                      className="rounded-xl border-slate-200 h-11"
                     />
                   </div>
                 </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="unit_weight">Unit Weight</Label>
+                    <Label htmlFor="unit_weight" className="font-bold text-slate-700">Unit Weight</Label>
                     <Input
                       id="unit_weight"
                       type="number"
@@ -221,10 +239,11 @@ export default function ProductManagement() {
                         required: true,
                         valueAsNumber: true,
                       })}
+                      className="rounded-xl border-slate-200 h-11"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="pieces_per_box">Pieces Per Box</Label>
+                    <Label htmlFor="pieces_per_box" className="font-bold text-slate-700">Pieces / Box</Label>
                     <Input
                       id="pieces_per_box"
                       type="number"
@@ -232,26 +251,27 @@ export default function ProductManagement() {
                         required: true,
                         valueAsNumber: true,
                       })}
+                      className="rounded-xl border-slate-200 h-11"
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="unit">Unit</Label>
-                    <select
-                      id="unit"
-                      className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                      {...register("unit", { required: true })}
-                    >
-                      <option value="piece">Piece</option>
-                      <option value="kg">KG</option>
-                      <option value="gram">Gram</option>
-                      <option value="liter">Liter</option>
-                      <option value="ml">ML</option>
-                    </select>
-                  </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="unit" className="font-bold text-slate-700">Unit</Label>
+                  <select
+                    id="unit"
+                    className="flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 font-medium"
+                    {...register("unit", { required: true })}
+                  >
+                    <option value="piece">Piece</option>
+                    <option value="kg">KG</option>
+                    <option value="gram">Gram</option>
+                    <option value="liter">Liter</option>
+                    <option value="ml">ML</option>
+                  </select>
                 </div>
-                <Button type="submit" className="w-full">
+
+                <Button type="submit" className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg shadow-lg shadow-indigo-100 transition-all mt-4">
                   Save Product
                 </Button>
               </form>
@@ -260,100 +280,117 @@ export default function ProductManagement() {
         </div>
       </div>
 
-      <Card>
+      <Card className="border-none shadow-2xl shadow-slate-200/50 rounded-3xl overflow-hidden bg-white/70 backdrop-blur-xl">
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <div className="flex items-center justify-center h-80">
+              <Loader2 className="h-10 w-10 animate-spin text-indigo-500" />
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  {/* <TableHead>Price</TableHead> */}
-                  <TableHead>Purchase_price_box</TableHead>
-                  <TableHead>selling_price_box</TableHead>
-                  <TableHead>Selling_price_pices</TableHead>
-                  <TableHead>unit_weight</TableHead>
-
-                  <TableHead>Unit</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="text-center h-24 text-muted-foreground"
-                    >
-                      No products found.
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader className="bg-slate-50/50">
+                  <TableRow className="hover:bg-transparent border-slate-100">
+                    <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">Product Info</TableHead>
+                    <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">Category</TableHead>
+                    <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">Pricing (Box)</TableHead>
+                    <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">Per Piece</TableHead>
+                    <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">Specifications</TableHead>
+                    <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">Status</TableHead>
+                    <TableHead className="py-5 text-right font-bold text-slate-900 uppercase tracking-wider text-[10px]">Actions</TableHead>
                   </TableRow>
-                ) : (
-                  products.map((product) => (
-                    <TableRow key={product._id}>
-                      <TableCell className="font-medium">
-                        {product.name}
-                      </TableCell>
-                      <TableCell>
-                        {categories.find((c) => c._id === product.category_id)
-                          ?.name || "Unknown"}
-                      </TableCell>
-                      {/* <TableCell>₹{product.selling_price_box}</TableCell> */}
-                      <TableCell>₹{product.purchase_price_box}</TableCell>
-                      <TableCell>₹{product.selling_price_box}</TableCell>
-                      <TableCell>
-                        ₹{product.selling_price_box / product.pieces_per_box}
-                      </TableCell>
-                      <TableCell>{product.unit_weight}</TableCell>
-                      <TableCell className="capitalize">
-                        {product.unit}
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={cn(
-                            "px-2 py-1 rounded-full text-xs font-medium",
-                            product.is_active
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700",
-                          )}
-                        >
-                          {product.is_active ? "Active" : "Inactive"}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleToggleStatus(product)}
-                        >
-                          {product.is_active ? "Deactivate" : "Activate"}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(product)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive"
-                          onClick={() => handleDelete(product._id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                </TableHeader>
+                <TableBody>
+                  {products.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={7}
+                        className="text-center h-48 text-slate-400 font-medium"
+                      >
+                        No products found in your catalog.
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                  ) : (
+                    products.map((product) => (
+                      <TableRow key={product._id} className="hover:bg-slate-50/50 border-slate-50 transition-colors group">
+                        <TableCell>
+                          <div>
+                            <p className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{product.name}</p>
+                            <p className="text-xs text-slate-400 line-clamp-1">{product.description || "No description"}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider">
+                            {categories.find((c) => c._id === product.category_id)
+                              ?.name || "Unknown"}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-0.5">
+                            <p className="text-xs font-bold text-slate-400">Sell: <span className="text-slate-900 font-black text-sm">₹{product.selling_price_box}</span></p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase">Buy: ₹{product.purchase_price_box}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="w-16 h-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center">
+                            <span className="text-xs font-black text-emerald-700">₹{(product.selling_price_box / product.pieces_per_box).toFixed(1)}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-[10px] font-bold text-slate-500 space-y-0.5">
+                             <p>{product.unit_weight} {product.unit} / unit</p>
+                             <p>{product.pieces_per_box} pieces / box</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={cn(
+                              "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all",
+                              product.is_active
+                                ? "bg-emerald-100 text-emerald-700 shadow-sm shadow-emerald-100"
+                                : "bg-red-100 text-red-700 shadow-sm shadow-red-100",
+                            )}
+                          >
+                            {product.is_active ? "Active" : "Inactive"}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleToggleStatus(product)}
+                              className={cn(
+                                "text-[10px] font-black uppercase tracking-tighter h-8 px-2 rounded-lg",
+                                product.is_active ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50" : "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                              )}
+                            >
+                              {product.is_active ? "Disable" : "Enable"}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(product)}
+                              className="w-8 h-8 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                              onClick={() => handleDelete(product._id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>

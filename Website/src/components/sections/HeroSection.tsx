@@ -20,7 +20,7 @@ export function HeroSection({
   const totalOffers = offers.length;
 
   return (
-    <section className="relative pt-28 pb-24 md:pt-36 md:pb-28 overflow-hidden bg-slate-50">
+    <section className="relative pt-28 pb-24 md:pt-36 md:pb-28 overflow-hidden bg-slate-50 mt-10">
       <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#0f172a_1px,transparent_1px)] [background-size:26px_26px]" />
       <div className="absolute top-[-10%] right-[-5%] w-[420px] h-[420px] bg-indigo-200/50 blur-[140px] rounded-full -z-10" />
       <div className="absolute bottom-[-10%] left-[-5%] w-[420px] h-[420px] bg-slate-300/40 blur-[160px] rounded-full -z-10" />
