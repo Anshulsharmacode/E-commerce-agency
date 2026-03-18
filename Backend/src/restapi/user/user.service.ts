@@ -184,4 +184,11 @@ export class UserService {
 
     return user;
   }
+
+  async getEmployees() {
+    return this.userModel
+      .find({ role: UserRole.EMPLOYEE })
+      .select('-password')
+      .sort({ created_at: -1 });
+  }
 }
