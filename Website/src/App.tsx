@@ -16,6 +16,7 @@ import ProductManagement from "./components/admin/ProductManagement";
 import OfferManagement from "./components/admin/OfferManagement";
 import CategoryManagement from "./components/admin/CategoryManagement";
 import Dashboard from "./components/admin/Dashboard";
+import OrderManagement from "./components/admin/OrderManagement";
 import "./App.css";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -34,6 +35,7 @@ function AdminRoutes() {
         <Route path="/products" element={<ProductManagement />} />
         <Route path="/categories" element={<CategoryManagement />} />
         <Route path="/offers" element={<OfferManagement />} />
+        <Route path="/orders" element={<OrderManagement />} />
         {/* <Route path="/chat" element={<ChatManagement />} /> */}
       </Routes>
     </AdminLayout>

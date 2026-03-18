@@ -7,6 +7,7 @@ import {
   LogOut,
   Menu,
   Package,
+  ClipboardList,
   ShoppingBag,
   Tag,
 } from "lucide-react";
@@ -22,6 +23,7 @@ const sidebarItems = [
   { icon: Package, label: "Products", href: "/admin/products" },
   { icon: Boxes, label: "Categories", href: "/admin/categories" },
   { icon: Tag, label: "Offers", href: "/admin/offers" },
+  { icon: ClipboardList, label: "Orders", href: "/admin/orders" },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
