@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Edit, Loader2, Plus, RefreshCw, Trash2 } from "lucide-react";
+import { Edit, Loader2, Plus, RefreshCw, Trash2, Tag, Calendar, Sparkles } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { adminApi } from "../../lib/adminApi";
@@ -146,16 +146,25 @@ export default function OfferManagement() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Offers</h1>
-          <p className="text-sm text-muted-foreground">
-            Total offers: {offers.length} | Active: {activeOfferCount}
-          </p>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/40 backdrop-blur-md p-6 rounded-3xl border border-slate-200/60 shadow-xl shadow-slate-200/40">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-pink-600 flex items-center justify-center shadow-lg shadow-pink-200">
+            <Tag className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Campaign Management</h1>
+            <p className="text-slate-500 text-sm font-medium">Manage active offers and discount codes.</p>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={fetchOffers} disabled={isLoading}>
+        
+        <div className="flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-xl bg-pink-50 border border-pink-100 mr-2">
+             <Sparkles className="w-4 h-4 text-pink-500" />
+             <span className="text-xs font-bold text-pink-700 uppercase tracking-wider">{activeOfferCount} Active Campaigns</span>
+          </div>
+
+          <Button variant="outline" size="icon" onClick={fetchOffers} disabled={isLoading} className="rounded-xl border-slate-200 hover:bg-slate-50 hover:text-pink-600 transition-all">
             <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
           </Button>
 
@@ -178,36 +187,35 @@ export default function OfferManagement() {
               }
             }}
           >
-            <DialogTrigger>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Offer
+            <DialogTrigger asChild>
+              <Button className="rounded-xl bg-pink-600 hover:bg-pink-700 text-white shadow-lg shadow-pink-100 px-6 py-6 font-bold h-auto">
+                <Plus className="mr-2 h-5 w-5" /> New Campaign
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[520px]">
+            <DialogContent className="sm:max-w-[520px] rounded-3xl border-none shadow-2xl">
               <DialogHeader>
-                <DialogTitle>{editingOffer ? "Edit Offer" : "Add New Offer"}</DialogTitle>
-                <DialogDescription>Configure offer details with real dates and status.</DialogDescription>
+                <DialogTitle className="text-2xl font-bold">{editingOffer ? "Edit Campaign" : "New Campaign"}</DialogTitle>
+                <DialogDescription className="font-medium">Configure offer details and availability.</DialogDescription>
               </DialogHeader>
 
-              <form className="space-y-4 py-2" onSubmit={handleSubmit(onSubmit)}>
+              <form className="space-y-5 py-2" onSubmit={handleSubmit(onSubmit)}>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="offer_name">Offer Name</Label>
-                    <Input id="offer_name" {...register("offer_name", { required: true })} />
+                    <Label htmlFor="offer_name" className="font-bold text-slate-700">Campaign Name</Label>
+                    <Input id="offer_name" {...register("offer_name", { required: true })} className="rounded-xl border-slate-200 h-11" placeholder="Summer Sale" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="offer_code">Offer Code</Label>
-                    <Input id="offer_code" {...register("offer_code", { required: true })} />
+                    <Label htmlFor="offer_code" className="font-bold text-slate-700">Promo Code</Label>
+                    <Input id="offer_code" {...register("offer_code", { required: true })} className="rounded-xl border-slate-200 h-11 font-mono uppercase" placeholder="SUMMER24" />
                   </div>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div className="space-y-2">
-                    <Label htmlFor="offer_type">Type</Label>
+                    <Label htmlFor="offer_type" className="font-bold text-slate-700">Target Type</Label>
                     <select
                       id="offer_type"
-                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      className="flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 font-medium"
                       {...register("offer_type", { required: true })}
                     >
                       <option value="ORDER">Order</option>
@@ -218,10 +226,10 @@ export default function OfferManagement() {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="discount_type">Discount Type</Label>
+                    <Label htmlFor="discount_type" className="font-bold text-slate-700">Type</Label>
                     <select
                       id="discount_type"
-                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      className="flex h-11 w-full rounded-xl border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 font-medium"
                       {...register("discount_type", { required: true })}
                     >
                       <option value="percentage">Percentage</option>
@@ -230,33 +238,34 @@ export default function OfferManagement() {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="discount_value">Discount Value</Label>
+                    <Label htmlFor="discount_value" className="font-bold text-slate-700">Value</Label>
                     <Input
                       id="discount_value"
                       type="number"
                       {...register("discount_value", { required: true, valueAsNumber: true })}
+                      className="rounded-xl border-slate-200 h-11"
                     />
                   </div>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="start_date">Start Date</Label>
-                    <Input id="start_date" type="date" {...register("start_date", { required: true })} />
+                    <Label htmlFor="start_date" className="font-bold text-slate-700">Starts</Label>
+                    <Input id="start_date" type="date" {...register("start_date", { required: true })} className="rounded-xl border-slate-200 h-11" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="end_date">End Date</Label>
-                    <Input id="end_date" type="date" {...register("end_date", { required: true })} />
+                    <Label htmlFor="end_date" className="font-bold text-slate-700">Ends</Label>
+                    <Input id="end_date" type="date" {...register("end_date", { required: true })} className="rounded-xl border-slate-200 h-11" />
                   </div>
                 </div>
 
-                <label className="inline-flex items-center gap-2 text-sm">
-                  <input type="checkbox" className="h-4 w-4 accent-[color:var(--primary)]" {...register("is_active")} />
-                  Keep offer active
-                </label>
+                <div className="flex items-center gap-2 p-1">
+                  <input type="checkbox" id="is_active" className="h-5 w-5 rounded-lg border-slate-300 text-pink-600 focus:ring-pink-500" {...register("is_active")} />
+                  <Label htmlFor="is_active" className="font-bold text-slate-700">Enable campaign immediately</Label>
+                </div>
 
-                <Button type="submit" className="w-full">
-                  Save Offer
+                <Button type="submit" className="w-full h-12 rounded-xl bg-pink-600 hover:bg-pink-700 text-white font-bold text-lg shadow-lg shadow-pink-100 transition-all mt-4">
+                  Save Campaign
                 </Button>
               </form>
             </DialogContent>
@@ -264,78 +273,102 @@ export default function OfferManagement() {
         </div>
       </div>
 
-      <Card className="border-border/70">
+      <Card className="border-none shadow-2xl shadow-slate-200/50 rounded-3xl overflow-hidden bg-white/70 backdrop-blur-xl">
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex h-64 items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <div className="flex h-80 items-center justify-center">
+              <Loader2 className="h-10 w-10 animate-spin text-pink-500" />
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Code</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Discount</TableHead>
-                  <TableHead>Date Range</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {offers.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
-                      No offers found.
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader className="bg-slate-50/50">
+                  <TableRow className="hover:bg-transparent border-slate-100">
+                    <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">Promo Code</TableHead>
+                    <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">Campaign Name</TableHead>
+                    <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">Type</TableHead>
+                    <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">Discount</TableHead>
+                    <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">Duration</TableHead>
+                    <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">Status</TableHead>
+                    <TableHead className="py-5 text-right font-bold text-slate-900 uppercase tracking-wider text-[10px]">Actions</TableHead>
                   </TableRow>
-                ) : (
-                  offers.map((offer) => (
-                    <TableRow key={offer._id}>
-                      <TableCell className="font-mono font-semibold">{offer.offer_code}</TableCell>
-                      <TableCell>{offer.offer_name}</TableCell>
-                      <TableCell className="text-xs uppercase text-muted-foreground">{offer.offer_type}</TableCell>
-                      <TableCell>{formatDiscount(offer)}</TableCell>
-                      <TableCell className="text-xs text-muted-foreground">
-                        {new Date(offer.start_date).toLocaleDateString("en-IN")} -{" "}
-                        {new Date(offer.end_date).toLocaleDateString("en-IN")}
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={cn(
-                            "rounded-full px-2 py-1 text-xs font-medium",
-                            offer.is_active ? "bg-chart-5/30 text-foreground" : "bg-muted text-muted-foreground",
-                          )}
-                        >
-                          {offer.is_active ? "Active" : "Inactive"}
-                        </span>
-                      </TableCell>
-                      <TableCell className="space-x-2 text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleToggleStatus(offer)}
-                        >
-                          {offer.is_active ? "Deactivate" : "Activate"}
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(offer)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive"
-                          onClick={() => handleDelete(offer._id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                </TableHeader>
+                <TableBody>
+                  {offers.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="h-48 text-center text-slate-400 font-medium">
+                        No active campaigns found.
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                  ) : (
+                    offers.map((offer) => (
+                      <TableRow key={offer._id} className="hover:bg-slate-50/50 border-slate-50 transition-colors group">
+                        <TableCell>
+                          <div className="inline-flex px-3 py-1 rounded-lg bg-slate-900 text-white font-mono text-xs font-black tracking-widest uppercase">
+                            {offer.offer_code}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-bold text-slate-900 group-hover:text-pink-600 transition-colors">{offer.offer_name}</TableCell>
+                        <TableCell>
+                          <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider">
+                            {offer.offer_type}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="font-black text-pink-600 text-base">{formatDiscount(offer)}</span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase">
+                            <Calendar className="w-3 h-3" />
+                            <span>
+                              {new Date(offer.start_date).toLocaleDateString("en-IN")} - {new Date(offer.end_date).toLocaleDateString("en-IN")}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span
+                            className={cn(
+                              "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all",
+                              offer.is_active 
+                                ? "bg-emerald-100 text-emerald-700 shadow-sm shadow-emerald-100" 
+                                : "bg-slate-200 text-slate-500",
+                            )}
+                          >
+                            {offer.is_active ? "Active" : "Inactive"}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleToggleStatus(offer)}
+                              className={cn(
+                                "text-[10px] font-black uppercase tracking-tighter h-8 px-2 rounded-lg",
+                                offer.is_active ? "text-amber-600 hover:text-amber-700 hover:bg-amber-50" : "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                              )}
+                            >
+                              {offer.is_active ? "Pause" : "Start"}
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleEdit(offer)} className="w-8 h-8 rounded-lg text-slate-400 hover:text-pink-600 hover:bg-pink-50">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                              onClick={() => handleDelete(offer._id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
