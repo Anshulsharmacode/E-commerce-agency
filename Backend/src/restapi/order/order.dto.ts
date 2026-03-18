@@ -16,3 +16,7 @@ export class UpdateOrderStatusDto {
 export class CancelOrderDto {
   cancellation_reason: string;
 }
+
+export class AssignOrderDto {
+  assign_to: string;
+}

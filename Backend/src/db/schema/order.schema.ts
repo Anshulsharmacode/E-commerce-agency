@@ -60,7 +60,10 @@ export class Order {
   created_by?: string;
 
   @Prop({ required: false })
-  refer_to?: string;
+  assign_to?: string;
+
+  @Prop({ required: false })
+  assign_by?: string;
 
   created_at: Date;
   updated_at: Date;
