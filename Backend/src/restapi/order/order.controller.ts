@@ -18,6 +18,7 @@ import { UserRole } from 'src/db/schema';
 import {
   CancelOrderDto,
   CreateOrderDto,
+  AssignOrderDto,
   UpdateOrderStatusDto,
 } from './order.dto';
 import { OrderService } from './order.service';
@@ -48,6 +49,25 @@ export class OrderController {
       data: order,
     };
   }
+
+  // @Post('employee/create')
+  // @UseGuards(AuthGuard, RolesGuard)
+  // @SetMetadata('roles', [UserRole.ADMIN, UserRole.EMPLOYEE])
+  // @HttpCode(HttpStatus.CREATED)
+  // async empCreateOrderRef(
+  //   @Req() req: Request & { user?: AuthUser },
+  //   @Body() createOrderDto: CreateOrderDto,
+  // ) {
+  //   const order = await this.orderService.empcreateOrderRef(
+  //     req.user?._id ?? '',
+  //     createOrderDto,
+  //   );
+
+  //   return {
+  //     message: 'Order created successfully',
+  //     data: order,
+  //   };
+  // }
 
   @Get('my')
   @HttpCode(HttpStatus.OK)
@@ -109,6 +129,21 @@ export class OrderController {
     };
   }
 
+  @Get('assigned/my')
+  @UseGuards(AuthGuard, RolesGuard)
+  @SetMetadata('roles', [UserRole.EMPLOYEE])
+  @HttpCode(HttpStatus.OK)
+  async getAssignedOrders(@Req() req: Request & { user?: AuthUser }) {
+    const orders = await this.orderService.getAssignedOrders(
+      req.user?._id ?? '',
+    );
+
+    return {
+      message: 'Assigned orders fetched successfully',
+      data: orders,
+    };
+  }
+
   @Get(':order_id')
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('roles', [UserRole.ADMIN, UserRole.EMPLOYEE])
@@ -140,6 +175,28 @@ export class OrderController {
 
     return {
       message: 'Order status updated successfully',
+      data: order,
+    };
+  }
+
+  @Patch(':order_id/assign')
+  @UseGuards(AuthGuard, RolesGuard)
+  @SetMetadata('roles', [UserRole.ADMIN])
+  @HttpCode(HttpStatus.OK)
+  async assignOrder(
+    @Req() req: Request & { user?: AuthUser },
+    @Param('order_id') order_id: string,
+    @Body() assignOrderDto: AssignOrderDto,
+  ) {
+    const order = await this.orderService.assignOrder(
+      order_id,
+      assignOrderDto,
+      req.user?._id ?? '',
+      req.user?.role,
+    );
+
+    return {
+      message: 'Order assigned successfully',
       data: order,
     };
   }

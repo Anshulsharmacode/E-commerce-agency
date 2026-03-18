@@ -75,9 +75,9 @@ function OrderDetailsPage() {
                 </p>
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                    order.status === "DELIVERED"
+                    order.status === "delivered"
                       ? "bg-green-100 text-green-700"
-                      : order.status === "CANCELLED"
+                      : order.status === "cancelled"
                         ? "bg-red-100 text-red-700"
                         : "bg-blue-100 text-blue-700"
                   }`}

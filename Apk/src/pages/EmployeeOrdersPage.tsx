@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getMyOrders, type Order } from "@/api";
-import { Package, ChevronRight, Clock } from "lucide-react";
+import { getAssignedOrders, type Order } from "@/api";
+import { Package, ChevronRight, Clock, UserCheck } from "lucide-react";
 
-function OrdersPage() {
+function EmployeeOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await getMyOrders();
+        const res = await getAssignedOrders();
         setOrders(res.data);
       } catch (err) {
         console.error(err);
@@ -31,20 +31,22 @@ function OrdersPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background pb-32">
       <header className="px-5 py-8">
-        <h1 className="text-2xl font-bold">My Orders</h1>
-        <p className="text-sm text-muted-foreground">Track your deliveries</p>
+        <h1 className="text-2xl font-bold">Assigned Orders</h1>
+        <p className="text-sm text-muted-foreground">
+          Orders assigned by admin
+        </p>
       </header>
 
       <main className="px-5 space-y-4">
         {orders.length === 0 ? (
           <div className="text-center py-20">
             <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No orders yet.</p>
+            <p className="text-muted-foreground">No assigned orders yet.</p>
           </div>
         ) : (
           orders.map((order) => (
             <Link
-              to={`/orders/${order._id}`}
+              to={`/employee/orders/${order._id}`}
               key={order._id}
               className="rounded-2xl border bg-card p-4 flex items-center justify-between"
             >
@@ -73,6 +75,12 @@ function OrdersPage() {
                       {order.status}
                     </span>
                   </div>
+                  {order.assign_by ? (
+                    <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+                      <UserCheck className="h-3 w-3" />
+                      Assigned by {order.assign_by.slice(-6).toUpperCase()}
+                    </div>
+                  ) : null}
                 </div>
               </div>
               <div className="text-right">
@@ -87,4 +95,4 @@ function OrdersPage() {
   );
 }
 
-export default OrdersPage;
+export default EmployeeOrdersPage;

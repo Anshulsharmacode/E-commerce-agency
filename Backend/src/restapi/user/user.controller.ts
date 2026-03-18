@@ -82,4 +82,15 @@ export class UserController {
       user: req.user ?? null,
     };
   }
+
+  @Get('employees')
+  @UseGuards(AuthGuard, RolesGuard)
+  @SetMetadata('roles', [UserRole.ADMIN])
+  async getEmployees() {
+    const employees = await this.userService.getEmployees();
+    return {
+      message: 'Employees fetched successfully',
+      data: employees,
+    };
+  }
 }

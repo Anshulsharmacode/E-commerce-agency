@@ -3,12 +3,12 @@ import type { ApiResponse } from "./types";
 
 // Types for Order
 export type OrderStatus =
-  | "PENDING"
-  | "CONFIRMED"
-  | "PROCESSING"
-  | "SHIPPED"
-  | "DELIVERED"
-  | "CANCELLED";
+  | "pending"
+  | "confirmed"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
 
 export interface OrderItem {
   product_id: string;
@@ -36,6 +36,9 @@ export interface Order {
   cancellation_reason?: string;
   cancelled_by?: string;
   created_by: string;
+  // refer_to?: string;
+  assign_to?: string;
+  assign_by?: string;
   created_at: Date;
   updated_at: Date;
 }
@@ -43,7 +46,12 @@ export interface Order {
 export interface CreateOrderData {
   delivery_address: Record<string, unknown>;
   notes?: string;
+  // refer_to?: string;
 }
+
+// export interface EmployeeCreateOrderData extends CreateOrderData {
+//   refer_to: string;
+// }
 
 export interface UpdateOrderStatusData {
   status: OrderStatus;
@@ -54,10 +62,24 @@ export interface CancelOrderData {
   cancellation_reason: string;
 }
 
+export interface AssignOrderData {
+  assign_to: string;
+}
+
 export const createOrder = async (
   data: CreateOrderData,
 ): Promise<ApiResponse<Order>> => {
   const response = await api.post<ApiResponse<Order>>("/order/create", data);
+  return response.data;
+};
+
+export const createEmployeeOrder = async (
+  data: EmployeeCreateOrderData,
+): Promise<ApiResponse<Order>> => {
+  const response = await api.post<ApiResponse<Order>>(
+    "/order/employee/create",
+    data,
+  );
   return response.data;
 };
 
@@ -104,5 +126,21 @@ export const updateOrderStatus = async (
     `/order/${orderId}/status`,
     data,
   );
+  return response.data;
+};
+
+export const assignOrder = async (
+  orderId: string,
+  data: AssignOrderData,
+): Promise<ApiResponse<Order>> => {
+  const response = await api.patch<ApiResponse<Order>>(
+    `/order/${orderId}/assign`,
+    data,
+  );
+  return response.data;
+};
+
+export const getAssignedOrders = async (): Promise<ApiResponse<Order[]>> => {
+  const response = await api.get<ApiResponse<Order[]>>("/order/assigned/my");
   return response.data;
 };

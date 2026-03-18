@@ -2,7 +2,7 @@ import api from "./config";
 import type { ApiResponse } from "./types";
 
 // Types for User
-export type UserRole = "ADMIN" | "EMPLOYEE" | "USER";
+export type UserRole = "admin" | "employee" | "user";
 
 export interface User {
   _id: string;

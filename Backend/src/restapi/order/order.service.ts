@@ -5,19 +5,22 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { isValidObjectId, Model } from 'mongoose';
+import { Model } from 'mongoose';
 import {
   Cart,
   CartDocument,
   Order,
   OrderDocument,
   OrderStatus,
+  User,
   UserRole,
 } from 'src/db/schema';
 import { apiError } from 'src/utills/apiResponse';
 import {
+  AssignOrderDto,
   CancelOrderDto,
   CreateOrderDto,
+  // EmploeeCreateOrder,
   UpdateOrderStatusDto,
 } from './order.dto';
 
@@ -28,13 +31,9 @@ export class OrderService {
     private readonly orderModel: Model<OrderDocument>,
     @InjectModel(Cart.name)
     private readonly cartModel: Model<CartDocument>,
+    @InjectModel(User.name)
+    private readonly userModel: Model<User>,
   ) {}
-
-  private orderQuery(order_id: string) {
-    return isValidObjectId(order_id)
-      ? { $or: [{ _id: order_id }, { order_id }] }
-      : { order_id };
-  }
 
   async createOrder(user_id: string, createOrderDto: CreateOrderDto) {
     const { delivery_address, notes } = createOrderDto;
@@ -188,6 +187,12 @@ export class OrderService {
       );
     }
 
+    if (actorRole === UserRole.EMPLOYEE && status === OrderStatus.DELIVERED) {
+      throw new ForbiddenException(
+        'Only admin can mark order as delivered',
+      );
+    }
+
     const order = await this.getOrderById(order_id);
 
     if (
@@ -221,5 +226,54 @@ export class OrderService {
     }
 
     return updatedOrder;
+  }
+
+  async assignOrder(
+    order_id: string,
+    assignOrderDto: AssignOrderDto,
+    actorId: string,
+    actorRole?: UserRole,
+  ) {
+    const { assign_to } = assignOrderDto;
+
+    if (!assign_to) {
+      apiError('assign_to is required', null, HttpStatus.BAD_REQUEST);
+    }
+
+    if (actorRole !== UserRole.ADMIN) {
+      throw new ForbiddenException('Only admin can assign orders');
+    }
+
+    const employee = await this.userModel.findById(assign_to);
+    if (!employee || employee.role !== UserRole.EMPLOYEE) {
+      throw new NotFoundException('Employee not found');
+    }
+
+    const order = await this.getOrderById(order_id);
+
+    const updatedOrder = await this.orderModel.findOneAndUpdate(
+      { _id: order._id },
+      {
+        assign_to: employee.name,
+        assign_by: actorId,
+      },
+      { returnDocument: 'after' },
+    );
+
+    if (!updatedOrder) {
+      throw new NotFoundException('Order not found');
+    }
+
+    return updatedOrder;
+  }
+
+  async getAssignedOrders(user_id: string) {
+    if (!user_id) {
+      apiError('User not found in token', null, HttpStatus.UNAUTHORIZED);
+    }
+
+    return this.orderModel
+      .find({ assign_to: user_id })
+      .sort({ created_at: -1 });
   }
 }
