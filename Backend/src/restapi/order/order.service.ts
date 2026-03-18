@@ -12,12 +12,14 @@ import {
   Order,
   OrderDocument,
   OrderStatus,
+  User,
   UserRole,
 } from 'src/db/schema';
 import { apiError } from 'src/utills/apiResponse';
 import {
   CancelOrderDto,
   CreateOrderDto,
+  // EmploeeCreateOrder,
   UpdateOrderStatusDto,
 } from './order.dto';
 
@@ -28,6 +30,8 @@ export class OrderService {
     private readonly orderModel: Model<OrderDocument>,
     @InjectModel(Cart.name)
     private readonly cartModel: Model<CartDocument>,
+    @InjectModel(User.name)
+    private readonly userModel: Model<User>,
   ) {}
 
   private orderQuery(order_id: string) {
@@ -37,7 +41,7 @@ export class OrderService {
   }
 
   async createOrder(user_id: string, createOrderDto: CreateOrderDto) {
-    const { delivery_address, notes } = createOrderDto;
+    const { delivery_address, notes, refer_to } = createOrderDto;
 
     if (!user_id) {
       apiError('User not found in token', null, HttpStatus.UNAUTHORIZED);
@@ -81,6 +85,7 @@ export class OrderService {
       delivery_address,
       notes: notes?.trim(),
       created_by: user_id,
+      refer_to: refer_to,
     });
 
     cartDoc.items = [];
@@ -221,5 +226,16 @@ export class OrderService {
     }
 
     return updatedOrder;
+  }
+
+  async empcreateOrderRef(user_id: string, createOrderDto: CreateOrderDto) {
+    const user = await this.userModel.findOne({ _id: user_id });
+    if (!user) {
+      throw new ForbiddenException('User Not found ');
+    }
+
+    const order = await this.createOrder(user_id, createOrderDto);
+
+    return order;
   }
 }

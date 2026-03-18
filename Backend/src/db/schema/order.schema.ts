@@ -59,6 +59,9 @@ export class Order {
   @Prop({ required: false, trim: true })
   created_by?: string;
 
+  @Prop({ required: false })
+  refer_to?: string;
+
   created_at: Date;
   updated_at: Date;
 }

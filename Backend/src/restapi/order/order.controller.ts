@@ -49,6 +49,25 @@ export class OrderController {
     };
   }
 
+  @Post('employee/create')
+  @UseGuards(AuthGuard, RolesGuard)
+  @SetMetadata('roles', [UserRole.ADMIN, UserRole.EMPLOYEE])
+  @HttpCode(HttpStatus.CREATED)
+  async empCreateOrderRef(
+    @Req() req: Request & { user?: AuthUser },
+    @Body() createOrderDto: CreateOrderDto,
+  ) {
+    const order = await this.orderService.empcreateOrderRef(
+      req.user?._id ?? '',
+      createOrderDto,
+    );
+
+    return {
+      message: 'Order created successfully',
+      data: order,
+    };
+  }
+
   @Get('my')
   @HttpCode(HttpStatus.OK)
   async getMyOrders(@Req() req: Request & { user?: AuthUser }) {
