@@ -3,12 +3,12 @@ import type { ApiResponse } from "./types";
 
 // Types for Order
 export type OrderStatus =
-  | "PENDING"
-  | "CONFIRMED"
-  | "PROCESSING"
-  | "SHIPPED"
-  | "DELIVERED"
-  | "CANCELLED";
+  | "pending"
+  | "confirmed"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
 
 export interface OrderItem {
   product_id: string;

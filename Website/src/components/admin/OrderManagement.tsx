@@ -28,6 +28,8 @@ export default function OrderManagement() {
   const [error, setError] = useState<string | null>(null);
   const [assigning, setAssigning] = useState<Record<string, boolean>>({});
   const [selectedAssignee, setSelectedAssignee] = useState<Record<string, string>>({});
+  const [selectedStatus, setSelectedStatus] = useState<Record<string, string>>({});
+  const [updatingStatus, setUpdatingStatus] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchOrdersAndEmployees = async () => {
@@ -56,6 +58,14 @@ export default function OrderManagement() {
           }
         });
         setSelectedAssignee(initialAssignees);
+
+        const initialStatuses: Record<string, string> = {};
+        ordersData.forEach((order: Order) => {
+          if (order.status) {
+            initialStatuses[order._id] = order.status;
+          }
+        });
+        setSelectedStatus(initialStatuses);
       } catch (fetchError) {
         console.error(fetchError);
         setError("Could not load orders or employees. Please refresh.");
@@ -101,6 +111,34 @@ export default function OrderManagement() {
       setError("Failed to assign order. Please try again.");
     } finally {
       setAssigning((prev) => ({ ...prev, [orderId]: false }));
+    }
+  };
+
+  const handleStatusUpdate = async (orderId: string) => {
+    const nextStatus = selectedStatus[orderId];
+    if (!nextStatus) {
+      setError("Please select a status.");
+      return;
+    }
+
+    setUpdatingStatus((prev) => ({ ...prev, [orderId]: true }));
+    setError(null);
+
+    try {
+      const res = await api.patch(`/order/${orderId}/status`, {
+        status: nextStatus,
+      });
+      const updated = res.data?.data as Order | undefined;
+      if (updated) {
+        setOrders((prev) =>
+          prev.map((order) => (order._id === orderId ? updated : order)),
+        );
+      }
+    } catch (statusError) {
+      console.error(statusError);
+      setError("Failed to update status. Please try again.");
+    } finally {
+      setUpdatingStatus((prev) => ({ ...prev, [orderId]: false }));
     }
   };
 
@@ -162,6 +200,37 @@ export default function OrderManagement() {
                   </div>
 
                   <div className="flex flex-1 flex-col gap-3 md:flex-row md:items-center md:justify-end">
+                    <div className="flex flex-1 items-center gap-2">
+                      <select
+                        className={cn(
+                          "h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-700 shadow-sm",
+                          "focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200",
+                        )}
+                        value={selectedStatus[order._id] ?? ""}
+                        onChange={(event) =>
+                          setSelectedStatus((prev) => ({
+                            ...prev,
+                            [order._id]: event.target.value,
+                          }))
+                        }
+                      >
+                        <option value="">Select status</option>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                    </div>
+                    <Button
+                      variant="secondary"
+                      className="h-10 rounded-xl px-5 text-sm font-semibold"
+                      onClick={() => handleStatusUpdate(order._id)}
+                      disabled={updatingStatus[order._id]}
+                    >
+                      {updatingStatus[order._id] ? "Updating..." : "Update"}
+                    </Button>
                     <div className="flex flex-1 items-center gap-2">
                       <UserPlus className="h-4 w-4 text-slate-400" />
                       <select

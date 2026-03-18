@@ -187,6 +187,12 @@ export class OrderService {
       );
     }
 
+    if (actorRole === UserRole.EMPLOYEE && status === OrderStatus.DELIVERED) {
+      throw new ForbiddenException(
+        'Only admin can mark order as delivered',
+      );
+    }
+
     const order = await this.getOrderById(order_id);
 
     if (
