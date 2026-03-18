@@ -8,7 +8,9 @@ import ProductsPage from './pages/product/ProductsPage';
 import ProductDetialsPage from './pages/product/productDetials';
 import CartPage from './pages/CartPage';
 import OrdersPage from './pages/OrdersPage';
+import EmployeeOrdersPage from './pages/EmployeeOrdersPage';
 import OrderDetailsPage from './pages/order/OrderDetailsPage';
+import EmployeeOrderDetailsPage from './pages/order/EmployeeOrderDetailsPage';
 import ProfilePage from './pages/ProfilePage';
 import WishlistPage from './pages/WishlistPage';
 import BottomNav from './components/BottomNav';
@@ -29,6 +31,8 @@ function AppContent() {
           <Route path="/products/:productId" element={<ProductDetialsPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/employee/orders" element={<EmployeeOrdersPage />} />
+          <Route path="/employee/orders/:orderId" element={<EmployeeOrderDetailsPage />} />
           <Route path="/orders/:orderId" element={<OrderDetailsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
