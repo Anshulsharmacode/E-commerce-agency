@@ -4,6 +4,9 @@ import { Model } from 'mongoose';
 import {
   Cart,
   CartDocument,
+  Offer,
+  OfferDiscountType,
+  OfferType,
   Product,
   ProductDocument,
   User,
@@ -17,15 +20,192 @@ export class CartService {
   constructor(
     @InjectModel(Cart.name)
     private readonly cartModel: Model<CartDocument>,
+    @InjectModel(Offer.name)
+    private readonly offerModel: Model<Offer>,
     @InjectModel(Product.name)
     private readonly productModel: Model<ProductDocument>,
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
   ) {}
 
-  private recalculateTotals(items: Cart['items']) {
+  private calculateLineDiscount(
+    offer: Offer,
+    lineTotal: number,
+    quantity: number,
+  ) {
+    if (offer.discount_type === OfferDiscountType.PERCENTAGE) {
+      return (lineTotal * offer.discount_value) / 100;
+    }
+    if (offer.discount_type === OfferDiscountType.FLAT) {
+      return Math.min(offer.discount_value, lineTotal);
+    }
+    if (offer.discount_type === OfferDiscountType.FREE_PRODUCT) {
+      return 0;
+    }
+    return 0;
+  }
+
+  private calculateBxgyDiscount(
+    offer: Offer,
+    pricePerBox: number,
+    quantity: number,
+  ) {
+    if (
+      offer.discount_type !== OfferDiscountType.FREE_PRODUCT ||
+      !offer.buy_quantity ||
+      !offer.free_quantity
+    ) {
+      return 0;
+    }
+    const bundleSize = offer.buy_quantity + offer.free_quantity;
+    if (bundleSize <= 0) return 0;
+    const freeUnits = Math.floor(quantity / bundleSize) * offer.free_quantity;
+    return freeUnits * pricePerBox;
+  }
+
+  private async recalculateTotals(items: Cart['items']) {
     const total_amount = items.reduce((sum, item) => sum + item.total_price, 0);
-    const total_discount = 0;
+    let total_discount = 0;
+
+    if (items.length === 0) {
+      return {
+        total_amount,
+        total_discount,
+        final_amount: 0,
+      };
+    }
+
+    const appliedOfferIds = Array.from(
+      new Set(
+        items
+          .map((item) => item.applied_offer_id)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    );
+
+    if (appliedOfferIds.length === 0) {
+      return {
+        total_amount,
+        total_discount,
+        final_amount: Math.max(total_amount - total_discount, 0),
+      };
+    }
+
+    const now = new Date();
+    const offers = await this.offerModel
+      .find({
+        _id: { $in: appliedOfferIds },
+        is_active: true,
+        start_date: { $lte: now },
+        end_date: { $gte: now },
+      })
+      .lean();
+
+    if (offers.length === 0) {
+      return {
+        total_amount,
+        total_discount,
+        final_amount: Math.max(total_amount - total_discount, 0),
+      };
+    }
+
+    const offerMap = new Map<string, Offer>(
+      offers.map((offer) => [String(offer._id), offer as Offer]),
+    );
+
+    const productIds = items.map((item) => item.product_id);
+    const products = await this.productModel
+      .find({ _id: { $in: productIds } }, { _id: 1, category_id: 1 })
+      .lean();
+    const productCategoryMap = new Map<string, string>();
+    products.forEach((product) => {
+      productCategoryMap.set(String(product._id), product.category_id);
+    });
+
+    const totalBoxes = items.reduce(
+      (sum, item) => sum + item.quantity_boxes,
+      0,
+    );
+
+    const orderOfferApplied = new Set<string>();
+
+    items.forEach((item) => {
+      if (!item.applied_offer_id) return;
+      const offer = offerMap.get(item.applied_offer_id);
+      if (!offer) return;
+
+      if (
+        offer.usage_limit !== undefined &&
+        offer.usage_limit !== null &&
+        offer.usage_count >= offer.usage_limit
+      ) {
+        return;
+      }
+
+      if (offer.min_order_value && total_amount < offer.min_order_value) {
+        return;
+      }
+
+      if (offer.min_order_boxes && totalBoxes < offer.min_order_boxes) {
+        return;
+      }
+
+      switch (offer.offer_type) {
+        case OfferType.PRODUCT: {
+          if (!offer.applicable_product_ids?.includes(item.product_id)) return;
+          total_discount += this.calculateLineDiscount(
+            offer,
+            item.total_price,
+            item.quantity_boxes,
+          );
+          break;
+        }
+        case OfferType.CATEGORY: {
+          const categoryId = productCategoryMap.get(item.product_id);
+          if (
+            !categoryId ||
+            !offer.applicable_category_ids?.includes(categoryId)
+          ) {
+            return;
+          }
+          total_discount += this.calculateLineDiscount(
+            offer,
+            item.total_price,
+            item.quantity_boxes,
+          );
+          break;
+        }
+        case OfferType.BXGY: {
+          if (!offer.applicable_product_ids?.includes(item.product_id)) return;
+          total_discount += this.calculateBxgyDiscount(
+            offer,
+            item.price_per_box,
+            item.quantity_boxes,
+          );
+          break;
+        }
+        case OfferType.TARGET: {
+          if (orderOfferApplied.has(item.applied_offer_id)) return;
+          if (offer.target_boxes && totalBoxes < offer.target_boxes) return;
+          total_discount += offer.reward_amount ?? 0;
+          orderOfferApplied.add(item.applied_offer_id);
+          break;
+        }
+        case OfferType.ORDER:
+        default: {
+          if (orderOfferApplied.has(item.applied_offer_id)) return;
+          if (offer.discount_type === OfferDiscountType.PERCENTAGE) {
+            total_discount += (total_amount * offer.discount_value) / 100;
+          } else if (offer.discount_type === OfferDiscountType.FLAT) {
+            total_discount += Math.min(offer.discount_value, total_amount);
+          }
+          orderOfferApplied.add(item.applied_offer_id);
+          break;
+        }
+      }
+    });
+
+    total_discount = Math.min(total_discount, total_amount);
     const final_amount = Math.max(total_amount - total_discount, 0);
 
     return {
@@ -106,7 +286,7 @@ export class CartService {
       });
     }
 
-    const totals = this.recalculateTotals(cart.items);
+    const totals = await this.recalculateTotals(cart.items);
     cart.total_amount = totals.total_amount;
     cart.total_discount = totals.total_discount;
     cart.final_amount = totals.final_amount;
@@ -158,7 +338,7 @@ export class CartService {
     cart.items[targetIndex].total_price =
       quantity_boxes * product.selling_price_box;
 
-    const totals = this.recalculateTotals(cart.items);
+    const totals = await this.recalculateTotals(cart.items);
     cart.total_amount = totals.total_amount;
     cart.total_discount = totals.total_discount;
     cart.final_amount = totals.final_amount;
@@ -187,7 +367,7 @@ export class CartService {
       throw new NotFoundException('Product not found in cart');
     }
 
-    const totals = this.recalculateTotals(cart.items);
+    const totals = await this.recalculateTotals(cart.items);
     cart.total_amount = totals.total_amount;
     cart.total_discount = totals.total_discount;
     cart.final_amount = totals.final_amount;

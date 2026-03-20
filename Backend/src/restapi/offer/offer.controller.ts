@@ -66,6 +66,20 @@ export class OfferController {
     };
   }
 
+  @Get('eligible')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getEligibleOffers(@Req() req: Request & { user?: AuthUser }) {
+    const offers = await this.offerService.getEligibleOffersForCart(
+      req.user?._id ?? '',
+    );
+
+    return {
+      message: 'Eligible offers fetched successfully',
+      data: offers,
+    };
+  }
+
   @Get(':offer_id')
   @HttpCode(HttpStatus.OK)
   async getOfferById(@Param('offer_id') offer_id: string) {

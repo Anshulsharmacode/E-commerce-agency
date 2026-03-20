@@ -33,11 +33,13 @@ export {
 
   getAllOffers,
   getActiveOffers,
+  getEligibleOffers,
   getOfferById,
   createOffer,
   updateOffer,
   deleteOffer,
   type Offer,
+  type EligibleOffer,
   type CreateOfferData,
   type UpdateOfferData,
   type OfferType,

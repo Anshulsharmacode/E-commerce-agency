@@ -9,6 +9,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 import {
+  Cart,
+  CartDocument,
   Category,
   CategoryDocument,
   Offer,
@@ -26,6 +28,8 @@ export class OfferService {
   constructor(
     @InjectModel(Offer.name)
     private readonly offerModel: Model<OfferDocument>,
+    @InjectModel(Cart.name)
+    private readonly cartModel: Model<CartDocument>,
     @InjectModel(Product.name)
     private readonly productModel: Model<ProductDocument>,
     @InjectModel(Category.name)
@@ -311,6 +315,140 @@ export class OfferService {
     } catch (error: unknown) {
       apiError('Error creating offer', error, HttpStatus.BAD_REQUEST);
     }
+  }
+
+  private buildProductCategoryMap(
+    products: Array<{ _id: unknown; category_id: string }>,
+  ) {
+    const map = new Map<string, string>();
+    products.forEach((product) => {
+      map.set(String(product._id), product.category_id);
+    });
+    return map;
+  }
+
+  async getEligibleOffersForCart(user_id: string) {
+    if (!user_id) {
+      throw new UnauthorizedException('User not found in token');
+    }
+
+    const cart = await this.cartModel.findOne({ user_id });
+
+    if (!cart || cart.items.length === 0) {
+      return [];
+    }
+
+    const now = new Date();
+
+    const offers = await this.offerModel
+      .find({
+        is_active: true,
+        start_date: { $lte: now },
+        end_date: { $gte: now },
+      })
+      .sort({ created_at: -1 });
+
+    if (!offers.length) {
+      return [];
+    }
+
+    const productIds = cart.items.map((item) => item.product_id);
+    const products = await this.productModel
+      .find({ _id: { $in: productIds } }, { _id: 1, category_id: 1 })
+      .lean();
+    const productCategoryMap = this.buildProductCategoryMap(products);
+
+    const totalBoxes = cart.items.reduce(
+      (sum, item) => sum + item.quantity_boxes,
+      0,
+    );
+    const totalAmount = cart.total_amount;
+
+    const eligibleOffers = offers.flatMap((offer) => {
+      if (
+        offer.usage_limit !== undefined &&
+        offer.usage_limit !== null &&
+        offer.usage_count >= offer.usage_limit
+      ) {
+        return [];
+      }
+
+      if (
+        offer.min_order_value !== undefined &&
+        totalAmount < offer.min_order_value
+      ) {
+        return [];
+      }
+
+      if (
+        offer.min_order_boxes !== undefined &&
+        totalBoxes < offer.min_order_boxes
+      ) {
+        return [];
+      }
+
+      let eligibleProductIds: string[] = [];
+
+      switch (offer.offer_type) {
+        case OfferType.PRODUCT: {
+          const applicable = new Set(offer.applicable_product_ids ?? []);
+          eligibleProductIds = cart.items
+            .filter((item) => applicable.has(item.product_id))
+            .map((item) => item.product_id);
+          break;
+        }
+        case OfferType.CATEGORY: {
+          const applicable = new Set(offer.applicable_category_ids ?? []);
+          eligibleProductIds = cart.items
+            .filter((item) => {
+              const categoryId = productCategoryMap.get(item.product_id);
+              return categoryId ? applicable.has(categoryId) : false;
+            })
+            .map((item) => item.product_id);
+          break;
+        }
+        case OfferType.BXGY: {
+          const buyQty = offer.buy_quantity ?? 0;
+          if (buyQty < 1) {
+            return [];
+          }
+          const applicable = new Set(offer.applicable_product_ids ?? []);
+          eligibleProductIds = cart.items
+            .filter(
+              (item) =>
+                applicable.has(item.product_id) &&
+                item.quantity_boxes >= buyQty,
+            )
+            .map((item) => item.product_id);
+          break;
+        }
+        case OfferType.TARGET: {
+          if (offer.target_boxes && totalBoxes < offer.target_boxes) {
+            return [];
+          }
+          eligibleProductIds = cart.items.map((item) => item.product_id);
+          break;
+        }
+        case OfferType.ORDER:
+        default: {
+          eligibleProductIds = cart.items.map((item) => item.product_id);
+          break;
+        }
+      }
+
+      if (eligibleProductIds.length === 0) {
+        return [];
+      }
+
+      return [
+        {
+          offer,
+          eligible_product_ids: eligibleProductIds,
+        },
+      ];
+    });
+
+    return eligibleOffers;
   }
 
   async getAllOffers() {
