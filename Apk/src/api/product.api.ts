@@ -86,3 +86,12 @@ export const deleteProduct = async (
   );
   return response.data;
 };
+
+export const getProductBy_id = async (
+  product_id: string,
+): Promise<ApiResponse<Product>> => {
+  const response = await api.get<ApiResponse<Product>>(
+    `/product/${product_id}`,
+  );
+  return response.data;
+};

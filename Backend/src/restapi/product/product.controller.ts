@@ -77,4 +77,15 @@ export class ProductController {
       data: products,
     };
   }
+
+  @Get(':product_id')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getProductById(@Param('product_id') product_id: string) {
+    const product = await this.productService.getProductByid(product_id);
+    return {
+      message: 'Product fetched successfully',
+      data: product,
+    };
+  }
 }

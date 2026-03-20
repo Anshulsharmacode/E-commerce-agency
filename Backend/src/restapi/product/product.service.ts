@@ -221,4 +221,9 @@ export class ProductService {
 
     return this.productModel.find().sort({ created_at: -1 }).limit(safeLimit);
   }
+
+  async getProductByid(product_id: string) {
+    const data = await this.productModel.findById({ _id: product_id });
+    return data;
+  }
 }
