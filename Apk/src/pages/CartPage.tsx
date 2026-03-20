@@ -208,7 +208,7 @@ function CartPage() {
                   >
                     <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-secondary text-2xl font-black text-primary/20">
                       {productInitial}
-                    </div>
+                    </div>  
 
                     <div className="flex flex-1 flex-col py-0.5">
                       <div className="flex items-start justify-between">

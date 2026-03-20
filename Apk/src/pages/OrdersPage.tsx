@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getMyOrders, type Order } from "@/api";
+import { getProductBy_id } from "@/api/product.api";
 import { 
   Package, 
   ChevronRight, 
@@ -15,6 +16,9 @@ import {
 function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [productNameMap, setProductNameMap] = useState<Record<string, string>>(
+    {},
+  );
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -29,6 +33,48 @@ function OrdersPage() {
     };
     void fetchOrders();
   }, []);
+
+  useEffect(() => {
+    if (orders.length === 0) return;
+
+    const productIds = Array.from(
+      new Set(
+        orders.flatMap((order) => order.items.map((item) => item.product_id)),
+      ),
+    ).filter((id) => !productNameMap[id]);
+
+    if (productIds.length === 0) return;
+
+    let cancelled = false;
+
+    const fetchNames = async () => {
+      const results = await Promise.allSettled(
+        productIds.map(async (id) => {
+          const res = await getProductBy_id(id);
+          return [id, res.data.name] as const;
+        }),
+      );
+
+      if (cancelled) return;
+
+      setProductNameMap((prev) => {
+        const next = { ...prev };
+        results.forEach((result) => {
+          if (result.status === "fulfilled") {
+            const [id, name] = result.value;
+            next[id] = name;
+          }
+        });
+        return next;
+      });
+    };
+
+    void fetchNames();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [orders, productNameMap]);
 
   const getStatusDetails = (status: Order["status"]) => {
     switch (status) {
@@ -111,11 +157,22 @@ function OrdersPage() {
           orders.map((order, idx) => {
             const status = getStatusDetails(order.status);
             const StatusIcon = status.icon;
+            const firstItemId = order.items[0]?.product_id;
+            const firstItemName = firstItemId
+              ? productNameMap[firstItemId]
+              : undefined;
+            const extraItems = Math.max(order.items.length - 1, 0);
+            const orderTitle = firstItemName
+              ? extraItems > 0
+                ? `${firstItemName} +${extraItems} more`
+                : firstItemName
+              : `Order #${order._id.slice(-6).toUpperCase()}`;
             
             return (
               <Link
                 to={`/orders/${order._id}`}
                 key={order._id}
+                state={{ order }}
                 className="group relative block w-full overflow-hidden rounded-[2rem] border border-border bg-card p-5 transition-all hover:shadow-xl hover:shadow-primary/5 active:scale-[0.98]"
                 style={{ animationDelay: `${idx * 100}ms` }}
               >
@@ -126,7 +183,7 @@ function OrdersPage() {
                     </div>
                     <div>
                       <h3 className="text-sm font-black tracking-tight">
-                        Order #{order._id.slice(-6).toUpperCase()}
+                        {orderTitle}
                       </h3>
                       <div className="mt-1 flex items-center gap-2">
                         <StatusIcon className={`h-3 w-3 ${status.color.split(' ')[0]}`} />
