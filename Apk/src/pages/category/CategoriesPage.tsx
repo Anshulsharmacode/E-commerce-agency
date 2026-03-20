@@ -1,6 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight, ShoppingBag, Boxes } from "lucide-react";
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  ShoppingBag, 
+  Boxes, 
+  ArrowLeft,
+  LayoutGrid,
+  TrendingUp,
+  Zap,
+  Award,
+  Flame,
+  Star
+} from "lucide-react";
 import {
   getAllCategories,
   getAllProducts,
@@ -47,83 +59,111 @@ function CategoriesPage() {
     }, {});
   }, [products]);
 
+  const getCategoryIcon = (categoryName: string) => {
+    const icons: Record<string, React.ReactNode> = {
+      fashion: <TrendingUp className="h-6 w-6" />,
+      electronics: <Zap className="h-6 w-6" />,
+      home: <Award className="h-6 w-6" />,
+      beauty: <Flame className="h-6 w-6" />,
+    };
+    const key = categoryName.toLowerCase();
+    return icons[key] || <Star className="h-6 w-6" />;
+  };
+
+  if (isLoading)
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="text-sm font-bold text-muted-foreground animate-pulse">Loading categories...</p>
+        </div>
+      </div>
+    );
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#f2f7ff] via-[#f7fafc] to-white text-foreground">
-      <div className="px-4 pb-10 pt-6">
-        <header className="mb-4 flex items-center justify-between rounded-2xl border border-slate-200/80 bg-white/90 px-3 py-2.5">
-          <Link
-            to="/"
-            className="flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-slate-900"
-          >
-            <ChevronLeft className="h-3.5 w-3.5" /> Home
-          </Link>
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0f172a]">
-              <ShoppingBag className="h-4.5 w-4.5 text-white" />
-            </div>
+    <div className="flex min-h-screen flex-col bg-background pb-32">
+      <header className="sticky top-0 z-10 bg-background/80 px-5 pb-4 pt-12 backdrop-blur-xl border-b border-border/50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link to="/" className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform">
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
             <div>
-              <p className="text-[15px] font-semibold tracking-tight">
-                Categories
-              </p>
-              <p className="text-[11px] text-slate-500">Pick a section</p>
+              <h1 className="text-xl font-black tracking-tight">Explore</h1>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">All Categories</p>
             </div>
           </div>
-        </header>
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <LayoutGrid className="h-5 w-5" />
+          </div>
+        </div>
+      </header>
 
-        <section className="mb-4 rounded-3xl bg-gradient-to-br from-[#0f172a] via-[#1e293b] to-[#334155] px-4 py-5 text-white">
-          <h1 className="text-[24px] font-semibold leading-[1.15] tracking-tight">
-            Find products by category
-          </h1>
-          <p className="mt-2 text-[13px] leading-5 text-slate-200">
-            Browse all sections and open the one you need.
-          </p>
-          <p className="mt-3 inline-flex rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-[11px] font-medium">
-            {categories.length} categories available
-          </p>
+      <main className="px-5 pt-6">
+        <section className="mb-8 relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-primary via-purple-600 to-indigo-600 px-7 py-10 text-white shadow-2xl shadow-primary/20">
+          <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
+          <div className="relative z-10">
+            <h2 className="text-3xl font-black leading-tight">Find exactly what you need</h2>
+            <p className="mt-3 text-sm font-medium text-white/80 leading-relaxed">
+              Browse through our curated collections of premium products.
+            </p>
+            <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-md px-4 py-2 text-[10px] font-black uppercase tracking-widest">
+              <Boxes className="h-3.5 w-3.5" />
+              {categories.length} Categories Available
+            </div>
+          </div>
         </section>
 
         {error && (
-          <div className="mb-3 rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-xs text-destructive">
+          <div className="mb-6 rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-xs font-bold text-destructive">
             {error}
           </div>
         )}
 
-        {isLoading ? (
-          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-5 text-sm text-slate-500">
-            Loading categories...
-          </div>
-        ) : categories.length === 0 ? (
-          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-5 text-sm text-slate-500">
-            No categories available.
-          </div>
-        ) : (
-          <div className="space-y-2.5">
-            {categories.map((category) => (
-              <Link
-                key={category._id}
-                to={`/categories/${category._id}`}
-                className="group flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3"
-              >
-                <div className="mt-0.5 rounded-lg bg-[#eef2ff] p-1.5 text-[#3730a3]">
-                  <Boxes className="h-3.5 w-3.5" />
+        <div className="grid grid-cols-1 gap-4">
+          {categories.map((category, idx) => (
+            <Link
+              key={category._id}
+              to={`/categories/${category._id}`}
+              className="group relative flex items-center gap-5 rounded-[2rem] border border-border bg-card p-4 transition-all hover:shadow-xl hover:shadow-primary/5 active:scale-[0.98]"
+              style={{ animationDelay: `${idx * 50}ms` }}
+            >
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                {getCategoryIcon(category.name)}
+              </div>
+              
+              <div className="flex-1">
+                <h3 className="text-base font-black tracking-tight text-foreground group-hover:text-primary transition-colors">
+                  {category.name}
+                </h3>
+                <p className="mt-0.5 line-clamp-1 text-xs font-medium text-muted-foreground">
+                  {category.description || "Explore this collection"}
+                </p>
+                <div className="mt-2 flex items-center gap-1.5">
+                  <div className="h-1 w-1 rounded-full bg-primary" />
+                  <span className="text-[10px] font-black uppercase tracking-wider text-primary">
+                    {productCountByCategory[category._id] ?? 0} Products
+                  </span>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="line-clamp-1 text-[14px] font-semibold tracking-tight">
-                    {category.name}
-                  </p>
-                  <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-slate-500">
-                    {category.description || "Explore this category"}
-                  </p>
-                  <p className="mt-2 text-[11px] font-medium text-[#334155]">
-                    {productCountByCategory[category._id] ?? 0} products
-                  </p>
-                </div>
-                <ChevronRight className="mt-1 h-4 w-4 text-slate-400" />
-              </Link>
-            ))}
+              </div>
+              
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary group-hover:bg-primary/10 transition-colors">
+                <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
+              </div>
+              
+              {/* Decorative element */}
+              <div className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-primary/5 blur-xl group-hover:scale-150 transition-transform" />
+            </Link>
+          ))}
+        </div>
+
+        {categories.length === 0 && !isLoading && (
+          <div className="mt-10 rounded-[2rem] border border-border bg-card p-10 text-center">
+            <LayoutGrid className="mx-auto h-12 w-12 text-muted-foreground/30" />
+            <p className="mt-4 text-sm font-bold text-muted-foreground">No categories available at the moment.</p>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

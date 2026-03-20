@@ -16,6 +16,9 @@ import {
   Minus,
   ArrowRight,
   ChevronLeft,
+  ShoppingBag,
+  CreditCard,
+  Ticket,
 } from "lucide-react";
 
 function CartPage() {
@@ -65,8 +68,6 @@ function CartPage() {
 
   const handleCheckout = async () => {
     try {
-      // For simplicity, we assume the user has a default address or we prompt for one
-      // Here we just use a placeholder address as per API type Record<string, unknown>
       await createOrder({
         delivery_address: { type: "DEFAULT" },
         notes: "Ordered from Mobile App",
@@ -81,115 +82,182 @@ function CartPage() {
 
   if (isLoading)
     return (
-      <div className="flex h-screen items-center justify-center">
-        Loading cart...
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="text-sm font-bold text-muted-foreground animate-pulse">Loading your cart...</p>
+        </div>
       </div>
     );
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-32">
-      <header className="flex items-center gap-4 border-b bg-card px-5 py-6">
-        <Link to="/" className="rounded-full bg-secondary p-2">
-          <ChevronLeft className="h-5 w-5" />
-        </Link>
-        <h1 className="text-xl font-bold">Your Cart</h1>
+      <header className="sticky top-0 z-10 flex items-center justify-between bg-background/80 px-5 pb-4 pt-12 backdrop-blur-xl border-b border-border/50">
+        <div className="flex items-center gap-4">
+          <Link to="/" className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform">
+            <ChevronLeft className="h-5 w-5" />
+          </Link>
+          <h1 className="text-xl font-black tracking-tight">Your Cart</h1>
+        </div>
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <ShoppingBag className="h-5 w-5" />
+        </div>
       </header>
 
       <main className="flex-1 px-5 pt-6">
         {!cart || cart.items.length === 0 ? (
-          <div className="mt-10 flex flex-col items-center justify-center text-center">
-            <div className="mb-4 rounded-full bg-secondary p-8 text-primary">
-              <ShoppingCart className="h-12 w-12" />
+          <div className="mt-20 flex flex-col items-center justify-center text-center">
+            <div className="relative mb-8">
+              <div className="absolute inset-0 scale-150 bg-primary/10 blur-3xl rounded-full" />
+              <div className="relative flex h-32 w-32 items-center justify-center rounded-[2.5rem] bg-secondary text-primary">
+                <ShoppingCart className="h-16 w-16" />
+              </div>
             </div>
-            <h2 className="text-lg font-semibold">Your cart is empty</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Looks like you haven't added anything yet.
+            <h2 className="text-2xl font-black tracking-tight">Your cart is empty</h2>
+            <p className="mt-2 max-w-[240px] text-sm font-medium text-muted-foreground leading-relaxed">
+              Looks like you haven't added anything to your cart yet.
             </p>
-            <Link to="/categories" className="mt-6">
-              <Button className="rounded-xl px-8">Start Shopping</Button>
+            <Link to="/categories" className="mt-8">
+              <Button className="h-14 rounded-2xl bg-foreground px-10 text-sm font-black text-background shadow-xl shadow-black/10 active:scale-95">
+                Start Shopping
+              </Button>
             </Link>
           </div>
         ) : (
-          <div className="space-y-4">
-            {cart.items.map((item) => (
-              <div
-                key={item.product_id}
-                className="flex gap-4 rounded-2xl border bg-card p-4"
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-bold text-muted-foreground">
+                {cart.items.length} {cart.items.length === 1 ? 'Item' : 'Items'}
+              </span>
+              <button 
+                onClick={async () => {
+                  if (confirm("Clear your cart?")) {
+                    await clearCart();
+                    void loadCart();
+                  }
+                }}
+                className="text-[10px] font-black uppercase tracking-widest text-destructive hover:opacity-80"
               >
-                <div className="flex-1">
-                  <h3 className="font-semibold">
-                    Product {item.product_id.slice(-4)}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Rs. {item.price_per_box} / box
-                  </p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3 rounded-lg bg-secondary px-2 py-1">
+                Clear All
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {cart.items.map((item) => (
+                <div
+                  key={item.product_id}
+                  className="group relative flex gap-4 rounded-[2rem] border border-border bg-card p-4 transition-all hover:shadow-lg hover:shadow-primary/5 active:scale-[0.99]"
+                >
+                  <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-secondary text-2xl font-black text-primary/20">
+                    {item.product_id.slice(-1).toUpperCase()}
+                  </div>
+                  
+                  <div className="flex flex-1 flex-col py-0.5">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="line-clamp-1 font-black text-foreground">
+                          Product {item.product_id.slice(-6).toUpperCase()}
+                        </h3>
+                        <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          Rs. {item.price_per_box} / box
+                        </p>
+                      </div>
                       <button
-                        onClick={() =>
-                          handleUpdateQuantity(
-                            item.product_id,
-                            item.quantity_boxes,
-                            -1,
-                          )
-                        }
-                        className="p-1"
+                        onClick={() => handleRemove(item.product_id)}
+                        className="flex h-8 w-8 items-center justify-center rounded-xl bg-destructive/10 text-destructive active:scale-90 transition-transform"
                       >
-                        <Minus className="h-4 w-4" />
-                      </button>
-                      <span className="min-w-6 text-center font-bold">
-                        {item.quantity_boxes}
-                      </span>
-                      <button
-                        onClick={() =>
-                          handleUpdateQuantity(
-                            item.product_id,
-                            item.quantity_boxes,
-                            1,
-                          )
-                        }
-                        className="p-1"
-                      >
-                        <Plus className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
-                    <button
-                      onClick={() => handleRemove(item.product_id)}
-                      className="text-destructive"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
+
+                    <div className="mt-auto flex items-center justify-between">
+                      <div className="flex items-center gap-1 rounded-xl bg-secondary p-1">
+                        <button
+                          onClick={() =>
+                            handleUpdateQuantity(
+                              item.product_id,
+                              item.quantity_boxes,
+                              -1,
+                            )
+                          }
+                          className="flex h-8 w-8 items-center justify-center rounded-lg bg-background text-foreground shadow-sm active:scale-90 transition-all"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </button>
+                        <span className="min-w-8 text-center text-sm font-black">
+                          {item.quantity_boxes}
+                        </span>
+                        <button
+                          onClick={() =>
+                            handleUpdateQuantity(
+                              item.product_id,
+                              item.quantity_boxes,
+                              1,
+                            )
+                          }
+                          className="flex h-8 w-8 items-center justify-center rounded-lg bg-background text-foreground shadow-sm active:scale-90 transition-all"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <p className="text-base font-black text-primary">
+                        Rs. {item.total_price}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-bold">Rs. {item.total_price}</p>
+              ))}
+            </div>
+
+            {/* Promo Code */}
+            <div className="flex items-center gap-3 rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4">
+              <Ticket className="h-5 w-5 text-primary" />
+              <input 
+                type="text" 
+                placeholder="Enter promo code" 
+                className="flex-1 bg-transparent text-sm font-bold placeholder:text-primary/40 focus:outline-none"
+              />
+              <button className="text-xs font-black uppercase tracking-widest text-primary">Apply</button>
+            </div>
+
+            <section className="relative mt-8 overflow-hidden rounded-[2.5rem] border border-border bg-card p-6 shadow-xl shadow-black/5">
+              <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/5 blur-3xl" />
+              
+              <h2 className="mb-4 flex items-center gap-2 text-sm font-black uppercase tracking-widest">
+                <CreditCard className="h-4 w-4" /> Order Summary
+              </h2>
+              
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm font-medium">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="font-bold">Rs. {cart.total_amount}</span>
+                </div>
+                <div className="flex justify-between text-sm font-medium">
+                  <span className="text-muted-foreground">Discount</span>
+                  <span className="font-bold text-green-600">- Rs. {cart.total_discount}</span>
+                </div>
+                <div className="flex justify-between text-sm font-medium">
+                  <span className="text-muted-foreground">Delivery</span>
+                  <span className="font-bold text-green-600">FREE</span>
+                </div>
+                
+                <div className="my-2 h-px bg-border/50" />
+                
+                <div className="flex justify-between items-center">
+                  <div>
+                    <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Total Amount</span>
+                    <p className="text-2xl font-black text-primary">Rs. {cart.final_amount}</p>
+                  </div>
                 </div>
               </div>
-            ))}
 
-            <section className="mt-8 rounded-2xl bg-secondary p-5">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span>Rs. {cart.total_amount}</span>
-              </div>
-              <div className="mt-2 flex justify-between text-sm">
-                <span className="text-muted-foreground">Discount</span>
-                <span className="text-green-600">
-                  - Rs. {cart.total_discount}
-                </span>
-              </div>
-              <div className="mt-4 flex justify-between border-t border-border pt-4 font-bold text-lg">
-                <span>Total</span>
-                <span className="text-primary">Rs. {cart.final_amount}</span>
-              </div>
+              <Button
+                onClick={handleCheckout}
+                className="mt-6 h-16 w-full rounded-2xl bg-foreground text-base font-black text-background shadow-2xl shadow-black/20 active:scale-[0.98] transition-all"
+              >
+                Place Order <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
             </section>
-
-            <Button
-              onClick={handleCheckout}
-              className="mt-6 h-14 w-full rounded-2xl text-lg font-bold shadow-lg shadow-primary/20"
-            >
-              Checkout <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
           </div>
         )}
       </main>

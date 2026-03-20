@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  ShoppingBag, 
+  ArrowLeft,
+  LayoutGrid,
+  Filter
+} from "lucide-react";
 import {
   getAllCategories,
   getAllProducts,
@@ -97,92 +104,113 @@ function ProductsPage() {
     }
   }, [currentPage, totalPages]);
 
+  if (isLoading)
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="text-sm font-bold text-muted-foreground animate-pulse">Loading gallery...</p>
+        </div>
+      </div>
+    );
+
   return (
-    <div className="flex min-h-screen flex-col bg-background pb-24">
-      <header className="sticky top-0 z-10 flex items-center justify-between bg-card/70 px-5 pb-4 pt-12 backdrop-blur-sm">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-1 text-xs font-bold text-muted-foreground"
-        >
-          <ChevronLeft className="h-4 w-4" /> Home
-        </Link>
-        <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground text-background">
-            <ShoppingBag className="h-5 w-5" />
+    <div className="flex min-h-screen flex-col bg-background pb-32">
+      <header className="sticky top-0 z-10 bg-background/80 px-5 pb-4 pt-12 backdrop-blur-xl border-b border-border/50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link to="/" className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform">
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+            <div>
+              <h1 className="text-xl font-black tracking-tight">Gallery</h1>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                {products.length} Items Total
+              </p>
+            </div>
           </div>
-          <span className="text-lg font-black tracking-tight">
-            All Products
-          </span>
+          <button className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary active:scale-95 transition-transform">
+            <Filter className="h-5 w-5" />
+          </button>
         </div>
       </header>
 
-      <section className="px-5">
+      <main className="px-5 pt-6">
         {error && (
-          <div className="mb-3 rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-xs font-bold text-destructive">
+          <div className="mb-6 rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-xs font-bold text-destructive">
             {error}
           </div>
         )}
 
-        {isLoading ? (
-          <div className="grid grid-cols-2 gap-4">
-            {[1, 2, 3, 4].map((item) => (
-              <div
-                key={item}
-                className="h-48 rounded-3xl bg-secondary animate-pulse"
-              />
-            ))}
-          </div>
-        ) : paginatedProducts.length === 0 ? (
-          <div className="rounded-2xl border border-border bg-card px-4 py-5 text-sm text-muted-foreground">
-            No products found.
+        {paginatedProducts.length === 0 ? (
+          <div className="mt-10 rounded-[2rem] border border-border bg-card p-10 text-center">
+            <LayoutGrid className="mx-auto h-12 w-12 text-muted-foreground/30" />
+            <p className="mt-4 text-sm font-bold text-muted-foreground">No products found.</p>
           </div>
         ) : (
           <>
-            <div className="mb-3 text-xs font-bold text-muted-foreground">
-              Showing {startIndex + 1} -{" "}
-              {Math.min(startIndex + PAGE_SIZE, products.length)} of{" "}
-              {products.length} products
+            <div className="mb-4 flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                Showing {startIndex + 1}-{Math.min(startIndex + PAGE_SIZE, products.length)}
+              </span>
+              <div className="flex items-center gap-1">
+                <div className="h-1 w-1 rounded-full bg-primary" />
+                <span className="text-[10px] font-black uppercase tracking-wider text-primary">Live Stock</span>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {paginatedProducts.map((product) => (
-                <ProductCard
+              {paginatedProducts.map((product, idx) => (
+                <div
                   key={product._id}
-                  product={product}
-                  categoryName={categoryNameMap[product.category_id]}
-                  isLiked={likedProductIds.includes(product._id)}
-                  onToggleLike={handleToggleLike}
-                  onAddToCart={handleAddToCart}
-                  backTo="/products"
-                  backLabel="Products"
-                />
+                  className="animate-in fade-in zoom-in"
+                  style={{ animationDelay: `${idx * 50}ms` }}
+                >
+                  <ProductCard
+                    product={product}
+                    categoryName={categoryNameMap[product.category_id]}
+                    isLiked={likedProductIds.includes(product._id)}
+                    onToggleLike={handleToggleLike}
+                    onAddToCart={handleAddToCart}
+                    backTo="/products"
+                    backLabel="Products"
+                  />
+                </div>
               ))}
             </div>
 
-            <div className="mt-6 flex items-center justify-between gap-2 rounded-2xl border border-border bg-card px-3 py-2">
+            {/* Pagination */}
+            <div className="mt-10 flex items-center justify-between gap-4 rounded-[2rem] border border-border bg-card p-2 shadow-lg shadow-black/5">
               <button
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                onClick={() => {
+                  setCurrentPage((prev) => Math.max(1, prev - 1));
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 disabled={currentPage === 1}
-                className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-bold disabled:opacity-50"
+                className="flex h-12 items-center gap-2 rounded-2xl border border-border px-4 text-xs font-black uppercase tracking-widest disabled:opacity-30 active:scale-95 transition-all"
               >
-                <ChevronLeft className="h-3.5 w-3.5" /> Prev
+                <ChevronLeft className="h-4 w-4" /> Prev
               </button>
-              <p className="text-xs font-black text-foreground">
-                Page {currentPage} / {totalPages}
-              </p>
+              
+              <div className="flex flex-col items-center">
+                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Page</span>
+                <span className="text-sm font-black text-primary">{currentPage} / {totalPages}</span>
+              </div>
+
               <button
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                }
+                onClick={() => {
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 disabled={currentPage === totalPages}
-                className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-bold disabled:opacity-50"
+                className="flex h-12 items-center gap-2 rounded-2xl bg-foreground px-4 text-xs font-black uppercase tracking-widest text-background disabled:opacity-30 active:scale-95 transition-all"
               >
-                Next <ChevronRight className="h-3.5 w-3.5" />
+                Next <ChevronRight className="h-4 w-4" />
               </button>
             </div>
           </>
         )}
-      </section>
+      </main>
     </div>
   );
 }

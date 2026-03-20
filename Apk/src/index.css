@@ -104,4 +104,14 @@ body {
   .mobile-card {
     @apply rounded-[1.5rem] border bg-card p-4 shadow-sm active:scale-[0.98] transition-all;
   }
+  
+  /* Animations */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+  .shake-in {
+    animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+  }
 }

@@ -18,6 +18,8 @@ import {
   Building2,
   Globe,
   Hash,
+  ArrowRight,
+  Sparkles,
 } from 'lucide-react';
 
 // ── Types ──────────────────────────────────────────────────────────────
@@ -40,16 +42,16 @@ interface AddressForm {
 // ── Step indicator ─────────────────────────────────────────────────────
 function StepDots({ current }: { current: number }) {
   return (
-    <div className="flex items-center justify-center gap-2">
+    <div className="flex items-center justify-center gap-3">
       {[1, 2, 3].map((s) => (
         <div
           key={s}
-          className={`h-2 transition-all duration-300 rounded-full ${
+          className={`h-2 transition-all duration-500 rounded-full ${
             s === current
-              ? 'w-6 bg-foreground'
+              ? 'w-10 bg-primary'
               : s < current
-              ? 'w-2 bg-foreground/40'
-              : 'w-2 bg-border'
+              ? 'w-4 bg-primary/40'
+              : 'w-4 bg-border'
           }`}
         />
       ))}
@@ -68,12 +70,12 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-1.5">
-      <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+    <div className="space-y-2">
+      <Label className="ml-1 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
         {label}
       </Label>
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+      <div className="relative group">
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary">
           {icon}
         </span>
         {children}
@@ -155,11 +157,10 @@ function SignupPage() {
     }
   };
 
-  // Handle each OTP box — auto-move focus to next box
   const handleOtpChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return; // Only numbers allowed
+    if (!/^\d*$/.test(value)) return;
     const next = [...otp];
-    next[index] = value.slice(-1); // Only 1 digit per box
+    next[index] = value.slice(-1);
     setOtp(next);
     if (value && index < 5) {
       const nextInput = document.getElementById(`otp-${index + 1}`);
@@ -214,144 +215,156 @@ function SignupPage() {
     }
   };
 
-  // ── Shared top header ──────────────────────────────────────────────────
+  // ── Shared components ─────────────────────────────────────────────────
   const Header = ({ title, subtitle }: { title: string; subtitle: string }) => (
-    <div className="flex flex-1 flex-col items-center justify-center px-6 pb-4">
-      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-foreground shadow-lg">
-        <ShoppingBag className="h-8 w-8 text-background" />
+    <div className="relative flex flex-1 flex-col items-center justify-center px-6 pt-12 pb-8 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-background" />
+      <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/5 blur-3xl animate-pulse" />
+      
+      <div className="relative mb-6 flex h-20 w-20 items-center justify-center rounded-[2rem] bg-foreground shadow-2xl transition-transform hover:scale-110 duration-500">
+        <ShoppingBag className="h-10 w-10 text-background" />
       </div>
+      
       <StepDots current={step} />
-      <h1 className="mt-4 text-2xl font-bold tracking-tight text-foreground">
-        {title}
-      </h1>
-      <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
+      
+      <div className="relative text-center mt-6">
+        <h1 className="text-3xl font-black tracking-tight text-foreground">
+          {title}
+        </h1>
+        <p className="mt-2 text-sm font-medium text-muted-foreground leading-relaxed">
+          {subtitle}
+        </p>
+      </div>
     </div>
   );
 
-  // ── Error banner ───────────────────────────────────────────────────────
   const ErrorBanner = () =>
     error ? (
-      <div className="flex items-start gap-2 rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+      <div className="flex items-start gap-3 rounded-2xl bg-destructive/10 px-4 py-4 text-sm font-bold text-destructive animate-in shake-in">
         <span className="mt-0.5">⚠️</span>
         <span>{error}</span>
       </div>
     ) : null;
 
-  // ── Back button ────────────────────────────────────────────────────────
   const BackBtn = ({ to }: { to: number }) => (
     <button
       type="button"
       onClick={() => { setError(''); setStep(to); }}
-      className="mb-1 flex items-center gap-1 text-sm text-muted-foreground"
+      className="mb-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
     >
-      <ChevronLeft className="h-4 w-4" /> Back
+      <ChevronLeft className="h-4 w-4" /> Go Back
     </button>
   );
 
-  // ── Submit button ──────────────────────────────────────────────────────
   const SubmitBtn = ({ label }: { label: string }) => (
     <Button
       type="submit"
       disabled={isLoading}
-      className="mt-2 h-12 w-full rounded-xl bg-foreground text-base font-semibold text-background active:scale-[0.98]"
+      className="mt-4 h-16 w-full rounded-2xl bg-foreground text-base font-black text-background shadow-2xl shadow-black/20 active:scale-[0.98] transition-all hover:shadow-black/30"
     >
       {isLoading ? (
-        <span className="flex items-center gap-2">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
-          Please wait...
+        <span className="flex items-center gap-3">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-background border-t-transparent" />
+          Processing...
         </span>
       ) : (
-        label
+        <span className="flex items-center gap-2">
+          {label} <ArrowRight className="h-5 w-5" />
+        </span>
       )}
     </Button>
   );
 
-  // ────────────────────────────────────────────────────────────────────────
-  // STEP 1 — Personal Info
-  // ────────────────────────────────────────────────────────────────────────
+  // ── Render Steps ──────────────────────────────────────────────────────
   if (step === 1) {
     return (
-      <div className="flex h-screen flex-col bg-background">
+      <div className="flex min-h-screen flex-col bg-background">
         <Header title="Create Account" subtitle="Step 1 of 3 — Personal details" />
 
-        <div className="flex flex-col gap-4 rounded-t-3xl border-t border-border bg-card px-6 pb-10 pt-7 shadow-[0_-4px_24px_rgba(0,0,0,0.06)]">
-          <form onSubmit={handlePersonalNext} className="flex flex-col gap-4">
+        <div className="relative">
+          <div className="absolute inset-0 bg-foreground/5 blur-3xl rounded-t-[3rem] -z-10" />
+          <form
+            onSubmit={handlePersonalNext}
+            className="flex flex-col gap-5 rounded-t-[3rem] border-t border-border bg-card px-8 pb-12 pt-10 shadow-[0_-8px_40px_rgba(0,0,0,0.08)]"
+          >
             <ErrorBanner />
 
-            <Field label="Full Name" icon={<User className="h-4 w-4" />}>
+            <Field label="Full Name" icon={<User className="h-5 w-5" />}>
               <Input
                 type="text"
                 placeholder="John Doe"
                 value={personal.name}
                 onChange={(e) => setPersonal({ ...personal, name: e.target.value })}
                 required
-                className="h-12 rounded-xl border-border bg-background pl-10 text-base"
+                className="h-16 rounded-2xl border-border bg-secondary/30 pl-12 text-base font-bold focus:bg-background focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
               />
             </Field>
 
-            <Field label="Email Address" icon={<Mail className="h-4 w-4" />}>
+            <Field label="Email Address" icon={<Mail className="h-5 w-5" />}>
               <Input
                 type="email"
                 placeholder="you@example.com"
                 value={personal.email}
                 onChange={(e) => setPersonal({ ...personal, email: e.target.value })}
                 required
-                className="h-12 rounded-xl border-border bg-background pl-10 text-base"
+                className="h-16 rounded-2xl border-border bg-secondary/30 pl-12 text-base font-bold focus:bg-background focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
               />
             </Field>
 
-            <Field label="Phone Number" icon={<Phone className="h-4 w-4" />}>
+            <Field label="Phone Number" icon={<Phone className="h-5 w-5" />}>
               <Input
                 type="tel"
                 placeholder="10-digit mobile number"
                 value={personal.phone}
                 onChange={(e) => setPersonal({ ...personal, phone: e.target.value })}
                 required
-                className="h-12 rounded-xl border-border bg-background pl-10 text-base"
+                className="h-16 rounded-2xl border-border bg-secondary/30 pl-12 text-base font-bold focus:bg-background focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
               />
             </Field>
 
-            <Field label="Password" icon={<Lock className="h-4 w-4" />}>
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Min 6 characters"
-                value={personal.password}
-                onChange={(e) => setPersonal({ ...personal, password: e.target.value })}
-                required
-                className="h-12 rounded-xl border-border bg-background pl-10 pr-12 text-base"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </Field>
+            <div className="grid grid-cols-1 gap-5">
+              <Field label="Password" icon={<Lock className="h-5 w-5" />}>
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Min 6 characters"
+                  value={personal.password}
+                  onChange={(e) => setPersonal({ ...personal, password: e.target.value })}
+                  required
+                  className="h-16 rounded-2xl border-border bg-secondary/30 pl-12 pr-14 text-base font-bold focus:bg-background focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </Field>
 
-            <Field label="Confirm Password" icon={<Lock className="h-4 w-4" />}>
-              <Input
-                type={showConfirm ? 'text' : 'password'}
-                placeholder="Re-enter password"
-                value={personal.confirmPassword}
-                onChange={(e) => setPersonal({ ...personal, confirmPassword: e.target.value })}
-                required
-                className="h-12 rounded-xl border-border bg-background pl-10 pr-12 text-base"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirm(!showConfirm)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              >
-                {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </Field>
+              <Field label="Confirm Password" icon={<Lock className="h-5 w-5" />}>
+                <Input
+                  type={showConfirm ? 'text' : 'password'}
+                  placeholder="Re-enter password"
+                  value={personal.confirmPassword}
+                  onChange={(e) => setPersonal({ ...personal, confirmPassword: e.target.value })}
+                  required
+                  className="h-16 rounded-2xl border-border bg-secondary/30 pl-12 pr-14 text-base font-bold focus:bg-background focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(!showConfirm)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showConfirm ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </Field>
+            </div>
 
-            <SubmitBtn label="Continue →" />
+            <SubmitBtn label="Continue" />
 
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="text-center text-sm font-medium text-muted-foreground">
               Already have an account?{' '}
-              <Link to="/login" className="font-semibold text-foreground underline-offset-4 hover:underline">
+              <Link to="/login" className="font-black text-foreground underline-offset-8 hover:underline">
                 Sign In
               </Link>
             </p>
@@ -361,79 +374,80 @@ function SignupPage() {
     );
   }
 
-  // ────────────────────────────────────────────────────────────────────────
-  // STEP 2 — Address
-  // ────────────────────────────────────────────────────────────────────────
   if (step === 2) {
     return (
-      <div className="flex h-screen flex-col bg-background">
+      <div className="flex min-h-screen flex-col bg-background">
         <Header title="Your Address" subtitle="Step 2 of 3 — Delivery address" />
 
-        <div className="flex flex-col gap-4 rounded-t-3xl border-t border-border bg-card px-6 pb-10 pt-7 shadow-[0_-4px_24px_rgba(0,0,0,0.06)]">
-          <form onSubmit={handleAddressNext} className="flex flex-col gap-4">
+        <div className="relative">
+          <div className="absolute inset-0 bg-foreground/5 blur-3xl rounded-t-[3rem] -z-10" />
+          <form
+            onSubmit={handleAddressNext}
+            className="flex flex-col gap-5 rounded-t-[3rem] border-t border-border bg-card px-8 pb-12 pt-10 shadow-[0_-8px_40px_rgba(0,0,0,0.08)]"
+          >
             <BackBtn to={1} />
             <ErrorBanner />
 
-            <Field label="Street / Flat / Area" icon={<MapPin className="h-4 w-4" />}>
+            <Field label="Street / Flat / Area" icon={<MapPin className="h-5 w-5" />}>
               <Input
                 type="text"
                 placeholder="221B Baker Street"
                 value={address.line1}
                 onChange={(e) => setAddress({ ...address, line1: e.target.value })}
                 required
-                className="h-12 rounded-xl border-border bg-background pl-10 text-base"
+                className="h-16 rounded-2xl border-border bg-secondary/30 pl-12 text-base font-bold focus:bg-background focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
               />
             </Field>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="City" icon={<Building2 className="h-4 w-4" />}>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="City" icon={<Building2 className="h-5 w-5" />}>
                 <Input
                   type="text"
                   placeholder="Mumbai"
                   value={address.city}
                   onChange={(e) => setAddress({ ...address, city: e.target.value })}
                   required
-                  className="h-12 rounded-xl border-border bg-background pl-10 text-base"
+                  className="h-16 rounded-2xl border-border bg-secondary/30 pl-12 text-base font-bold focus:bg-background focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
                 />
               </Field>
 
-              <Field label="State" icon={<Globe className="h-4 w-4" />}>
+              <Field label="State" icon={<Globe className="h-5 w-5" />}>
                 <Input
                   type="text"
                   placeholder="Maharashtra"
                   value={address.state}
                   onChange={(e) => setAddress({ ...address, state: e.target.value })}
                   required
-                  className="h-12 rounded-xl border-border bg-background pl-10 text-base"
+                  className="h-16 rounded-2xl border-border bg-secondary/30 pl-12 text-base font-bold focus:bg-background focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
                 />
               </Field>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Country" icon={<Globe className="h-4 w-4" />}>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Country" icon={<Globe className="h-5 w-5" />}>
                 <Input
                   type="text"
                   placeholder="India"
                   value={address.country}
                   onChange={(e) => setAddress({ ...address, country: e.target.value })}
                   required
-                  className="h-12 rounded-xl border-border bg-background pl-10 text-base"
+                  className="h-16 rounded-2xl border-border bg-secondary/30 pl-12 text-base font-bold focus:bg-background focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
                 />
               </Field>
 
-              <Field label="Pincode" icon={<Hash className="h-4 w-4" />}>
+              <Field label="Pincode" icon={<Hash className="h-5 w-5" />}>
                 <Input
                   type="text"
                   placeholder="400001"
                   value={address.pincode}
                   onChange={(e) => setAddress({ ...address, pincode: e.target.value })}
                   required
-                  className="h-12 rounded-xl border-border bg-background pl-10 text-base"
+                  className="h-16 rounded-2xl border-border bg-secondary/30 pl-12 text-base font-bold focus:bg-background focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-muted-foreground/40"
                 />
               </Field>
             </div>
 
-            <SubmitBtn label="Create Account →" />
+            <SubmitBtn label="Create Account" />
           </form>
         </div>
       </div>
@@ -444,24 +458,38 @@ function SignupPage() {
   // STEP 3 — OTP Verification
   // ────────────────────────────────────────────────────────────────────────
   return (
-    <div className="flex h-screen flex-col bg-background">
-      {/* Top area */}
-      <div className="flex flex-1 flex-col items-center justify-center px-6 pb-4">
-        <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-foreground shadow-lg">
-          <CheckCircle2 className="h-8 w-8 text-background" />
+    <div className="flex min-h-screen flex-col bg-background">
+      <div className="relative flex flex-1 flex-col items-center justify-center px-6 pt-12 pb-8 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-background" />
+        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/5 blur-3xl animate-pulse" />
+        
+        <div className="relative mb-6 flex h-20 w-20 items-center justify-center rounded-[2rem] bg-foreground shadow-2xl transition-transform hover:scale-110 duration-500">
+          <CheckCircle2 className="h-10 w-10 text-background" />
         </div>
+        
         <StepDots current={3} />
-        <h1 className="mt-4 text-2xl font-bold tracking-tight text-foreground">
-          Verify Email
-        </h1>
-        <p className="mt-1 text-center text-sm text-muted-foreground">
-          We sent a 6-digit code to{' '}
-          <span className="font-semibold text-foreground">{personal.email}</span>
-        </p>
+        
+        <div className="relative text-center mt-6">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Final Step</span>
+          </div>
+          <h1 className="text-3xl font-black tracking-tight text-foreground">
+            Verify Email
+          </h1>
+          <p className="mt-2 text-sm font-medium text-muted-foreground leading-relaxed">
+            We sent a 6-digit code to <br />
+            <span className="font-black text-foreground">{personal.email}</span>
+          </p>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-5 rounded-t-3xl border-t border-border bg-card px-6 pb-10 pt-7 shadow-[0_-4px_24px_rgba(0,0,0,0.06)]">
-        <form onSubmit={handleVerifyOtp} className="flex flex-col gap-5">
+      <div className="relative">
+        <div className="absolute inset-0 bg-foreground/5 blur-3xl rounded-t-[3rem] -z-10" />
+        <form
+          onSubmit={handleVerifyOtp}
+          className="flex flex-col gap-6 rounded-t-[3rem] border-t border-border bg-card px-8 pb-12 pt-10 shadow-[0_-8px_40px_rgba(0,0,0,0.08)]"
+        >
           <ErrorBanner />
 
           {/* 6-box OTP input */}
@@ -476,23 +504,23 @@ function SignupPage() {
                 value={digit}
                 onChange={(e) => handleOtpChange(i, e.target.value)}
                 onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                className={`h-13 w-12 rounded-xl border text-center text-xl font-bold outline-none transition-all
+                className={`h-16 w-12 rounded-2xl border text-center text-2xl font-black outline-none transition-all
                   ${digit
-                    ? 'border-foreground bg-foreground/5 text-foreground'
-                    : 'border-border bg-background text-foreground'
+                    ? 'border-primary bg-primary/5 text-primary'
+                    : 'border-border bg-secondary/30 text-foreground'
                   }
-                  focus:border-foreground focus:ring-2 focus:ring-foreground/20`}
+                  focus:border-primary focus:ring-4 focus:ring-primary/10`}
               />
             ))}
           </div>
 
-          <SubmitBtn label="Verify & Continue" />
+          <SubmitBtn label="Verify & Finish" />
 
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm font-medium text-muted-foreground">
             Didn't receive the code?{' '}
             <button
               type="button"
-              className="font-semibold text-foreground underline-offset-4 hover:underline"
+              className="font-black text-foreground underline-offset-8 hover:underline"
               onClick={() => {
                 void handleResendOtp();
               }}

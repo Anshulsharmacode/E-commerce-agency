@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getMyOrders, type Order } from "@/api";
-import { Package, ChevronRight, Clock } from "lucide-react";
+import { 
+  Package, 
+  ChevronRight, 
+  Clock, 
+  CheckCircle2, 
+  XCircle, 
+  Truck, 
+  ShoppingBag,
+  ArrowLeft
+} from "lucide-react";
 
 function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -21,66 +30,135 @@ function OrdersPage() {
     void fetchOrders();
   }, []);
 
+  const getStatusDetails = (status: Order["status"]) => {
+    switch (status) {
+      case "delivered":
+        return { 
+          icon: CheckCircle2, 
+          color: "text-green-600 bg-green-500/10", 
+          label: "Delivered" 
+        };
+      case "cancelled":
+        return { 
+          icon: XCircle, 
+          color: "text-rose-600 bg-rose-500/10", 
+          label: "Cancelled" 
+        };
+      case "shipped":
+        return { 
+          icon: Truck, 
+          color: "text-blue-600 bg-blue-500/10", 
+          label: "Shipped" 
+        };
+      default:
+        return { 
+          icon: Clock, 
+          color: "text-amber-600 bg-amber-500/10", 
+          label: status.charAt(0).toUpperCase() + status.slice(1) 
+        };
+    }
+  };
+
   if (isLoading)
     return (
-      <div className="flex h-screen items-center justify-center">
-        Loading orders...
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="text-sm font-bold text-muted-foreground animate-pulse">Loading orders...</p>
+        </div>
       </div>
     );
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-32">
-      <header className="px-5 py-8">
-        <h1 className="text-2xl font-bold">My Orders</h1>
-        <p className="text-sm text-muted-foreground">Track your deliveries</p>
+      <header className="sticky top-0 z-10 bg-background/80 px-5 pb-4 pt-12 backdrop-blur-xl border-b border-border/50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link to="/profile" className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform">
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+            <div>
+              <h1 className="text-xl font-black tracking-tight">My Orders</h1>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Recent Transactions</p>
+            </div>
+          </div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <Package className="h-5 w-5" />
+          </div>
+        </div>
       </header>
 
-      <main className="px-5 space-y-4">
+      <main className="px-5 pt-6 space-y-4">
         {orders.length === 0 ? (
-          <div className="text-center py-20">
-            <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No orders yet.</p>
+          <div className="mt-20 text-center flex flex-col items-center">
+            <div className="relative mb-8">
+              <div className="absolute inset-0 scale-150 bg-primary/10 blur-3xl rounded-full" />
+              <div className="relative flex h-32 w-32 items-center justify-center rounded-[2.5rem] bg-secondary text-primary">
+                <ShoppingBag className="h-16 w-16" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-black tracking-tight">No orders yet</h2>
+            <p className="mt-2 max-w-[240px] text-sm font-medium text-muted-foreground leading-relaxed">
+              When you shop, your order history will appear here.
+            </p>
+            <Link to="/products" className="mt-8">
+              <button className="h-14 rounded-2xl bg-foreground px-10 text-sm font-black text-background shadow-xl shadow-black/10 active:scale-95">
+                Explore Products
+              </button>
+            </Link>
           </div>
         ) : (
-          orders.map((order) => (
-            <Link
-              to={`/orders/${order._id}`}
-              key={order._id}
-              className="rounded-2xl border bg-card p-4 flex items-center justify-between"
-            >
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                  <Package className="h-6 w-6" />
-                </div>
-                <div>
-                  <h3 className="font-bold">
-                    Order #{order._id.slice(-6).toUpperCase()}
-                  </h3>
-                  <div className="flex items-center gap-1.5 mt-1">
-                    <Clock className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </span>
-                    <span
-                      className={`ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        order.status === "delivered"
-                          ? "bg-green-100 text-green-700"
-                          : order.status === "cancelled"
-                            ? "bg-red-100 text-red-700"
-                            : "bg-blue-100 text-blue-700"
-                      }`}
-                    >
-                      {order.status}
-                    </span>
+          orders.map((order, idx) => {
+            const status = getStatusDetails(order.status);
+            const StatusIcon = status.icon;
+            
+            return (
+              <Link
+                to={`/orders/${order._id}`}
+                key={order._id}
+                className="group relative block w-full overflow-hidden rounded-[2rem] border border-border bg-card p-5 transition-all hover:shadow-xl hover:shadow-primary/5 active:scale-[0.98]"
+                style={{ animationDelay: `${idx * 100}ms` }}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="h-14 w-14 rounded-2xl bg-secondary flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                      <Package className="h-7 w-7" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black tracking-tight">
+                        Order #{order._id.slice(-6).toUpperCase()}
+                      </h3>
+                      <div className="mt-1 flex items-center gap-2">
+                        <StatusIcon className={`h-3 w-3 ${status.color.split(' ')[0]}`} />
+                        <span className={`text-[10px] font-black uppercase tracking-widest ${status.color.split(' ')[0]}`}>
+                          {status.label}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-base font-black text-primary">₹{order.final_amount}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground mt-1">
+                      {new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    </p>
                   </div>
                 </div>
-              </div>
-              <div className="text-right">
-                <p className="font-bold">Rs. {order.final_amount}</p>
-                <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground mt-1" />
-              </div>
-            </Link>
-          ))
+                
+                <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-4">
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>{new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs font-black text-primary">
+                    View Details <ChevronRight className="h-4 w-4" />
+                  </div>
+                </div>
+                
+                {/* Decorative element */}
+                <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-primary/5 blur-2xl group-hover:scale-150 transition-transform" />
+              </Link>
+            );
+          })
         )}
       </main>
     </div>
