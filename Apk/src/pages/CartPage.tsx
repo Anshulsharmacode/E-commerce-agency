@@ -6,9 +6,13 @@ import {
   removeCartItem,
   clearCart,
   createOrder,
+  getEligibleOffers,
   type Cart,
+  type EligibleOffer,
+  type Offer,
 } from "@/api";
 import { Button } from "@/components/ui/button";
+import OfferDetailsModal from "@/components/OfferDetailsModal";
 import {
   ShoppingCart,
   Trash2,
@@ -29,6 +33,27 @@ function CartPage() {
   const [productNameMap, setProductNameMap] = useState<Record<string, string>>(
     {},
   );
+  const [eligibleOffers, setEligibleOffers] = useState<EligibleOffer[]>([]);
+  const [isOffersLoading, setIsOffersLoading] = useState(false);
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
+  const [applyingOfferId, setApplyingOfferId] = useState<string | null>(null);
+
+  const fetchEligibleOffers = async (nextCart?: Cart | null) => {
+    const cartSnapshot = nextCart ?? cart;
+    if (!cartSnapshot || cartSnapshot.items.length === 0) {
+      setEligibleOffers([]);
+      return;
+    }
+    setIsOffersLoading(true);
+    try {
+      const res = await getEligibleOffers();
+      setEligibleOffers(res.data);
+    } catch {
+      setEligibleOffers([]);
+    } finally {
+      setIsOffersLoading(false);
+    }
+  };
 
   const loadCart = async () => {
     setIsLoading(true);
@@ -36,6 +61,7 @@ function CartPage() {
       const res = await getMyCart();
       // console.log("Cart data:", res.data);
       setCart(res.data);
+      void fetchEligibleOffers(res.data);
     } catch (err: unknown) {
       setError("Failed to load cart. Please log in.");
     } finally {
@@ -91,11 +117,15 @@ function CartPage() {
     productId: string,
     currentQty: number,
     delta: number,
+    appliedOfferId?: string,
   ) => {
     const newQty = currentQty + delta;
     if (newQty < 1) return;
     try {
-      await updateCartItem(productId, { quantity_boxes: newQty });
+      await updateCartItem(productId, {
+        quantity_boxes: newQty,
+        applied_offer_id: appliedOfferId,
+      });
       void loadCart();
     } catch (err) {
       console.error(err);
@@ -123,6 +153,46 @@ function CartPage() {
     } catch (err) {
       alert("Failed to place order.");
     }
+  };
+
+  const handleApplyOffer = async (
+    offerId: string,
+    eligibleProductIds: string[],
+  ) => {
+    if (!cart || eligibleProductIds.length === 0) return;
+    const targetItems = cart.items.filter((item) =>
+      eligibleProductIds.includes(item.product_id),
+    );
+    if (targetItems.length === 0) return;
+    setApplyingOfferId(offerId);
+    try {
+      await Promise.all(
+        targetItems.map((item) =>
+          updateCartItem(item.product_id, {
+            quantity_boxes: item.quantity_boxes,
+            applied_offer_id: offerId,
+          }),
+        ),
+      );
+      void loadCart();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to apply offer.");
+    } finally {
+      setApplyingOfferId(null);
+    }
+  };
+
+  const isOfferApplied = (
+    offerId: string,
+    eligibleProductIds: string[],
+  ) => {
+    if (!cart) return false;
+    const applicableItems = cart.items.filter((item) =>
+      eligibleProductIds.includes(item.product_id),
+    );
+    if (applicableItems.length === 0) return false;
+    return applicableItems.every((item) => item.applied_offer_id === offerId);
   };
 
   if (isLoading)
@@ -236,6 +306,7 @@ function CartPage() {
                                 item.product_id,
                                 item.quantity_boxes,
                                 -1,
+                                item.applied_offer_id,
                               )
                             }
                             className="flex h-8 w-8 items-center justify-center rounded-lg bg-background text-foreground shadow-sm active:scale-90 transition-all"
@@ -251,6 +322,7 @@ function CartPage() {
                                 item.product_id,
                                 item.quantity_boxes,
                                 1,
+                                item.applied_offer_id,
                               )
                             }
                             className="flex h-8 w-8 items-center justify-center rounded-lg bg-background text-foreground shadow-sm active:scale-90 transition-all"
@@ -258,9 +330,16 @@ function CartPage() {
                             <Plus className="h-4 w-4" />
                           </button>
                         </div>
-                        <p className="text-base font-black text-primary">
-                          Rs. {item.total_price}
-                        </p>
+                        <div className="text-right">
+                          {item.applied_offer_id ? (
+                            <span className="mb-1 inline-flex rounded-full bg-green-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-green-600">
+                              Offer Applied
+                            </span>
+                          ) : null}
+                          <p className="text-base font-black text-primary">
+                            Rs. {item.total_price}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -280,6 +359,79 @@ function CartPage() {
                 Apply
               </button>
             </div>
+
+            {/* Eligible Offers */}
+            <section className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground">
+                  Eligible Offers
+                </h3>
+                {isOffersLoading ? (
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
+                    Refreshing...
+                  </span>
+                ) : null}
+              </div>
+              {eligibleOffers.length === 0 ? (
+                <div className="rounded-2xl border border-border bg-card p-4 text-xs font-bold text-muted-foreground">
+                  No eligible offers right now.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {eligibleOffers.map(({ offer, eligible_product_ids }) => {
+                    const applied = isOfferApplied(
+                      offer._id,
+                      eligible_product_ids,
+                    );
+
+                    return (
+                      <div
+                        key={offer._id}
+                        className="rounded-2xl border border-border bg-card p-4 shadow-sm"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-black text-foreground">
+                              {offer.offer_name}
+                            </p>
+                            <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                              Code: {offer.offer_code}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => setSelectedOffer(offer)}
+                            className="text-[10px] font-black uppercase tracking-widest text-primary"
+                          >
+                            Details
+                          </button>
+                        </div>
+                        <div className="mt-4 flex items-center justify-between">
+                          <span className="text-xs font-bold text-muted-foreground">
+                            Offer type: {offer.offer_type}
+                          </span>
+                          <button
+                            onClick={() =>
+                              void handleApplyOffer(
+                                offer._id,
+                                eligible_product_ids,
+                              )
+                            }
+                            disabled={applied || applyingOfferId === offer._id}
+                            className={`h-10 rounded-xl px-4 text-xs font-black uppercase tracking-widest transition-all ${
+                              applied
+                                ? "bg-green-500/10 text-green-600"
+                                : "bg-foreground text-background"
+                            }`}
+                          >
+                            {applied ? "Applied" : "Apply"}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
 
             <section className="relative mt-8 overflow-hidden rounded-[2.5rem] border border-border bg-card p-6 shadow-xl shadow-black/5">
               <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/5 blur-3xl" />
@@ -328,6 +480,11 @@ function CartPage() {
           </div>
         )}
       </main>
+      <OfferDetailsModal
+        isOpen={Boolean(selectedOffer)}
+        offer={selectedOffer}
+        onClose={() => setSelectedOffer(null)}
+      />
     </div>
   );
 }

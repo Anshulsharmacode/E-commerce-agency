@@ -32,6 +32,11 @@ export interface Offer {
   updated_at: Date;
 }
 
+export interface EligibleOffer {
+  offer: Offer;
+  eligible_product_ids: string[];
+}
+
 export interface CreateOfferData {
   offer_name: string;
   offer_code: string;
@@ -86,6 +91,18 @@ export const getAllOffers = async (): Promise<ApiResponse<Offer[]>> => {
  */
 export const getActiveOffers = async (): Promise<ApiResponse<Offer[]>> => {
   const response = await api.get<ApiResponse<Offer[]>>("/offer/active");
+  return response.data;
+};
+
+/**
+ * Get eligible offers for the current user's cart
+ */
+export const getEligibleOffers = async (): Promise<
+  ApiResponse<EligibleOffer[]>
+> => {
+  const response = await api.get<ApiResponse<EligibleOffer[]>>(
+    "/offer/eligible",
+  );
   return response.data;
 };
 
