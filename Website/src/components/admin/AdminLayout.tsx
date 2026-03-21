@@ -10,6 +10,7 @@ import {
   ClipboardList,
   ShoppingBag,
   Tag,
+  Users,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { cn } from "../../lib/utils";
@@ -24,6 +25,7 @@ const sidebarItems = [
   { icon: Boxes, label: "Categories", href: "/admin/categories" },
   { icon: Tag, label: "Offers", href: "/admin/offers" },
   { icon: ClipboardList, label: "Orders", href: "/admin/orders" },
+  { icon: Users, label: "Employees", href: "/admin/employees" },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

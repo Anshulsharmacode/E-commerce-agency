@@ -37,4 +37,11 @@ export const adminApi = {
   updateOffer: async (id: string, payload: unknown) =>
     api.patch(`/offer/${id}`, payload),
   deleteOffer: async (id: string) => api.delete(`/offer/${id}`),
+
+  getEmployees: async () => {
+    const response = await api.get("/user/employees");
+    return unwrap(response);
+  },
+  createEmployee: async (payload: unknown) =>
+    api.post("/user/create-staff", payload),
 };
