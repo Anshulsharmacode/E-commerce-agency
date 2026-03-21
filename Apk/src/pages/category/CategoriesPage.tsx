@@ -32,8 +32,8 @@ function CategoriesPage() {
       setError("");
       try {
         const [categoryRes, productRes] = await Promise.all([
-          getAllCategories(),
-          getAllProducts(200),
+          getAllCategories(1, 50),
+          getAllProducts(1, 50),
         ]);
         setCategories(
           categoryRes.data.filter((category) => category.is_active),

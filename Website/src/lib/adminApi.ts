@@ -10,8 +10,10 @@ const unwrap = <T>(response: { data?: ApiResponse<T> }) =>
   response.data?.data;
 
 export const adminApi = {
-  getProducts: async (limit: number = PRODUCT_LIMIT) => {
-    const response = await api.get(`/product/all?limit=${limit}`);
+  getProducts: async (page: number = 1, limit: number = PRODUCT_LIMIT) => {
+    const response = await api.get("/product/all", {
+      params: { page, limit },
+    });
     return unwrap(response);
   },
   createProduct: async (payload: unknown) => api.post("/product/create", payload),
@@ -20,7 +22,9 @@ export const adminApi = {
   deleteProduct: async (id: string) => api.delete(`/product/${id}`),
 
   getCategories: async () => {
-    const response = await api.get("/category/all");
+    const response = await api.get("/category/all", {
+      params: { page: 1, limit: PRODUCT_LIMIT },
+    });
     return unwrap(response);
   },
   createCategory: async (payload: unknown) =>
@@ -30,7 +34,9 @@ export const adminApi = {
   deleteCategory: async (id: string) => api.delete(`/category/${id}`),
 
   getOffers: async () => {
-    const response = await api.get("/offer/all");
+    const response = await api.get("/offer/all", {
+      params: { page: 1, limit: PRODUCT_LIMIT },
+    });
     return unwrap(response);
   },
   createOffer: async (payload: unknown) => api.post("/offer/create", payload),

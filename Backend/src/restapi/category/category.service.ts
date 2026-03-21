@@ -10,6 +10,10 @@ import { isValidObjectId, Model } from 'mongoose';
 import { Category, CategoryDocument } from 'src/db/schema';
 import { apiError } from 'src/utills/apiResponse';
 import { CreateCategoryDto, UpdateCategoryDto } from './category.dto';
+import {
+  buildPaginationMeta,
+  normalizePagination,
+} from 'src/common/utils/pagination';
 
 @Injectable()
 export class CategoryService {
@@ -54,8 +58,22 @@ export class CategoryService {
     }
   }
 
-  async getAllCategories() {
-    return this.categoryModel.find().sort({ created_at: -1 });
+  async getAllCategories(page?: number, limit?: number) {
+    const pagination = normalizePagination({ page, limit });
+
+    const [data, total] = await Promise.all([
+      this.categoryModel
+        .find()
+        .sort({ created_at: -1 })
+        .skip(pagination.skip)
+        .limit(pagination.limit),
+      this.categoryModel.countDocuments(),
+    ]);
+
+    return {
+      data,
+      pagination: buildPaginationMeta(total, pagination),
+    };
   }
 
   async getCategoryById(category_id: string) {

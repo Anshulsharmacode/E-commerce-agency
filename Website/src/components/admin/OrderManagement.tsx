@@ -73,7 +73,7 @@ export default function OrderManagement() {
     setError(null);
     try {
       const [ordersRes, employeesRes] = await Promise.all([
-        api.get("/order/all"),
+        api.get("/order/all", { params: { page: 1, limit: 50 } }),
         api.get("/user/employees"),
       ]);
 

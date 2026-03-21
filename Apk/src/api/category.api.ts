@@ -25,8 +25,13 @@ export interface UpdateCategoryData {
   is_active?: boolean;
 }
 
-export const getAllCategories = async (): Promise<ApiResponse<Category[]>> => {
-  const response = await api.get<ApiResponse<Category[]>>("/category/all");
+export const getAllCategories = async (
+  page: number = 1,
+  limit: number = 50,
+): Promise<ApiResponse<Category[]>> => {
+  const response = await api.get<ApiResponse<Category[]>>("/category/all", {
+    params: { page, limit },
+  });
   return response.data;
 };
 

@@ -81,8 +81,13 @@ export interface UpdateOfferData {
   is_active?: boolean;
 }
 
-export const getAllOffers = async (): Promise<ApiResponse<Offer[]>> => {
-  const response = await api.get<ApiResponse<Offer[]>>("/offer/all");
+export const getAllOffers = async (
+  page: number = 1,
+  limit: number = 50,
+): Promise<ApiResponse<Offer[]>> => {
+  const response = await api.get<ApiResponse<Offer[]>>("/offer/all", {
+    params: { page, limit },
+  });
   return response.data;
 };
 

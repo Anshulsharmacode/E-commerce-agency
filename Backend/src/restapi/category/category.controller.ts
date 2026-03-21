@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   SetMetadata,
   UseGuards,
@@ -46,12 +47,19 @@ export class CategoryController {
 
   @Get('all')
   @HttpCode(HttpStatus.OK)
-  async getAllCategories() {
-    const categories = await this.categoryService.getAllCategories();
+  async getAllCategories(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const result = await this.categoryService.getAllCategories(
+      Number(page),
+      Number(limit),
+    );
 
     return {
       message: 'Categories fetched successfully',
-      data: categories,
+      data: result.data,
+      pagination: result.pagination,
     };
   }
 

@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   SetMetadata,
   UseGuards,
@@ -46,12 +47,19 @@ export class OfferController {
 
   @Get('all')
   @HttpCode(HttpStatus.OK)
-  async getAllOffers() {
-    const offers = await this.offerService.getAllOffers();
+  async getAllOffers(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const result = await this.offerService.getAllOffers(
+      Number(page),
+      Number(limit),
+    );
 
     return {
       message: 'Offers fetched successfully',
-      data: offers,
+      data: result.data,
+      pagination: result.pagination,
     };
   }
 

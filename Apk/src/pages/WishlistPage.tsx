@@ -20,7 +20,7 @@ function WishlistPage() {
     setIsLoading(true);
     try {
       const [productRes, userRes] = await Promise.all([
-        getAllProducts(300),
+        getAllProducts(1, 50),
         getMyWishlist(),
       ]);
       const likedIds = userRes.data || [];

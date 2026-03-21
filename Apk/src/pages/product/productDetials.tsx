@@ -185,8 +185,8 @@ function ProductDetialsPage() {
       setError("");
       try {
         const [productResult, categoryResult] = await Promise.allSettled([
-          getAllProducts(300),
-          getAllCategories(),
+          getAllProducts(1, 50),
+          getAllCategories(1, 50),
         ]);
 
         if (productResult.status === "fulfilled") {
