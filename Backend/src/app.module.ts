@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -17,6 +18,7 @@ import { UserController } from './restapi/user/user.controller';
 import { UserService } from './restapi/user/user.service';
 import { WishlistController } from './restapi/wishlist/wishlist.controller';
 import { WishlistService } from './restapi/wishlist/wishlist.service';
+import { RateLimitGuard } from 'src/common/guards/rate-limit.guard';
 
 @Module({
   imports: [
@@ -37,6 +39,10 @@ import { WishlistService } from './restapi/wishlist/wishlist.service';
     WishlistController,
   ],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RateLimitGuard,
+    },
     AppService,
     UserService,
     CategoryService,
