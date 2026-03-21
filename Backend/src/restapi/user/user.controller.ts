@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Req,
   SetMetadata,
@@ -91,6 +92,18 @@ export class UserController {
     return {
       message: 'Employees fetched successfully',
       data: employees,
+    };
+  }
+
+  @Get(':user_id')
+  @UseGuards(AuthGuard, RolesGuard)
+  @SetMetadata('roles', [UserRole.ADMIN, UserRole.EMPLOYEE])
+  @HttpCode(HttpStatus.OK)
+  async getUserById(@Param('user_id') user_id: string) {
+    const user = await this.userService.getUserById(user_id);
+    return {
+      message: 'User fetched successfully',
+      data: user,
     };
   }
 }

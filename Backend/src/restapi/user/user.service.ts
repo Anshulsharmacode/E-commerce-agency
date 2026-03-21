@@ -191,4 +191,17 @@ export class UserService {
       .select('-password')
       .sort({ created_at: -1 });
   }
+
+  async getUserById(user_id: string) {
+    if (!user_id) {
+      throw new UnauthorizedException('User id is required');
+    }
+
+    const user = await this.userModel.findById(user_id).select('-password');
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
 }

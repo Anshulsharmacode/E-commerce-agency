@@ -1,6 +1,8 @@
 import type { ComponentType } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IndianRupee } from "lucide-react";
 import { cn } from "@/lib/utils";
+import api from "@/lib/api";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +37,18 @@ interface Employee {
   email: string;
 }
 
+type UserSummary = {
+  _id: string;
+  name?: string;
+  email?: string;
+};
+
+type OfferSummary = {
+  _id: string;
+  offer_name?: string;
+  offer_code?: string;
+};
+
 type StatusConfig = {
   color: string;
   label: string;
@@ -65,6 +79,9 @@ const formatValue = (value: unknown) => {
   return JSON.stringify(value);
 };
 
+const isObjectId = (value: unknown) =>
+  typeof value === "string" && /^[a-f\d]{24}$/i.test(value);
+
 export default function OrderDetailsModal({
   open,
   order,
@@ -72,6 +89,115 @@ export default function OrderDetailsModal({
   onOpenChange,
   getStatusConfig,
 }: OrderDetailsModalProps) {
+  const [userLookup, setUserLookup] = useState<Record<string, UserSummary>>({});
+  const [offerLookup, setOfferLookup] = useState<Record<string, OfferSummary>>(
+    {},
+  );
+  const [lookupLoading, setLookupLoading] = useState(false);
+
+  const userIds = useMemo(() => {
+    if (!order) return [];
+    const ids = [
+      order.user_id,
+      order.created_by,
+      order.assign_by,
+      order.cancelled_by,
+    ].filter(isObjectId) as string[];
+    return Array.from(new Set(ids));
+  }, [order]);
+
+  const offerIds = useMemo(() => {
+    if (!order?.applied_offers?.length) return [];
+    const ids = order.applied_offers
+      .map((offer) => offer?.offer_id)
+      .filter(isObjectId) as string[];
+    return Array.from(new Set(ids));
+  }, [order]);
+
+  useEffect(() => {
+    if (!open || !order) return;
+
+    const missingUserIds = userIds.filter((id) => !userLookup[id]);
+    const missingOfferIds = offerIds.filter((id) => !offerLookup[id]);
+
+    if (missingUserIds.length === 0 && missingOfferIds.length === 0) {
+      return;
+    }
+
+    let active = true;
+    setLookupLoading(true);
+
+    Promise.allSettled([
+      ...missingUserIds.map((id) => api.get(`/user/${id}`)),
+      ...missingOfferIds.map((id) => api.get(`/offer/${id}`)),
+    ])
+      .then((results) => {
+        if (!active) return;
+
+        const nextUsers: Record<string, UserSummary> = {};
+        const nextOffers: Record<string, OfferSummary> = {};
+
+        results.forEach((result) => {
+          if (result.status !== "fulfilled") return;
+          const payload = result.value?.data?.data as
+            | UserSummary
+            | OfferSummary
+            | undefined;
+
+          if (!payload || !payload._id) return;
+
+          if ("offer_name" in payload || "offer_code" in payload) {
+            nextOffers[payload._id] = payload;
+          } else {
+            nextUsers[payload._id] = payload;
+          }
+        });
+
+        if (Object.keys(nextUsers).length > 0) {
+          setUserLookup((prev) => ({ ...prev, ...nextUsers }));
+        }
+        if (Object.keys(nextOffers).length > 0) {
+          setOfferLookup((prev) => ({ ...prev, ...nextOffers }));
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setLookupLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [open, order, userIds, offerIds, userLookup, offerLookup]);
+
+  const resolveUserName = (value: unknown) => {
+    if (!isObjectId(value)) {
+      return typeof value === "string" && value.trim() ? value : "—";
+    }
+    const user = userLookup[value];
+    if (user?.name) return user.name;
+    return lookupLoading ? "Loading..." : "Unknown";
+  };
+
+  const resolveUserEmail = (value: unknown) => {
+    if (!isObjectId(value)) return "";
+    return userLookup[value]?.email ?? "";
+  };
+
+  const resolveOfferLabel = (value: unknown) => {
+    if (!isObjectId(value)) {
+      return typeof value === "string" && value.trim() ? value : "—";
+    }
+    const offer = offerLookup[value];
+    if (offer?.offer_name || offer?.offer_code) {
+      return `${offer.offer_name ?? "Offer"}${
+        offer.offer_code ? ` (${offer.offer_code})` : ""
+      }`;
+    }
+    return lookupLoading ? "Loading..." : "Unknown offer";
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[760px] rounded-3xl border-none shadow-2xl max-h-[85vh] overflow-hidden p-0">
@@ -146,11 +272,16 @@ export default function OrderDetailsModal({
                   Assigned To
                 </p>
                 <p className="text-sm font-bold text-slate-800">
-                  {employees.find((e) => e._id === order.assign_to)?.name ||
-                    "Unassigned"}
+                  {order.assign_to
+                    ? employees.find((e) => e._id === order.assign_to)?.name ||
+                      resolveUserName(order.assign_to)
+                    : "Unassigned"}
                 </p>
                 <p className="text-xs text-slate-500">
-                  {employees.find((e) => e._id === order.assign_to)?.email || ""}
+                  {order.assign_to
+                    ? employees.find((e) => e._id === order.assign_to)?.email ||
+                      resolveUserEmail(order.assign_to)
+                    : ""}
                 </p>
               </div>
               <div className="rounded-2xl border border-slate-100 bg-white p-4">
@@ -189,10 +320,13 @@ export default function OrderDetailsModal({
                   Customer
                 </p>
                 <p className="text-sm font-bold text-slate-800 break-all">
-                  {formatValue(order.user_id)}
+                  {resolveUserName(order.user_id)}
+                </p>
+                <p className="text-xs text-slate-500">
+                  {resolveUserEmail(order.user_id)}
                 </p>
                 <p className="mt-1 text-xs text-slate-500 font-semibold">
-                  Created By: {formatValue(order.created_by)}
+                  Created By: {resolveUserName(order.created_by)}
                 </p>
               </div>
               <div className="rounded-2xl border border-slate-100 bg-white p-4">
@@ -200,10 +334,10 @@ export default function OrderDetailsModal({
                   Assignment Meta
                 </p>
                 <p className="text-sm font-bold text-slate-800 break-all">
-                  Assigned By: {formatValue(order.assign_by)}
+                  Assigned By: {resolveUserName(order.assign_by)}
                 </p>
                 <p className="mt-1 text-xs text-slate-500 font-semibold">
-                  Cancelled By: {formatValue(order.cancelled_by)}
+                  Cancelled By: {resolveUserName(order.cancelled_by)}
                 </p>
               </div>
             </div>
@@ -310,18 +444,34 @@ export default function OrderDetailsModal({
                       key={`offer-${index}`}
                       className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4"
                     >
+                      {(() => {
+                        const offerRecord = offer ?? {};
+                        const offerId = (offerRecord as Record<string, unknown>)
+                          .offer_id;
+                        const productId = (offerRecord as Record<string, unknown>)
+                          .product_id;
+
+                        return (
                       <div className="grid gap-2 sm:grid-cols-2 text-xs text-slate-600 font-semibold">
-                        {Object.entries(offer).map(([key, value]) => (
-                          <div key={key} className="break-words">
-                            <span className="text-[10px] uppercase tracking-widest text-slate-400 font-black">
-                              {key.replace(/_/g, " ")}
-                            </span>
-                            <div className="text-slate-700">
-                              {formatValue(value)}
-                            </div>
+                        <div className="break-words">
+                          <span className="text-[10px] uppercase tracking-widest text-slate-400 font-black">
+                            Offer
+                          </span>
+                          <div className="text-slate-700">
+                            {resolveOfferLabel(offerId)}
                           </div>
-                        ))}
+                        </div>
+                        <div className="break-words">
+                          <span className="text-[10px] uppercase tracking-widest text-slate-400 font-black">
+                            Product
+                          </span>
+                          <div className="text-slate-700">
+                            {formatValue(productId)}
+                          </div>
+                        </div>
                       </div>
+                        );
+                      })()}
                     </div>
                   ))}
                 </div>
