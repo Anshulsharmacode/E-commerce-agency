@@ -12,6 +12,8 @@ import {
   Order,
   OrderDocument,
   OrderStatus,
+  Product,
+  ProductDocument,
   User,
   UserRole,
 } from 'src/db/schema';
@@ -31,9 +33,58 @@ export class OrderService {
     private readonly orderModel: Model<OrderDocument>,
     @InjectModel(Cart.name)
     private readonly cartModel: Model<CartDocument>,
+    @InjectModel(Product.name)
+    private readonly productModel: Model<ProductDocument>,
     @InjectModel(User.name)
     private readonly userModel: Model<User>,
   ) {}
+
+  private async appendProductNamesToOrders(
+    orders: Array<Record<string, any>>,
+  ) {
+    const productIds = new Set<string>();
+    orders.forEach((order) => {
+      const items = Array.isArray(order.items) ? order.items : [];
+      items.forEach((item) => {
+        const productId = item?.product_id;
+        if (productId) {
+          const normalizedId = String(productId).trim();
+          if (normalizedId) {
+            productIds.add(normalizedId);
+          }
+        }
+      });
+    });
+
+    if (productIds.size === 0) {
+      return orders;
+    }
+
+    const products = await this.productModel
+      .find({ _id: { $in: Array.from(productIds) } })
+      .select('name');
+
+    const productMap = new Map(
+      products.map((product) => [String(product._id), product.name]),
+    );
+
+    return orders.map((order) => {
+      const items = Array.isArray(order.items) ? order.items : [];
+      const nextItems = items.map((item) => {
+        const productId = item?.product_id;
+        if (productId) {
+          const normalizedId = String(productId);
+          const name = productMap.get(normalizedId);
+          if (name) {
+            return { ...item, product_name: name };
+          }
+        }
+        return item;
+      });
+
+      return { ...order, items: nextItems };
+    });
+  }
 
   async createOrder(user_id: string, createOrderDto: CreateOrderDto) {
     const { delivery_address, notes } = createOrderDto;
@@ -100,7 +151,12 @@ export class OrderService {
   }
 
   async getAllOrders() {
-    return this.orderModel.find().sort({ created_at: -1 });
+    const orders = await this.orderModel
+      .find()
+      .sort({ created_at: -1 })
+      .lean();
+
+    return this.appendProductNamesToOrders(orders as Array<Record<string, any>>);
   }
 
   async getOrderById(order_id: string) {

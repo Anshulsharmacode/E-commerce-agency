@@ -2,6 +2,7 @@ import { ProductUnit } from 'src/db/schema';
 
 export class CreateProductDto {
   category_id: string;
+  product_name: string;
   name: string;
   description?: string;
   unit: ProductUnit;
