@@ -13,6 +13,10 @@ import {
   ProductDocument,
 } from 'src/db/schema';
 import { apiError } from 'src/utills/apiResponse';
+import {
+  buildPaginationMeta,
+  normalizePagination,
+} from 'src/common/utils/pagination';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
 
 @Injectable()
@@ -213,13 +217,22 @@ export class ProductService {
     return deletedProduct;
   }
 
-  async getAllProducts(limit?: number) {
-    const parsedLimit = Number(limit ?? 50);
-    const safeLimit = Number.isNaN(parsedLimit)
-      ? 50
-      : Math.min(Math.max(parsedLimit, 1), 50);
+  async getAllProducts(page?: number, limit?: number) {
+    const pagination = normalizePagination({ page, limit });
 
-    return this.productModel.find().sort({ created_at: -1 }).limit(safeLimit);
+    const [data, total] = await Promise.all([
+      this.productModel
+        .find()
+        .sort({ created_at: -1 })
+        .skip(pagination.skip)
+        .limit(pagination.limit),
+      this.productModel.countDocuments(),
+    ]);
+
+    return {
+      data,
+      pagination: buildPaginationMeta(total, pagination),
+    };
   }
 
   async getProductByid(product_id: string) {

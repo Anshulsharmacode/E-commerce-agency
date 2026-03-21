@@ -48,9 +48,10 @@ export interface UpdateProductData {
 }
 
 export const getAllProducts = async (
-  limit?: number,
+  page: number = 1,
+  limit: number = 50,
 ): Promise<ApiResponse<Product[]>> => {
-  const params = limit ? { limit } : {};
+  const params = { page, limit };
   const response = await api.get<ApiResponse<Product[]>>("/product/all", {
     params,
   });

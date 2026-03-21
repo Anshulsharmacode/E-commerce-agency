@@ -21,6 +21,10 @@ import {
   ProductDocument,
 } from 'src/db/schema';
 import { apiError } from 'src/utills/apiResponse';
+import {
+  buildPaginationMeta,
+  normalizePagination,
+} from 'src/common/utils/pagination';
 import { CreateOfferDto, UpdateOfferDto } from './offer.dto';
 
 @Injectable()
@@ -451,8 +455,22 @@ export class OfferService {
     return eligibleOffers;
   }
 
-  async getAllOffers() {
-    return this.offerModel.find().sort({ created_at: -1 });
+  async getAllOffers(page?: number, limit?: number) {
+    const pagination = normalizePagination({ page, limit });
+
+    const [data, total] = await Promise.all([
+      this.offerModel
+        .find()
+        .sort({ created_at: -1 })
+        .skip(pagination.skip)
+        .limit(pagination.limit),
+      this.offerModel.countDocuments(),
+    ]);
+
+    return {
+      data,
+      pagination: buildPaginationMeta(total, pagination),
+    };
   }
 
   async getActiveOffers() {

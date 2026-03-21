@@ -25,6 +25,10 @@ import {
   // EmploeeCreateOrder,
   UpdateOrderStatusDto,
 } from './order.dto';
+import {
+  buildPaginationMeta,
+  normalizePagination,
+} from 'src/common/utils/pagination';
 
 @Injectable()
 export class OrderService {
@@ -150,13 +154,27 @@ export class OrderService {
     return this.orderModel.find({ user_id: user_id }).sort({ created_at: -1 });
   }
 
-  async getAllOrders() {
-    const orders = await this.orderModel
-      .find()
-      .sort({ created_at: -1 })
-      .lean();
+  async getAllOrders(page?: number, limit?: number) {
+    const pagination = normalizePagination({ page, limit });
 
-    return this.appendProductNamesToOrders(orders as Array<Record<string, any>>);
+    const [orders, total] = await Promise.all([
+      this.orderModel
+        .find()
+        .sort({ created_at: -1 })
+        .skip(pagination.skip)
+        .limit(pagination.limit)
+        .lean(),
+      this.orderModel.countDocuments(),
+    ]);
+
+    const data = await this.appendProductNamesToOrders(
+      orders as Array<Record<string, any>>,
+    );
+
+    return {
+      data,
+      pagination: buildPaginationMeta(total, pagination),
+    };
   }
 
   async getOrderById(order_id: string) {

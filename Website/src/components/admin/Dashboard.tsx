@@ -71,10 +71,10 @@ export default function Dashboard() {
 
       try {
         const [productsRes, categoriesRes, offersRes, ordersRes] = await Promise.all([
-          api.get("/product/all"),
-          api.get("/category/all"),
-          api.get("/offer/all"),
-          api.get("/order/all"),
+          api.get("/product/all", { params: { page: 1, limit: 50 } }),
+          api.get("/category/all", { params: { page: 1, limit: 50 } }),
+          api.get("/offer/all", { params: { page: 1, limit: 50 } }),
+          api.get("/order/all", { params: { page: 1, limit: 50 } }),
         ]);
 
         setProducts(Array.isArray(productsRes.data?.data) ? productsRes.data.data : []);

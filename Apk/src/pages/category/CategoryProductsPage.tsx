@@ -32,7 +32,7 @@ function CategoryProductsPage() {
     try {
       const [categoryRes, productRes] = await Promise.all([
         getCategoryById(categoryId),
-        getAllProducts(300),
+        getAllProducts(1, 50),
       ]);
       setCategory(categoryRes.data);
       setProducts(productRes.data.filter((product) => product.is_active));

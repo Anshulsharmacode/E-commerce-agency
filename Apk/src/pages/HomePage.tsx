@@ -49,8 +49,8 @@ function HomePage() {
     try {
       const [categoryResult, productResult, offerResult] =
         await Promise.allSettled([
-          getAllCategories(),
-          getAllProducts(60),
+          getAllCategories(1, 50),
+          getAllProducts(1, 50),
           getActiveOffers(),
         ]);
 

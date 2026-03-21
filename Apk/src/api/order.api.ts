@@ -107,8 +107,13 @@ export const cancelMyOrder = async (
   return response.data;
 };
 
-export const getAllOrders = async (): Promise<ApiResponse<Order[]>> => {
-  const response = await api.get<ApiResponse<Order[]>>("/order/all");
+export const getAllOrders = async (
+  page: number = 1,
+  limit: number = 50,
+): Promise<ApiResponse<Order[]>> => {
+  const response = await api.get<ApiResponse<Order[]>>("/order/all", {
+    params: { page, limit },
+  });
   return response.data;
 };
 

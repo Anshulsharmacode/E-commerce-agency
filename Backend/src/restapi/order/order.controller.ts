@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   SetMetadata,
   UseGuards,
@@ -120,12 +121,19 @@ export class OrderController {
   @UseGuards(AuthGuard, RolesGuard)
   @SetMetadata('roles', [UserRole.ADMIN, UserRole.EMPLOYEE])
   @HttpCode(HttpStatus.OK)
-  async getAllOrders() {
-    const orders = await this.orderService.getAllOrders();
+  async getAllOrders(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const result = await this.orderService.getAllOrders(
+      Number(page),
+      Number(limit),
+    );
 
     return {
       message: 'Orders fetched successfully',
-      data: orders,
+      data: result.data,
+      pagination: result.pagination,
     };
   }
 
