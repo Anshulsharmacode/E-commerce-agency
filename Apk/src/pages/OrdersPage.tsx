@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getMyOrders, type Order } from "@/api";
 import { getProductBy_id } from "@/api/product.api";
-import { 
-  Package, 
-  ChevronRight, 
-  Clock, 
-  CheckCircle2, 
-  XCircle, 
-  Truck, 
+import {
+  Package,
+  ChevronRight,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Truck,
   ShoppingBag,
-  ArrowLeft
+  ArrowLeft,
 } from "lucide-react";
 
 function OrdersPage() {
@@ -24,6 +24,7 @@ function OrdersPage() {
     const fetchOrders = async () => {
       try {
         const res = await getMyOrders();
+        console.log("Fetched orders:", res.data);
         setOrders(res.data);
       } catch (err) {
         console.error(err);
@@ -39,7 +40,11 @@ function OrdersPage() {
 
     const productIds = Array.from(
       new Set(
-        orders.flatMap((order) => order.items.map((item) => item.product_id)),
+        orders.flatMap((order) =>
+          order.items
+            .filter((item) => !item.product_name)
+            .map((item) => item.product_id),
+        ),
       ),
     ).filter((id) => !productNameMap[id]);
 
@@ -79,28 +84,28 @@ function OrdersPage() {
   const getStatusDetails = (status: Order["status"]) => {
     switch (status) {
       case "delivered":
-        return { 
-          icon: CheckCircle2, 
-          color: "text-green-600 bg-green-500/10", 
-          label: "Delivered" 
+        return {
+          icon: CheckCircle2,
+          color: "text-green-600 bg-green-500/10",
+          label: "Delivered",
         };
       case "cancelled":
-        return { 
-          icon: XCircle, 
-          color: "text-rose-600 bg-rose-500/10", 
-          label: "Cancelled" 
+        return {
+          icon: XCircle,
+          color: "text-rose-600 bg-rose-500/10",
+          label: "Cancelled",
         };
       case "shipped":
-        return { 
-          icon: Truck, 
-          color: "text-blue-600 bg-blue-500/10", 
-          label: "Shipped" 
+        return {
+          icon: Truck,
+          color: "text-blue-600 bg-blue-500/10",
+          label: "Shipped",
         };
       default:
-        return { 
-          icon: Clock, 
-          color: "text-amber-600 bg-amber-500/10", 
-          label: status.charAt(0).toUpperCase() + status.slice(1) 
+        return {
+          icon: Clock,
+          color: "text-amber-600 bg-amber-500/10",
+          label: status.charAt(0).toUpperCase() + status.slice(1),
         };
     }
   };
@@ -110,7 +115,9 @@ function OrdersPage() {
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm font-bold text-muted-foreground animate-pulse">Loading orders...</p>
+          <p className="text-sm font-bold text-muted-foreground animate-pulse">
+            Loading orders...
+          </p>
         </div>
       </div>
     );
@@ -120,12 +127,17 @@ function OrdersPage() {
       <header className="sticky top-0 z-10 bg-background/80 px-5 pb-4 pt-12 backdrop-blur-xl border-b border-border/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/profile" className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform">
+            <Link
+              to="/profile"
+              className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform"
+            >
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
               <h1 className="text-xl font-black tracking-tight">My Orders</h1>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Recent Transactions</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                Recent Transactions
+              </p>
             </div>
           </div>
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -143,7 +155,9 @@ function OrdersPage() {
                 <ShoppingBag className="h-16 w-16" />
               </div>
             </div>
-            <h2 className="text-2xl font-black tracking-tight">No orders yet</h2>
+            <h2 className="text-2xl font-black tracking-tight">
+              No orders yet
+            </h2>
             <p className="mt-2 max-w-[240px] text-sm font-medium text-muted-foreground leading-relaxed">
               When you shop, your order history will appear here.
             </p>
@@ -158,8 +172,9 @@ function OrdersPage() {
             const status = getStatusDetails(order.status);
             const StatusIcon = status.icon;
             const firstItemId = order.items[0]?.product_id;
+            const firstItemNameFromOrder = order.items[0]?.product_name;
             const firstItemName = firstItemId
-              ? productNameMap[firstItemId]
+              ? firstItemNameFromOrder || productNameMap[firstItemId]
               : undefined;
             const extraItems = Math.max(order.items.length - 1, 0);
             const orderTitle = firstItemName
@@ -167,7 +182,7 @@ function OrdersPage() {
                 ? `${firstItemName} +${extraItems} more`
                 : firstItemName
               : `Order #${order._id.slice(-6).toUpperCase()}`;
-            
+
             return (
               <Link
                 to={`/orders/${order._id}`}
@@ -186,31 +201,45 @@ function OrdersPage() {
                         {orderTitle}
                       </h3>
                       <div className="mt-1 flex items-center gap-2">
-                        <StatusIcon className={`h-3 w-3 ${status.color.split(' ')[0]}`} />
-                        <span className={`text-[10px] font-black uppercase tracking-widest ${status.color.split(' ')[0]}`}>
+                        <StatusIcon
+                          className={`h-3 w-3 ${status.color.split(" ")[0]}`}
+                        />
+                        <span
+                          className={`text-[10px] font-black uppercase tracking-widest ${status.color.split(" ")[0]}`}
+                        >
                           {status.label}
                         </span>
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-base font-black text-primary">₹{order.final_amount}</p>
+                    <p className="text-base font-black text-primary">
+                      ₹{order.final_amount}
+                    </p>
                     <p className="text-[10px] font-bold text-muted-foreground mt-1">
-                      {new Date(order.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      {new Date(order.created_at).toLocaleDateString(
+                        undefined,
+                        { month: "short", day: "numeric" },
+                      )}
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-4">
                   <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                     <Clock className="h-3.5 w-3.5" />
-                    <span>{new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span>
+                      {new Date(order.created_at).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1 text-xs font-black text-primary">
                     View Details <ChevronRight className="h-4 w-4" />
                   </div>
                 </div>
-                
+
                 {/* Decorative element */}
                 <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-primary/5 blur-2xl group-hover:scale-150 transition-transform" />
               </Link>

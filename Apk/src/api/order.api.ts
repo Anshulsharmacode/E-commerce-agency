@@ -11,6 +11,7 @@ export type OrderStatus =
   | "cancelled";
 
 export interface OrderItem {
+  product_name: string;
   product_id: string;
   quantity_boxes: number;
   price_per_box: number;
@@ -73,15 +74,15 @@ export const createOrder = async (
   return response.data;
 };
 
-export const createEmployeeOrder = async (
-  data: EmployeeCreateOrderData,
-): Promise<ApiResponse<Order>> => {
-  const response = await api.post<ApiResponse<Order>>(
-    "/order/employee/create",
-    data,
-  );
-  return response.data;
-};
+// export const createEmployeeOrder = async (
+//   data: EmployeeCreateOrderData,
+// ): Promise<ApiResponse<Order>> => {
+//   const response = await api.post<ApiResponse<Order>>(
+//     "/order/employee/create",
+//     data,
+//   );
+//   return response.data;
+// };
 
 export const getMyOrders = async (): Promise<ApiResponse<Order[]>> => {
   const response = await api.get<ApiResponse<Order[]>>("/order/my");

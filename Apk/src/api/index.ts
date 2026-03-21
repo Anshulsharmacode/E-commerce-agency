@@ -1,12 +1,8 @@
+export * from "./types";
 
-export * from './types';
-
-
-export { default as api } from './config';
-
+export { default as api } from "./config";
 
 export {
-
   getAllProducts,
   createProduct,
   updateProduct,
@@ -15,10 +11,9 @@ export {
   type CreateProductData,
   type UpdateProductData,
   type ProductUnit,
-} from './product.api';
+} from "./product.api";
 
 export {
-
   getAllCategories,
   getCategoryById,
   createCategory,
@@ -27,10 +22,9 @@ export {
   type Category,
   type CreateCategoryData,
   type UpdateCategoryData,
-} from './category.api';
+} from "./category.api";
 
 export {
-
   getAllOffers,
   getActiveOffers,
   getEligibleOffers,
@@ -44,12 +38,11 @@ export {
   type UpdateOfferData,
   type OfferType,
   type OfferDiscountType,
-} from './offer.api';
+} from "./offer.api";
 
 export {
-
   createOrder,
-  createEmployeeOrder,
+  // createEmployeeOrder,
   getMyOrders,
   getAssignedOrders,
   getMyOrderById,
@@ -62,14 +55,13 @@ export {
   type OrderItem,
   type OrderStatus,
   type CreateOrderData,
-  type EmployeeCreateOrderData,
+  // type EmployeeCreateOrderData,
   type UpdateOrderStatusData,
   type CancelOrderData,
   type AssignOrderData,
-} from './order.api';
+} from "./order.api";
 
 export {
-
   getMyCart,
   addCartItem,
   updateCartItem,
@@ -79,7 +71,7 @@ export {
   type CartItem,
   type AddCartItemData,
   type UpdateCartItemData,
-} from './cart.api';
+} from "./cart.api";
 
 export {
   // User API
@@ -99,4 +91,4 @@ export {
   type GenerateOtpData,
   type VerifyOtpData,
   type LoginResponse,
-} from './user.api';
+} from "./user.api";

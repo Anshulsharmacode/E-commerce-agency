@@ -12,12 +12,16 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { getMyOrderById, type Order } from "@/api";
+import { getProductBy_id } from "@/api/product.api";
 
 function OrderDetailsPage() {
   const { orderId = "" } = useParams();
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [productNameMap, setProductNameMap] = useState<
+    Record<string, string>
+  >({});
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -44,6 +48,50 @@ function OrderDetailsPage() {
 
     void fetchOrder();
   }, [orderId]);
+
+  useEffect(() => {
+    if (!order || order.items.length === 0) return;
+
+    const productIds = Array.from(
+      new Set(
+        order.items
+          .filter((item) => !item.product_name)
+          .map((item) => item.product_id),
+      ),
+    ).filter((id) => !productNameMap[id]);
+
+    if (productIds.length === 0) return;
+
+    let cancelled = false;
+
+    const fetchNames = async () => {
+      const results = await Promise.allSettled(
+        productIds.map(async (id) => {
+          const res = await getProductBy_id(id);
+          return [id, res.data.name] as const;
+        }),
+      );
+
+      if (cancelled) return;
+
+      setProductNameMap((prev) => {
+        const next = { ...prev };
+        results.forEach((result) => {
+          if (result.status === "fulfilled") {
+            const [id, name] = result.value;
+            next[id] = name;
+          }
+        });
+        return next;
+      });
+    };
+
+    void fetchNames();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [order, productNameMap]);
 
   const getStatusDetails = (status: Order["status"]) => {
     switch (status) {
@@ -176,11 +224,17 @@ function OrderDetailsPage() {
                     className="flex items-center gap-4 rounded-[1.75rem] border border-border bg-card p-3 shadow-sm"
                   >
                     <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-secondary text-lg font-black text-primary/20">
-                      {item.product_id.slice(-1).toUpperCase()}
+                      {(item.product_name ||
+                        productNameMap[item.product_id] ||
+                        item.product_id)
+                        .slice(0, 1)
+                        .toUpperCase()}
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-black text-foreground">
-                        Product {item.product_id.slice(-6).toUpperCase()}
+                        {item.product_name ||
+                          productNameMap[item.product_id] ||
+                          `Product ${item.product_id.slice(-6).toUpperCase()}`}
                       </p>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
                         Rs. {item.price_per_box} x {item.quantity_boxes}{" "}
