@@ -13,6 +13,8 @@ import { GenerateOtpDto, LoginDto, SignupDto, VerifyOtpDto } from './user.dto';
 import { comparePassword, hashedPassword } from 'src/utills/utills';
 import { apiError } from 'src/utills/apiResponse';
 import { JwtService } from '@nestjs/jwt';
+import { sendEmail } from 'src/common/utils/mail';
+import { template } from 'src/common/constant/constant';
 
 @Injectable()
 export class UserService {
@@ -50,6 +52,7 @@ export class UserService {
       });
 
       await this.sendOtp({ emailOrPhone: email });
+
       return user;
     } catch (error: unknown) {
       apiError('error in created user ', error);
@@ -102,6 +105,24 @@ export class UserService {
     );
 
     console.log(`OTP for ${emailOrPhone} is ${otp}`); // In real app, send via SMS/Email
+
+    if (user.email) {
+      const emailResult = await sendEmail({
+        to: user.email,
+        subject: 'OTP Verification',
+        template,
+        variables: { otp },
+      });
+
+      if (!emailResult.success) {
+        console.error(
+          'Failed to send OTP email for',
+          user.email,
+          emailResult.error,
+        );
+      }
+    }
+
     return { message: 'OTP sent successfully' };
   }
 
