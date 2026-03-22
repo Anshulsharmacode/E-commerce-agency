@@ -6,6 +6,12 @@ type ApiResponse<T> = {
   data?: T;
 };
 
+type ProductImageUploadData = {
+  uploadUrl: string;
+  key: string;
+  publicUrl: string;
+};
+
 const unwrap = <T>(response: { data?: ApiResponse<T> }) =>
   response.data?.data;
 
@@ -20,6 +26,10 @@ export const adminApi = {
   updateProduct: async (id: string, payload: unknown) =>
     api.patch(`/product/${id}`, payload),
   deleteProduct: async (id: string) => api.delete(`/product/${id}`),
+  getProductImageUploadUrl: async (fileType: string) => {
+    const response = await api.post("/product/image/upload-url", { fileType });
+    return unwrap<ProductImageUploadData>(response);
+  },
 
   getCategories: async () => {
     const response = await api.get("/category/all", {

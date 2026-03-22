@@ -1,5 +1,4 @@
 import type { Offer } from "@/types/offer";
-import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 type HeroProps = {
@@ -12,6 +11,8 @@ export function HeroSection({
   activeOfferCount,
   isLoadingOffers,
 }: HeroProps) {
+  const apkDownloadUrl = `${import.meta.env.BASE_URL}app.apk`;
+
   const totalDiscountValue = offers.reduce(
     (sum, o) => sum + (o.discount_value || 0),
     0,
@@ -21,11 +22,11 @@ export function HeroSection({
 
   return (
     <section className="relative pt-28 pb-24 md:pt-36 md:pb-28 overflow-hidden bg-slate-50 mt-10">
-      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#0f172a_1px,transparent_1px)] [background-size:26px_26px]" />
-      <div className="absolute top-[-10%] right-[-5%] w-[420px] h-[420px] bg-indigo-200/50 blur-[140px] rounded-full -z-10" />
-      <div className="absolute bottom-[-10%] left-[-5%] w-[420px] h-[420px] bg-slate-300/40 blur-[160px] rounded-full -z-10" />
+      <div className="pointer-events-none absolute inset-0 opacity-20 bg-[radial-gradient(#0f172a_1px,transparent_1px)] [background-size:26px_26px]" />
+      <div className="pointer-events-none absolute top-[-10%] right-[-5%] w-[420px] h-[420px] bg-indigo-200/50 blur-[140px] rounded-full -z-10" />
+      <div className="pointer-events-none absolute bottom-[-10%] left-[-5%] w-[420px] h-[420px] bg-slate-300/40 blur-[160px] rounded-full -z-10" />
 
-      <div className="container mx-auto px-6">
+      <div className="container relative z-10 mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-center gap-20">
           {/* LEFT */}
           <div className="lg:w-1/2 text-center lg:text-left space-y-8">
@@ -63,11 +64,14 @@ export function HeroSection({
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <a href="/app.apk" download>
-                <Button className="group px-8 h-12 rounded-xl text-base bg-indigo-500 hover:bg-indigo-600 text-white shadow-lg">
-                  Download APK
-                  <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </Button>
+              <a
+                href={apkDownloadUrl}
+                download="app.apk"
+                aria-label="Download APK"
+                className="group inline-flex items-center justify-center px-8 h-12 rounded-xl text-base bg-indigo-500 hover:bg-indigo-600 text-white shadow-lg transition-colors"
+              >
+                Download APK
+                <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
               </a>
             </div>
 
