@@ -1,0 +1,12 @@
+node_modules
+dist
+build
+.git
+.gitignore
+*.log
+/coverage
+/.nyc_output
+.vscode
+.env
+Dockerfile
+.dockerignore
