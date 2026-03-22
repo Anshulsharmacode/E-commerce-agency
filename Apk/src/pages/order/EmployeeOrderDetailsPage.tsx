@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { 
-  ChevronLeft, 
-  Clock, 
-  Package, 
-  X, 
-  CheckCircle2, 
-  XCircle, 
-  Truck, 
+import {
+  Clock,
+  Package,
+  X,
+  CheckCircle2,
+  XCircle,
+  Truck,
   ArrowLeft,
   UserCheck,
   CreditCard,
-  Edit3
+  Edit3,
+  ChevronRight,
 } from "lucide-react";
 import { getOrderById, updateOrderStatus, type Order } from "@/api";
 
@@ -21,7 +21,9 @@ function EmployeeOrderDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<Order["status"] | "">("");
+  const [selectedStatus, setSelectedStatus] = useState<Order["status"] | "">(
+    "",
+  );
   const [isUpdating, setIsUpdating] = useState(false);
   const [statusError, setStatusError] = useState("");
 
@@ -66,28 +68,28 @@ function EmployeeOrderDetailsPage() {
   const getStatusDetails = (status: Order["status"]) => {
     switch (status) {
       case "delivered":
-        return { 
-          icon: CheckCircle2, 
-          color: "text-green-600 bg-green-500/10", 
-          label: "Delivered" 
+        return {
+          icon: CheckCircle2,
+          color: "text-green-600 bg-green-500/10",
+          label: "Delivered",
         };
       case "cancelled":
-        return { 
-          icon: XCircle, 
-          color: "text-rose-600 bg-rose-500/10", 
-          label: "Cancelled" 
+        return {
+          icon: XCircle,
+          color: "text-rose-600 bg-rose-500/10",
+          label: "Cancelled",
         };
       case "shipped":
-        return { 
-          icon: Truck, 
-          color: "text-blue-600 bg-blue-500/10", 
-          label: "Shipped" 
+        return {
+          icon: Truck,
+          color: "text-blue-600 bg-blue-500/10",
+          label: "Shipped",
         };
       default:
-        return { 
-          icon: Clock, 
-          color: "text-amber-600 bg-amber-500/10", 
-          label: status.charAt(0).toUpperCase() + status.slice(1) 
+        return {
+          icon: Clock,
+          color: "text-amber-600 bg-amber-500/10",
+          label: status.charAt(0).toUpperCase() + status.slice(1),
         };
     }
   };
@@ -97,7 +99,9 @@ function EmployeeOrderDetailsPage() {
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm font-bold text-muted-foreground animate-pulse">Loading task details...</p>
+          <p className="text-sm font-bold text-muted-foreground animate-pulse">
+            Loading task details...
+          </p>
         </div>
       </div>
     );
@@ -110,12 +114,19 @@ function EmployeeOrderDetailsPage() {
     <div className="flex min-h-screen flex-col bg-background pb-32">
       <header className="sticky top-0 z-10 bg-background/80 px-5 pb-4 pt-12 backdrop-blur-xl border-b border-border/50">
         <div className="flex items-center gap-4">
-          <Link to="/employee/orders" className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform">
+          <Link
+            to="/employee/orders"
+            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-xl font-black tracking-tight">Order Management</h1>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">ID: {order?._id.slice(-12).toUpperCase()}</p>
+            <h1 className="text-xl font-black tracking-tight">
+              Order Management
+            </h1>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              ID: {order?._id.slice(-12).toUpperCase()}
+            </p>
           </div>
         </div>
       </header>
@@ -128,7 +139,9 @@ function EmployeeOrderDetailsPage() {
         ) : !order ? (
           <div className="rounded-[2rem] border border-border bg-card p-10 text-center">
             <Package className="mx-auto h-12 w-12 text-muted-foreground/30" />
-            <p className="mt-4 text-sm font-bold text-muted-foreground">Order not found.</p>
+            <p className="mt-4 text-sm font-bold text-muted-foreground">
+              Order not found.
+            </p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -136,10 +149,20 @@ function EmployeeOrderDetailsPage() {
             <section className="relative overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Current Status</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                    Current Status
+                  </span>
                   <div className="mt-2 flex items-center gap-2">
-                    {StatusIcon && <StatusIcon className={`h-5 w-5 ${status?.color.split(' ')[0]}`} />}
-                    <h2 className={`text-xl font-black ${status?.color.split(' ')[0]}`}>{status?.label}</h2>
+                    {StatusIcon && (
+                      <StatusIcon
+                        className={`h-5 w-5 ${status?.color.split(" ")[0]}`}
+                      />
+                    )}
+                    <h2
+                      className={`text-xl font-black ${status?.color.split(" ")[0]}`}
+                    >
+                      {status?.label}
+                    </h2>
                   </div>
                 </div>
                 <button
@@ -152,31 +175,41 @@ function EmployeeOrderDetailsPage() {
                   <Edit3 className="h-4 w-4" /> Update
                 </button>
               </div>
-              
+
               <div className="mt-6 flex items-center justify-between border-t border-border/50 pt-4">
-                 <div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Created</span>
-                    <p className="mt-1 text-xs font-bold text-foreground">
-                      {new Date(order.created_at).toLocaleString()}
-                    </p>
-                 </div>
-                 {order.assign_by && (
-                    <div className="text-right">
-                       <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Assigned By</span>
-                       <div className="mt-1 flex items-center gap-1 justify-end">
-                          <UserCheck className="h-3 w-3 text-primary" />
-                          <p className="text-xs font-bold text-foreground">{order.assign_by.slice(-6).toUpperCase()}</p>
-                       </div>
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                    Created
+                  </span>
+                  <p className="mt-1 text-xs font-bold text-foreground">
+                    {new Date(order.created_at).toLocaleString()}
+                  </p>
+                </div>
+                {order.assign_by && (
+                  <div className="text-right">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                      Assigned By
+                    </span>
+                    <div className="mt-1 flex items-center gap-1 justify-end">
+                      <UserCheck className="h-3 w-3 text-primary" />
+                      <p className="text-xs font-bold text-foreground">
+                        {order.assign_by.slice(-6).toUpperCase()}
+                      </p>
                     </div>
-                 )}
+                  </div>
+                )}
               </div>
             </section>
 
             {/* Items Section */}
             <section className="space-y-4">
               <div className="flex items-center justify-between px-2">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Order Items</h3>
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary">{order.items.length} Items</span>
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                  Order Items
+                </h3>
+                <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                  {order.items.length} Items
+                </span>
               </div>
               <div className="space-y-3">
                 {order.items.map((item) => (
@@ -188,12 +221,17 @@ function EmployeeOrderDetailsPage() {
                       {item.product_id.slice(-1).toUpperCase()}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-black text-foreground">Product {item.product_id.slice(-6).toUpperCase()}</p>
+                      <p className="text-sm font-black text-foreground">
+                        Product {item.product_id.slice(-6).toUpperCase()}
+                      </p>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                        Rs. {item.price_per_box} x {item.quantity_boxes} {item.quantity_boxes === 1 ? 'box' : 'boxes'}
+                        Rs. {item.price_per_box} x {item.quantity_boxes}{" "}
+                        {item.quantity_boxes === 1 ? "box" : "boxes"}
                       </p>
                     </div>
-                    <p className="text-sm font-black text-primary">Rs. {item.total_price}</p>
+                    <p className="text-sm font-black text-primary">
+                      Rs. {item.total_price}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -206,9 +244,11 @@ function EmployeeOrderDetailsPage() {
                   <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                     <CreditCard className="h-4 w-4" />
                   </div>
-                  <h3 className="text-sm font-black uppercase tracking-widest">Order Summary</h3>
+                  <h3 className="text-sm font-black uppercase tracking-widest">
+                    Order Summary
+                  </h3>
                 </div>
-                
+
                 <div className="space-y-3 pt-2">
                   <div className="flex justify-between text-sm font-medium">
                     <span className="text-muted-foreground">Subtotal</span>
@@ -216,12 +256,18 @@ function EmployeeOrderDetailsPage() {
                   </div>
                   <div className="flex justify-between text-sm font-medium">
                     <span className="text-muted-foreground">Discount</span>
-                    <span className="font-bold text-green-600">- Rs. {order.total_discount}</span>
+                    <span className="font-bold text-green-600">
+                      - Rs. {order.total_discount}
+                    </span>
                   </div>
                   <div className="my-2 h-px bg-border/50" />
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Final Amount</span>
-                    <p className="text-xl font-black text-primary">Rs. {order.final_amount}</p>
+                    <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                      Final Amount
+                    </span>
+                    <p className="text-xl font-black text-primary">
+                      Rs. {order.final_amount}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -236,8 +282,12 @@ function EmployeeOrderDetailsPage() {
           <div className="w-full max-w-md rounded-[2.5rem] bg-card p-6 shadow-2xl border border-border animate-in slide-in-from-bottom-10 duration-500">
             <div className="mb-6 flex items-start justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Control Panel</p>
-                <h3 className="mt-1 text-2xl font-black tracking-tight text-foreground">Update Status</h3>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+                  Control Panel
+                </p>
+                <h3 className="mt-1 text-2xl font-black tracking-tight text-foreground">
+                  Update Status
+                </h3>
               </div>
               <button
                 onClick={() => {
@@ -252,12 +302,16 @@ function EmployeeOrderDetailsPage() {
 
             <div className="space-y-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Select New Status</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">
+                  Select New Status
+                </label>
                 <div className="relative">
                   <select
                     className="h-16 w-full appearance-none rounded-2xl border border-border bg-secondary/50 px-5 text-sm font-black text-foreground focus:border-primary focus:outline-none transition-all"
                     value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value as Order["status"])}
+                    onChange={(e) =>
+                      setSelectedStatus(e.target.value as Order["status"])
+                    }
                   >
                     {statusOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -299,7 +353,9 @@ function EmployeeOrderDetailsPage() {
                       setOrder(res.data);
                       setIsStatusModalOpen(false);
                     } catch (err) {
-                      setStatusError("Failed to update status. Please try again.");
+                      setStatusError(
+                        "Failed to update status. Please try again.",
+                      );
                     } finally {
                       setIsUpdating(false);
                     }
@@ -309,7 +365,7 @@ function EmployeeOrderDetailsPage() {
                   {isUpdating ? "Updating..." : "Save Status"}
                 </button>
               </div>
-              
+
               <p className="text-center text-[10px] font-medium text-muted-foreground italic">
                 Note: "Delivered" status can only be set by administrators.
               </p>

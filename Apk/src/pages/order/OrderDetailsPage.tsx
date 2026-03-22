@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
-  ChevronLeft,
   Clock,
   Package,
   MapPin,
@@ -19,9 +18,9 @@ function OrderDetailsPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [productNameMap, setProductNameMap] = useState<
-    Record<string, string>
-  >({});
+  const [productNameMap, setProductNameMap] = useState<Record<string, string>>(
+    {},
+  );
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -224,9 +223,11 @@ function OrderDetailsPage() {
                     className="flex items-center gap-4 rounded-[1.75rem] border border-border bg-card p-3 shadow-sm"
                   >
                     <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-secondary text-lg font-black text-primary/20">
-                      {(item.product_name ||
+                      {(
+                        item.product_name ||
                         productNameMap[item.product_id] ||
-                        item.product_id)
+                        item.product_id
+                      )
                         .slice(0, 1)
                         .toUpperCase()}
                     </div>

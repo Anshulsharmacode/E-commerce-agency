@@ -1,17 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  ShoppingBag, 
-  Boxes, 
+import {
+  ChevronRight,
+  Boxes,
   ArrowLeft,
   LayoutGrid,
   TrendingUp,
   Zap,
   Award,
   Flame,
-  Star
+  Star,
 } from "lucide-react";
 import {
   getAllCategories,
@@ -75,7 +73,9 @@ function CategoriesPage() {
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm font-bold text-muted-foreground animate-pulse">Loading categories...</p>
+          <p className="text-sm font-bold text-muted-foreground animate-pulse">
+            Loading categories...
+          </p>
         </div>
       </div>
     );
@@ -85,12 +85,17 @@ function CategoriesPage() {
       <header className="sticky top-0 z-10 bg-background/80 px-5 pb-4 pt-12 backdrop-blur-xl border-b border-border/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/" className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform">
+            <Link
+              to="/"
+              className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform"
+            >
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
               <h1 className="text-xl font-black tracking-tight">Explore</h1>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">All Categories</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                All Categories
+              </p>
             </div>
           </div>
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -103,7 +108,9 @@ function CategoriesPage() {
         <section className="mb-8 relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-primary via-purple-600 to-indigo-600 px-7 py-10 text-white shadow-2xl shadow-primary/20">
           <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
           <div className="relative z-10">
-            <h2 className="text-3xl font-black leading-tight">Find exactly what you need</h2>
+            <h2 className="text-3xl font-black leading-tight">
+              Find exactly what you need
+            </h2>
             <p className="mt-3 text-sm font-medium text-white/80 leading-relaxed">
               Browse through our curated collections of premium products.
             </p>
@@ -131,7 +138,7 @@ function CategoriesPage() {
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-secondary text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                 {getCategoryIcon(category.name)}
               </div>
-              
+
               <div className="flex-1">
                 <h3 className="text-base font-black tracking-tight text-foreground group-hover:text-primary transition-colors">
                   {category.name}
@@ -146,11 +153,11 @@ function CategoriesPage() {
                   </span>
                 </div>
               </div>
-              
+
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary group-hover:bg-primary/10 transition-colors">
                 <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
               </div>
-              
+
               {/* Decorative element */}
               <div className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-primary/5 blur-xl group-hover:scale-150 transition-transform" />
             </Link>
@@ -160,7 +167,9 @@ function CategoriesPage() {
         {categories.length === 0 && !isLoading && (
           <div className="mt-10 rounded-[2rem] border border-border bg-card p-10 text-center">
             <LayoutGrid className="mx-auto h-12 w-12 text-muted-foreground/30" />
-            <p className="mt-4 text-sm font-bold text-muted-foreground">No categories available at the moment.</p>
+            <p className="mt-4 text-sm font-bold text-muted-foreground">
+              No categories available at the moment.
+            </p>
           </div>
         )}
       </main>

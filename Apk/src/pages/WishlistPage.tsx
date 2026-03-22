@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, Heart, ShoppingBag, ArrowLeft } from "lucide-react";
+import { Heart, ArrowLeft } from "lucide-react";
 import {
   getAllProducts,
   getMyWishlist,
@@ -40,7 +40,7 @@ function WishlistPage() {
     try {
       await toggleLikeProduct(productId);
       // Refresh data locally for better UX
-      setProducts(prev => prev.filter(p => p._id !== productId));
+      setProducts((prev) => prev.filter((p) => p._id !== productId));
     } catch (err) {
       alert("Failed to update wishlist");
     }
@@ -60,7 +60,9 @@ function WishlistPage() {
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm font-bold text-muted-foreground animate-pulse">Loading your wishlist...</p>
+          <p className="text-sm font-bold text-muted-foreground animate-pulse">
+            Loading your wishlist...
+          </p>
         </div>
       </div>
     );
@@ -71,12 +73,17 @@ function WishlistPage() {
       <header className="sticky top-0 z-10 bg-background/80 px-5 pb-4 pt-12 backdrop-blur-xl border-b border-border/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/profile" className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform">
+            <Link
+              to="/profile"
+              className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform"
+            >
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
               <h1 className="text-xl font-black tracking-tight">Wishlist</h1>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{products.length} Saved Items</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                {products.length} Saved Items
+              </p>
             </div>
           </div>
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-500">
@@ -98,7 +105,9 @@ function WishlistPage() {
                 <Heart className="h-16 w-16" />
               </div>
             </div>
-            <h2 className="text-2xl font-black tracking-tight">Your wishlist is empty</h2>
+            <h2 className="text-2xl font-black tracking-tight">
+              Your wishlist is empty
+            </h2>
             <p className="mt-2 max-w-[240px] text-sm font-medium text-muted-foreground leading-relaxed">
               Tap the heart icon on any product to save it here for later.
             </p>

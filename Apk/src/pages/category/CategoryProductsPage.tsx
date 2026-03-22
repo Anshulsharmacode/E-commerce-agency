@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ChevronLeft, ShoppingBag, ArrowLeft, LayoutGrid, Package } from "lucide-react";
+import { ShoppingBag, ArrowLeft, LayoutGrid, Package } from "lucide-react";
 import {
   getAllProducts,
   getCategoryById,
@@ -92,7 +92,9 @@ function CategoryProductsPage() {
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm font-bold text-muted-foreground animate-pulse">Loading products...</p>
+          <p className="text-sm font-bold text-muted-foreground animate-pulse">
+            Loading products...
+          </p>
         </div>
       </div>
     );
@@ -102,7 +104,10 @@ function CategoryProductsPage() {
       <header className="sticky top-0 z-10 bg-background/80 px-5 pb-4 pt-12 backdrop-blur-xl border-b border-border/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/categories" className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform">
+            <Link
+              to="/categories"
+              className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform"
+            >
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
@@ -148,7 +153,9 @@ function CategoryProductsPage() {
         {filteredProducts.length === 0 ? (
           <div className="mt-10 rounded-[2rem] border border-border bg-card p-10 text-center">
             <LayoutGrid className="mx-auto h-12 w-12 text-muted-foreground/30" />
-            <p className="mt-4 text-sm font-bold text-muted-foreground">No products found in this category.</p>
+            <p className="mt-4 text-sm font-bold text-muted-foreground">
+              No products found in this category.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4">

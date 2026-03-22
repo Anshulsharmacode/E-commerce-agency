@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  ShoppingBag, 
+import {
+  ChevronLeft,
+  ChevronRight,
   ArrowLeft,
   LayoutGrid,
-  Filter
+  Filter,
 } from "lucide-react";
 import {
   getAllCategories,
@@ -39,9 +38,7 @@ function ProductsPage() {
         getAllCategories(1, 50),
       ]);
       setProducts(productRes.data.filter((product) => product.is_active));
-      setCategories(
-        categoryRes.data.filter((category) => category.is_active),
-      );
+      setCategories(categoryRes.data.filter((category) => category.is_active));
 
       if (isLoggedIn) {
         const wishlistRes = await getMyWishlist();
@@ -109,7 +106,9 @@ function ProductsPage() {
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm font-bold text-muted-foreground animate-pulse">Loading gallery...</p>
+          <p className="text-sm font-bold text-muted-foreground animate-pulse">
+            Loading gallery...
+          </p>
         </div>
       </div>
     );
@@ -119,7 +118,10 @@ function ProductsPage() {
       <header className="sticky top-0 z-10 bg-background/80 px-5 pb-4 pt-12 backdrop-blur-xl border-b border-border/50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link to="/" className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform">
+            <Link
+              to="/"
+              className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform"
+            >
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
@@ -145,17 +147,22 @@ function ProductsPage() {
         {paginatedProducts.length === 0 ? (
           <div className="mt-10 rounded-[2rem] border border-border bg-card p-10 text-center">
             <LayoutGrid className="mx-auto h-12 w-12 text-muted-foreground/30" />
-            <p className="mt-4 text-sm font-bold text-muted-foreground">No products found.</p>
+            <p className="mt-4 text-sm font-bold text-muted-foreground">
+              No products found.
+            </p>
           </div>
         ) : (
           <>
             <div className="mb-4 flex items-center justify-between">
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
-                Showing {startIndex + 1}-{Math.min(startIndex + PAGE_SIZE, products.length)}
+                Showing {startIndex + 1}-
+                {Math.min(startIndex + PAGE_SIZE, products.length)}
               </span>
               <div className="flex items-center gap-1">
                 <div className="h-1 w-1 rounded-full bg-primary" />
-                <span className="text-[10px] font-black uppercase tracking-wider text-primary">Live Stock</span>
+                <span className="text-[10px] font-black uppercase tracking-wider text-primary">
+                  Live Stock
+                </span>
               </div>
             </div>
 
@@ -184,23 +191,27 @@ function ProductsPage() {
               <button
                 onClick={() => {
                   setCurrentPage((prev) => Math.max(1, prev - 1));
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
                 disabled={currentPage === 1}
                 className="flex h-12 items-center gap-2 rounded-2xl border border-border px-4 text-xs font-black uppercase tracking-widest disabled:opacity-30 active:scale-95 transition-all"
               >
                 <ChevronLeft className="h-4 w-4" /> Prev
               </button>
-              
+
               <div className="flex flex-col items-center">
-                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Page</span>
-                <span className="text-sm font-black text-primary">{currentPage} / {totalPages}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                  Page
+                </span>
+                <span className="text-sm font-black text-primary">
+                  {currentPage} / {totalPages}
+                </span>
               </div>
 
               <button
                 onClick={() => {
                   setCurrentPage((prev) => Math.min(totalPages, prev + 1));
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  window.scrollTo({ top: 0, behavior: "smooth" });
                 }}
                 disabled={currentPage === totalPages}
                 className="flex h-12 items-center gap-2 rounded-2xl bg-foreground px-4 text-xs font-black uppercase tracking-widest text-background disabled:opacity-30 active:scale-95 transition-all"
