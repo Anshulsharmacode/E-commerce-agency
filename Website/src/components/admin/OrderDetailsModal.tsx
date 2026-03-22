@@ -79,7 +79,7 @@ const formatValue = (value: unknown) => {
   return JSON.stringify(value);
 };
 
-const isObjectId = (value: unknown) =>
+const isObjectId = (value: unknown): value is string =>
   typeof value === "string" && /^[a-f\d]{24}$/i.test(value);
 
 export default function OrderDetailsModal({
