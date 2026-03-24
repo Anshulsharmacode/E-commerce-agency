@@ -40,4 +40,4 @@ EXPOSE 3000
 
 
 # Run seed, then start the application
-CMD ["sh", "-c", "npm run seed:prod && npm run start:prod"]
+CMD ["node", "dist/main.js"]
