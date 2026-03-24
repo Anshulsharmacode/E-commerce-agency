@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
-import { ChevronLeft, Package, ShoppingBag, Heart, Share2, Star, ShieldCheck, Truck } from "lucide-react";
+import {
+  ChevronLeft,
+  Package,
+  ShoppingBag,
+  Heart,
+  Share2,
+  Star,
+  ShieldCheck,
+  Truck,
+} from "lucide-react";
 import {
   addCartItem,
   getAllCategories,
@@ -55,9 +64,9 @@ export function ProductDetailsView({
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="relative">
-        {product.image_urls?.[0] ? (
+        {product.image_url ? (
           <img
-            src={product.image_urls[0]}
+            src={product.image_url}
             alt={product.name}
             className="h-80 w-full rounded-[2.5rem] object-cover shadow-2xl"
           />
@@ -66,13 +75,13 @@ export function ProductDetailsView({
             {product.name.charAt(0).toUpperCase()}
           </div>
         )}
-        
+        {/* </div> */}
         <div className="absolute right-4 top-4 flex flex-col gap-3">
           <button
             onClick={() => onToggleLike?.(product._id)}
             className={`flex h-12 w-12 items-center justify-center rounded-2xl backdrop-blur-md transition-all active:scale-90 shadow-xl ${
-              isLiked 
-                ? "bg-primary text-primary-foreground" 
+              isLiked
+                ? "bg-primary text-primary-foreground"
                 : "bg-white/90 text-foreground"
             }`}
           >
@@ -88,7 +97,9 @@ export function ProductDetailsView({
 
         <div className="absolute left-4 bottom-4 flex h-8 items-center gap-1.5 rounded-full bg-black/40 px-3 backdrop-blur-md border border-white/20">
           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-          <span className="text-xs font-black text-white">4.8 (120 reviews)</span>
+          <span className="text-xs font-black text-white">
+            4.8 (120 reviews)
+          </span>
         </div>
       </div>
 
@@ -103,7 +114,9 @@ export function ProductDetailsView({
             </h1>
           </div>
           <div className="text-right">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Price</p>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">
+              Price
+            </p>
             <p className="text-2xl font-black text-primary">
               ₹{inr.format(product.selling_price_box)}
             </p>
@@ -111,38 +124,55 @@ export function ProductDetailsView({
         </div>
 
         <div className="mt-6 flex gap-4 overflow-x-auto no-scrollbar pb-2">
-           <div className="flex flex-col items-center gap-2 min-w-[100px] rounded-2xl border border-border bg-card p-4">
-              <ShieldCheck className="h-5 w-5 text-primary" />
-              <span className="text-[10px] font-bold uppercase text-muted-foreground">Warranty</span>
-              <span className="text-xs font-black">1 Year</span>
-           </div>
-           <div className="flex flex-col items-center gap-2 min-w-[100px] rounded-2xl border border-border bg-card p-4">
-              <Truck className="h-5 w-5 text-primary" />
-              <span className="text-[10px] font-bold uppercase text-muted-foreground">Delivery</span>
-              <span className="text-xs font-black">Free</span>
-           </div>
-           <div className="flex flex-col items-center gap-2 min-w-[100px] rounded-2xl border border-border bg-card p-4">
-              <Package className="h-5 w-5 text-primary" />
-              <span className="text-[10px] font-bold uppercase text-muted-foreground">In Stock</span>
-              <span className="text-xs font-black">Available</span>
-           </div>
+          <div className="flex flex-col items-center gap-2 min-w-[100px] rounded-2xl border border-border bg-card p-4">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+            <span className="text-[10px] font-bold uppercase text-muted-foreground">
+              Warranty
+            </span>
+            <span className="text-xs font-black">1 Year</span>
+          </div>
+          <div className="flex flex-col items-center gap-2 min-w-[100px] rounded-2xl border border-border bg-card p-4">
+            <Truck className="h-5 w-5 text-primary" />
+            <span className="text-[10px] font-bold uppercase text-muted-foreground">
+              Delivery
+            </span>
+            <span className="text-xs font-black">Free</span>
+          </div>
+          <div className="flex flex-col items-center gap-2 min-w-[100px] rounded-2xl border border-border bg-card p-4">
+            <Package className="h-5 w-5 text-primary" />
+            <span className="text-[10px] font-bold uppercase text-muted-foreground">
+              In Stock
+            </span>
+            <span className="text-xs font-black">Available</span>
+          </div>
         </div>
 
         <div className="mt-8">
-          <h3 className="text-sm font-black uppercase tracking-widest text-foreground">Description</h3>
+          <h3 className="text-sm font-black uppercase tracking-widest text-foreground">
+            Description
+          </h3>
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground font-medium">
-            {product.description || "Indulge in the perfect blend of quality and style with this premium product. Designed for those who appreciate the finer things in life, it offers exceptional performance and durability."}
+            {product.description ||
+              "Indulge in the perfect blend of quality and style with this premium product. Designed for those who appreciate the finer things in life, it offers exceptional performance and durability."}
           </p>
         </div>
 
         <div className="mt-8 grid grid-cols-2 gap-3">
           <div className="rounded-[1.5rem] border border-border bg-secondary/30 p-4">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Pieces / Box</p>
-            <p className="mt-1 text-lg font-black text-foreground">{product.pieces_per_box}</p>
+            <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+              Pieces / Box
+            </p>
+            <p className="mt-1 text-lg font-black text-foreground">
+              {product.pieces_per_box}
+            </p>
           </div>
           <div className="rounded-[1.5rem] border border-border bg-secondary/30 p-4">
-            <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Unit Weight</p>
-            <p className="mt-1 text-lg font-black text-foreground">{product.unit_weight} {product.unit}</p>
+            <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">
+              Unit Weight
+            </p>
+            <p className="mt-1 text-lg font-black text-foreground">
+              {product.unit_weight} {product.unit}
+            </p>
           </div>
         </div>
 
@@ -193,7 +223,9 @@ function ProductDetialsPage() {
           const activeProducts = productResult.value.data.filter(
             (item) => item.is_active,
           );
-          const selected = activeProducts.find((item) => item._id === productId);
+          const selected = activeProducts.find(
+            (item) => item._id === productId,
+          );
 
           if (!selected) {
             setError("Product not found.");
@@ -275,8 +307,7 @@ function ProductDetialsPage() {
             to={state?.backTo ?? "/products"}
             className="flex items-center gap-1 text-xs font-black text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ChevronLeft className="h-4 w-4" />{" "}
-            {state?.backLabel ?? "Back"}
+            <ChevronLeft className="h-4 w-4" /> {state?.backLabel ?? "Back"}
           </Link>
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-foreground text-background">
@@ -296,9 +327,9 @@ function ProductDetialsPage() {
 
         {isLoading ? (
           <div className="rounded-[2.5rem] border border-border bg-card p-8 text-center animate-pulse">
-             <div className="h-64 w-full bg-secondary rounded-[2rem] mb-6" />
-             <div className="h-8 w-3/4 bg-secondary rounded-lg mb-4" />
-             <div className="h-4 w-1/2 bg-secondary rounded-lg" />
+            <div className="h-64 w-full bg-secondary rounded-[2rem] mb-6" />
+            <div className="h-8 w-3/4 bg-secondary rounded-lg mb-4" />
+            <div className="h-4 w-1/2 bg-secondary rounded-lg" />
           </div>
         ) : product ? (
           <ProductDetailsView
@@ -310,9 +341,11 @@ function ProductDetialsPage() {
           />
         ) : (
           <div className="rounded-[2.5rem] border border-border bg-card px-4 py-10 text-center">
-            <p className="text-sm font-bold text-muted-foreground">Product not found.</p>
+            <p className="text-sm font-bold text-muted-foreground">
+              Product not found.
+            </p>
             <Link to="/products" className="mt-4 inline-block">
-               <Button variant="outline">Back to Products</Button>
+              <Button variant="outline">Back to Products</Button>
             </Link>
           </div>
         )}

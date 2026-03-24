@@ -36,7 +36,9 @@ export function ProductCard({
       }
     } else {
       // Fallback: Copy to clipboard
-      void navigator.clipboard.writeText(`${window.location.origin}/products/${product._id}`);
+      void navigator.clipboard.writeText(
+        `${window.location.origin}/products/${product._id}`,
+      );
       alert("Link copied to clipboard!");
     }
   };
@@ -60,9 +62,9 @@ export function ProductCard({
         state={{ product, backTo, backLabel }}
         className="relative h-44 w-full overflow-hidden"
       >
-        {product.image_urls?.[0] ? (
+        {product.image_url ? (
           <img
-            src={product.image_urls[0]}
+            src={product.image_url}
             alt={product.name}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
@@ -84,8 +86,8 @@ export function ProductCard({
           <button
             onClick={toggleLike}
             className={`flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-md transition-all active:scale-90 ${
-              isLiked 
-                ? "bg-primary text-primary-foreground" 
+              isLiked
+                ? "bg-primary text-primary-foreground"
                 : "bg-white/90 text-foreground hover:bg-primary/10"
             } shadow-sm`}
           >
@@ -107,10 +109,12 @@ export function ProductCard({
         <p className="mt-0.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
           {categoryName || "Premium Collection"}
         </p>
-        
+
         <div className="mt-auto pt-4 flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase leading-none mb-1">Price</p>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase leading-none mb-1">
+              Price
+            </p>
             <p className="text-base font-black text-primary leading-none">
               ₹{product.selling_price_box}
             </p>
