@@ -123,30 +123,30 @@ function OrdersPage() {
     );
 
   return (
-    <div className="flex min-h-screen flex-col bg-background pb-32">
+    <div className="flex min-h-screen w-full overflow-x-hidden flex-col bg-background pb-32">
       <header className="sticky top-0 z-10 bg-background/80 px-5 pb-4 pt-12 backdrop-blur-xl border-b border-border/50">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex min-w-0 items-center gap-4">
             <Link
               to="/profile"
               className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-foreground active:scale-95 transition-transform"
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <div>
-              <h1 className="text-xl font-black tracking-tight">My Orders</h1>
+            <div className="min-w-0">
+              <h1 className="truncate text-xl font-black tracking-tight">My Orders</h1>
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                 Recent Transactions
               </p>
             </div>
           </div>
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <Package className="h-5 w-5" />
           </div>
         </div>
       </header>
 
-      <main className="px-5 pt-6 space-y-4">
+      <main className="space-y-4 px-5 pt-6">
         {orders.length === 0 ? (
           <div className="mt-20 text-center flex flex-col items-center">
             <div className="relative mb-8">
@@ -191,13 +191,13 @@ function OrdersPage() {
                 className="group relative block w-full overflow-hidden rounded-[2rem] border border-border bg-card p-5 transition-all hover:shadow-xl hover:shadow-primary/5 active:scale-[0.98]"
                 style={{ animationDelay: `${idx * 100}ms` }}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="h-14 w-14 rounded-2xl bg-secondary flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-secondary text-primary transition-transform group-hover:scale-110">
                       <Package className="h-7 w-7" />
                     </div>
-                    <div>
-                      <h3 className="text-sm font-black tracking-tight">
+                    <div className="min-w-0">
+                      <h3 className="truncate text-sm font-black tracking-tight">
                         {orderTitle}
                       </h3>
                       <div className="mt-1 flex items-center gap-2">
@@ -212,7 +212,7 @@ function OrdersPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="shrink-0 text-right">
                     <p className="text-base font-black text-primary">
                       ₹{order.final_amount}
                     </p>
