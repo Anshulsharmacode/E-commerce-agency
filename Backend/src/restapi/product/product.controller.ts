@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -12,15 +13,23 @@ import {
   SetMetadata,
   UseGuards,
 } from '@nestjs/common';
+import { S3Service } from 'src/common/utils/bucket.awsservice';
 import { AuthGuard } from 'src/common/guards/auth/auth.guard';
 import { RolesGuard } from 'src/common/guards/roles/roles.guard';
 import { UserRole } from 'src/db/schema/user.schema';
-import { CreateProductDto, UpdateProductDto } from './product.dto';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  UploadProductImageDto,
+} from './product.dto';
 import { ProductService } from './product.service';
 
 @Controller('product')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly s3Service: S3Service,
+  ) {}
 
   @Post('create')
   @UseGuards(AuthGuard, RolesGuard)
@@ -32,6 +41,23 @@ export class ProductController {
     return {
       message: 'Product created successfully',
       data: product,
+    };
+  }
+
+  @Post('image/upload-url')
+  @UseGuards(AuthGuard, RolesGuard)
+  @SetMetadata('roles', [UserRole.ADMIN])
+  @HttpCode(HttpStatus.OK)
+  async getProductImageUploadUrl(@Body() body: UploadProductImageDto) {
+    if (!body?.fileType?.trim()) {
+      throw new BadRequestException('fileType is required');
+    }
+
+    const uploadData = await this.s3Service.getUploadUrl(body.fileType.trim());
+
+    return {
+      message: 'Product image upload URL generated',
+      data: uploadData,
     };
   }
 

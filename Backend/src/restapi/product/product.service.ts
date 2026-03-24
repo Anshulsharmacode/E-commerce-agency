@@ -17,6 +17,7 @@ import {
   buildPaginationMeta,
   normalizePagination,
 } from 'src/common/utils/pagination';
+import { S3Service } from 'src/common/utils/bucket.awsservice';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
 
 @Injectable()
@@ -26,6 +27,7 @@ export class ProductService {
     private readonly productModel: Model<ProductDocument>,
     @InjectModel(Category.name)
     private readonly categoryModel: Model<CategoryDocument>,
+    private readonly s3Service: S3Service,
   ) {}
 
   async createProduct(createProductDto: CreateProductDto) {
@@ -38,7 +40,7 @@ export class ProductService {
       pieces_per_box,
       selling_price_box,
       purchase_price_box,
-      image_urls,
+      image_url,
       is_active,
     } = createProductDto;
 
@@ -106,7 +108,7 @@ export class ProductService {
         pieces_per_box,
         selling_price_box,
         purchase_price_box,
-        image_urls: image_urls ?? [],
+        image_url: image_url?.trim() || undefined,
         is_active: is_active ?? true,
       });
     } catch (error: unknown) {
@@ -180,6 +182,10 @@ export class ProductService {
       updateProductDto.description = updateProductDto.description?.trim() || '';
     }
 
+    if (updateProductDto.image_url !== undefined) {
+      updateProductDto.image_url = updateProductDto.image_url?.trim() || undefined;
+    }
+
     const targetCategoryId =
       updateProductDto.category_id ?? existingProduct.category_id;
     const targetName = updateProductDto.name ?? existingProduct.name;
@@ -220,7 +226,7 @@ export class ProductService {
   async getAllProducts(page?: number, limit?: number) {
     const pagination = normalizePagination({ page, limit });
 
-    const [data, total] = await Promise.all([
+    const [products, total] = await Promise.all([
       this.productModel
         .find()
         .sort({ created_at: -1 })
@@ -228,6 +234,19 @@ export class ProductService {
         .limit(pagination.limit),
       this.productModel.countDocuments(),
     ]);
+
+    const data = await Promise.all(
+      products.map(async (product) => {
+        const productObject = product.toObject();
+        const resolvedImageUrl = productObject.image_url
+          ? await this.s3Service.getImageUrl(productObject.image_url)
+          : undefined;
+        return {
+          ...productObject,
+          image_url: resolvedImageUrl,
+        };
+      }),
+    );
 
     return {
       data,
@@ -237,6 +256,14 @@ export class ProductService {
 
   async getProductByid(product_id: string) {
     const data = await this.productModel.findById({ _id: product_id });
-    return data;
+    if (!data) return data;
+
+    const product = data.toObject();
+    return {
+      ...product,
+      image_url: product.image_url
+        ? await this.s3Service.getImageUrl(product.image_url)
+        : undefined,
+    };
   }
 }

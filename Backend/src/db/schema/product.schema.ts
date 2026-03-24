@@ -45,8 +45,8 @@ export class Product {
   // @Prop({ required: true, min: 0 })
   // purchase_price_piece: number;
 
-  @Prop({ type: [String], required: false, default: [] })
-  image_urls?: string[];
+  @Prop({ type: String, required: false, trim: true })
+  image_url?: string;
 
   @Prop({ required: true, default: true, index: true })
   is_active: boolean;
