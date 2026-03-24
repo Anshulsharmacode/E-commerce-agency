@@ -8,7 +8,7 @@ import { DATABASE_MODELS } from './schema';
     MongooseModule.forRootAsync({
       useFactory: () => {
         const opt = {
-          uri: 'mongodb://localhost:27017',
+          uri: process.env.MONGOURL,
           dbName: 'Marketing_E',
         };
         return opt;

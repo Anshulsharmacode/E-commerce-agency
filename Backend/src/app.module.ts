@@ -19,6 +19,7 @@ import { UserService } from './restapi/user/user.service';
 import { WishlistController } from './restapi/wishlist/wishlist.controller';
 import { WishlistService } from './restapi/wishlist/wishlist.service';
 import { RateLimitGuard } from 'src/common/guards/rate-limit.guard';
+import { S3Service } from 'src/common/utils/bucket.awsservice';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { RateLimitGuard } from 'src/common/guards/rate-limit.guard';
     UserService,
     CategoryService,
     ProductService,
+    S3Service,
     CartService,
     OfferService,
     OrderService,
