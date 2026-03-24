@@ -10,10 +10,10 @@ type ProductImageUploadData = {
   uploadUrl: string;
   key: string;
   publicUrl: string;
+  viewUrl?: string;
 };
 
-const unwrap = <T>(response: { data?: ApiResponse<T> }) =>
-  response.data?.data;
+const unwrap = <T>(response: { data?: ApiResponse<T> }) => response.data?.data;
 
 export const adminApi = {
   getProducts: async (page: number = 1, limit: number = PRODUCT_LIMIT) => {
@@ -22,12 +22,14 @@ export const adminApi = {
     });
     return unwrap(response);
   },
-  createProduct: async (payload: unknown) => api.post("/product/create", payload),
+  createProduct: async (payload: unknown) =>
+    api.post("/product/create", payload),
   updateProduct: async (id: string, payload: unknown) =>
     api.patch(`/product/${id}`, payload),
   deleteProduct: async (id: string) => api.delete(`/product/${id}`),
   getProductImageUploadUrl: async (fileType: string) => {
     const response = await api.post("/product/image/upload-url", { fileType });
+
     return unwrap<ProductImageUploadData>(response);
   },
 
