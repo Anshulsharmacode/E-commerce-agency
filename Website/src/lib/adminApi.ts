@@ -9,8 +9,9 @@ type ApiResponse<T> = {
 type ProductImageUploadData = {
   uploadUrl: string;
   key: string;
-  publicUrl: string;
+  publicUrl?: string;
   viewUrl?: string;
+  bucket?: string;
 };
 
 const unwrap = <T>(response: { data?: ApiResponse<T> }) => response.data?.data;
