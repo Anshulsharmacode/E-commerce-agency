@@ -1,0 +1,10 @@
+{
+  "dev": {
+    "bucket": "ecom-agency-dev",
+    "region": "ap-south-1"
+  },
+  "prod": {
+    "bucket": "ecom-agency-prod",
+    "region": "ap-south-1"
+  }
+}
