@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.shopease.app',
-  appName: 'ShopEase',
+  appName: 'E-commerce Agency',
   webDir: 'dist',
   android: {
     buildOptions: {
