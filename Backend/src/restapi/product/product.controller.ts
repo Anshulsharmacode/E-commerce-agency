@@ -49,6 +49,12 @@ export class ProductController {
   @SetMetadata('roles', [UserRole.ADMIN])
   @HttpCode(HttpStatus.OK)
   async getProductImageUploadUrl(@Body() body: UploadProductImageDto) {
+    if (Array.isArray(body?.fileType)) {
+      throw new BadRequestException(
+        'Only one image fileType is allowed per request',
+      );
+    }
+
     if (!body?.fileType?.trim()) {
       throw new BadRequestException('fileType is required');
     }

@@ -97,14 +97,25 @@ export default function ProductManagement() {
 
   const onSubmit = async (data: any) => {
     try {
-      const payload = {
-        ...data,
-        image_url: imageStorageValue || undefined,
-      };
-
       if (editingProduct) {
+        const payload = {
+          name: String(data.name ?? "").trim().toLowerCase(),
+          description: String(data.description ?? "").trim(),
+          category_id: String(data.category_id ?? "").trim(),
+          unit: String(data.unit ?? "").trim().toLowerCase(),
+          selling_price_box: Number(data.selling_price_box),
+          purchase_price_box: Number(data.purchase_price_box),
+          unit_weight: Number(data.unit_weight),
+          pieces_per_box: Number(data.pieces_per_box),
+          image_url: imageStorageValue || undefined,
+        };
+
         await adminApi.updateProduct(editingProduct._id, payload);
       } else {
+        const payload = {
+          ...data,
+          image_url: imageStorageValue || undefined,
+        };
         await adminApi.createProduct(payload);
       }
       setIsDialogOpen(false);
@@ -115,6 +126,10 @@ export default function ProductManagement() {
       fetchData();
     } catch (error) {
       console.error("Failed to save product", error);
+      const message =
+        (error as any)?.response?.data?.message ||
+        "Failed to save product. Please try again.";
+      alert(String(message));
     }
   };
 
@@ -147,6 +162,9 @@ export default function ProductManagement() {
 
       const uploadRes = await fetch(uploadData.uploadUrl, {
         method: "PUT",
+        mode: "cors",
+        credentials: "omit",
+        cache: "no-store",
         headers: {
           "Content-Type": file.type,
         },
@@ -154,7 +172,10 @@ export default function ProductManagement() {
       });
 
       if (!uploadRes.ok) {
-        throw new Error("Image upload failed");
+        const errorBody = await uploadRes.text().catch(() => "");
+        throw new Error(
+          `Image upload failed (${uploadRes.status} ${uploadRes.statusText}) ${errorBody}`,
+        );
       }
 
       setImageUrl(uploadData.viewUrl || uploadData.publicUrl || "");
@@ -162,7 +183,7 @@ export default function ProductManagement() {
       setValue("image_url", uploadData.key);
     } catch (error) {
       console.error("Failed to upload product image", error);
-      alert("Image upload failed. Please try again.");
+      alert("Image upload failed. Check console for exact S3 error.");
     } finally {
       setIsImageUploading(false);
       event.target.value = "";
@@ -224,12 +245,12 @@ export default function ProductManagement() {
             onOpenChange={(open) => {
               setIsDialogOpen(open);
               if (!open) {
-              setEditingProduct(null);
-              setImageUrl("");
-              setImageStorageValue("");
-              reset();
-            }
-          }}
+                setEditingProduct(null);
+                setImageUrl("");
+                setImageStorageValue("");
+                reset();
+              }
+            }}
           >
             <DialogTrigger asChild>
               <Button className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-100 px-6 py-6 font-bold h-auto">
