@@ -22,6 +22,7 @@ import {
   Wishlist,
   WishlistSchema,
 } from 'src/db/schema';
+import { getRuntimeConfig } from 'src/common/config/app-config';
 import { hashedPassword } from 'src/utills/utills';
 
 type AnyModel<T> = Model<T>;
@@ -44,7 +45,6 @@ type ProductSeed = {
   pieces_per_box: number;
   selling_price_box: number;
   purchase_price_box: number;
-  image_url?: string;
   is_active: boolean;
 };
 
@@ -87,8 +87,9 @@ async function ensureOne<T>(
 }
 
 async function main() {
-  const uri = process.env.MONGO_URI ?? 'mongodb://localhost:27017';
-  const dbName = process.env.MONGO_DB ?? 'Marketing_E';
+  const runtimeConfig = getRuntimeConfig();
+  const uri = process.env.MONGO_URI ?? runtimeConfig.mongo.uri;
+  const dbName = process.env.MONGO_DB ?? runtimeConfig.mongo.dbName;
   const shouldReset =
     process.argv.includes('--reset') ||
     process.env.SEED_RESET === 'true' ||
