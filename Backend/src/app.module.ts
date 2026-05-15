@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
+import type { StringValue } from 'ms';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DataBaseModule } from './db/db';
@@ -18,15 +19,18 @@ import { UserController } from './restapi/user/user.controller';
 import { UserService } from './restapi/user/user.service';
 import { WishlistController } from './restapi/wishlist/wishlist.controller';
 import { WishlistService } from './restapi/wishlist/wishlist.service';
+import { getRuntimeConfig } from './common/config/app-config';
 import { RateLimitGuard } from 'src/common/guards/rate-limit.guard';
 import { S3Service } from 'src/common/utils/bucket.awsservice';
+
+const runtimeConfig = getRuntimeConfig();
 
 @Module({
   imports: [
     DataBaseModule,
     JwtModule.register({
-      secret: 'JWT_SECRET',
-      signOptions: { expiresIn: '7d' },
+      secret: runtimeConfig.jwt.secret,
+      signOptions: { expiresIn: runtimeConfig.jwt.expiresIn as StringValue },
     }),
   ],
   controllers: [

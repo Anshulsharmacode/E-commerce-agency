@@ -5,28 +5,25 @@ import { ExpressAdapter } from '@nestjs/platform-express';
 import serverlessExpress from '@codegenie/serverless-express';
 import express from 'express';
 import type { Handler, Context, Callback } from 'aws-lambda';
-import * as dotenv from 'dotenv';
+import { getRuntimeConfig } from './common/config/app-config.js';
 
 let server: Handler;
 
 async function bootstrap(): Promise<Handler> {
-  dotenv.config();
+  const runtimeConfig = getRuntimeConfig();
   const expressApp = express();
   const app = await NestFactory.create(
     AppModule,
     new ExpressAdapter(expressApp),
   );
 
-  const corsOrigins = (process.env.CORS_ORIGINS ?? '')
-    .split(',')
-    .map((o) => o.trim())
-    .filter(Boolean);
+  const corsOrigins = runtimeConfig.cors.origins;
 
   app.enableCors({
     origin: corsOrigins.length > 0 ? corsOrigins : true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
+    credentials: runtimeConfig.cors.credentials,
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });

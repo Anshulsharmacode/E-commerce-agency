@@ -1,5 +1,5 @@
 import nodemailer, { Transporter } from 'nodemailer';
-import * as dotenv from 'dotenv';
+import { getRuntimeConfig } from 'src/common/config/app-config';
 
 interface SendEmailOptions {
   to: string;
@@ -7,15 +7,15 @@ interface SendEmailOptions {
   template: string;
   variables?: Record<string, string | number>;
 }
-dotenv.config();
+const runtimeConfig = getRuntimeConfig();
 
 const transporter: Transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST as string,
-  port: Number(process.env.SMTP_PORT),
-  secure: false,
+  host: runtimeConfig.smtp.host,
+  port: runtimeConfig.smtp.port,
+  secure: runtimeConfig.smtp.secure,
   auth: {
-    user: process.env.SMTP_USER as string,
-    pass: process.env.SMTP_PASS as string,
+    user: runtimeConfig.smtp.user,
+    pass: runtimeConfig.smtp.pass,
   },
 });
 
@@ -47,7 +47,7 @@ export const sendEmail = async ({
     const html = parseTemplate(template, variables);
 
     const info = await transporter.sendMail({
-      from: `"Your App" <${process.env.SMTP_USER}>`,
+      from: `"${runtimeConfig.smtp.fromName}" <${runtimeConfig.smtp.user}>`,
       to,
       subject,
       html,
