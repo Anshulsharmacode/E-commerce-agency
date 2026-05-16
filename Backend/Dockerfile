@@ -1,4 +1,3 @@
-# Stage 1: Build
 FROM node:22-alpine AS build
 
 WORKDIR /usr/src/app
@@ -9,18 +8,19 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Stage 2: Production (Lambda)
-FROM public.ecr.aws/lambda/nodejs:22 AS production
+FROM node:22-alpine AS production
 
-# Set environment to production
+WORKDIR /usr/src/app
+
 ENV NODE_ENV=production
+ENV APP_ENV=prod
+ENV S3_ENV=prod
 
-# Copy production dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --omit=dev && npm cache clean --force
 
-# Copy compiled output from build stage
 COPY --from=build /usr/src/app/dist ./dist
+COPY config ./config
 
-# Lambda handler entry point
-CMD ["dist/lambda.handler"]
+EXPOSE 3000
+CMD ["node", "dist/main.js"]

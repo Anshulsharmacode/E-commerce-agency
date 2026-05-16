@@ -1,0 +1,66 @@
+{
+  "dev": {
+    "port": 3000,
+    "mongo": {
+      "uri": "mongodb://localhost:27017",
+      "dbName": "Marketing_E"
+    },
+    "cors": {
+      "origins": [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:5174"
+      ],
+      "credentials": true
+    },
+    "jwt": {
+      "secret": "JWT_SECRET",
+      "expiresIn": "7d"
+    },
+    "smtp": {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "secure": false,
+      "fromName": "Your App"
+    },
+    "rateLimit": {
+      "windowMs": 60000,
+      "maxRequests": 60
+    },
+    "aws": {
+      "region": "ap-south-1",
+      "s3Env": "dev"
+    }
+  },
+  "prod": {
+    "port": 3000,
+    "mongo": {
+      "uri": "mongodb://localhost:27017",
+      "dbName": "Marketing_E"
+    },
+    "cors": {
+      "origins": [
+        "https://e-commerce-agency.vercel.app"
+      ],
+      "credentials": true
+    },
+    "jwt": {
+      "secret": "JWT_SECRET",
+      "expiresIn": "7d"
+    },
+    "smtp": {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "secure": false,
+      "fromName": "Your App"
+    },
+    "rateLimit": {
+      "windowMs": 60000,
+      "maxRequests": 60
+    },
+    "aws": {
+      "region": "ap-south-1",
+      "s3Env": "prod"
+    }
+  }
+}
