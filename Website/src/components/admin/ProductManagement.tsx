@@ -38,6 +38,7 @@ interface Product {
   category_id: string;
   description?: string;
   image_url?: string;
+  image_key?: string;
   selling_price_box: number;
   purchase_price_box: number;
   unit_weight: number;
@@ -62,18 +63,6 @@ export default function ProductManagement() {
   const [imageStorageValue, setImageStorageValue] = useState("");
 
   const { register, handleSubmit, reset, setValue } = useForm();
-
-  const extractS3Key = (value?: string) => {
-    if (!value) return "";
-    if (!/^https?:\/\//i.test(value)) return value;
-
-    try {
-      const parsed = new URL(value);
-      return decodeURIComponent(parsed.pathname.replace(/^\/+/, ""));
-    } catch {
-      return value;
-    }
-  };
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -146,7 +135,7 @@ export default function ProductManagement() {
     setValue("unit", product.unit);
     setValue("image_url", product.image_url ?? "");
     setImageUrl(product.image_url ?? "");
-    setImageStorageValue(extractS3Key(product.image_url));
+    setImageStorageValue(product.image_key ?? "");
   };
 
   const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {

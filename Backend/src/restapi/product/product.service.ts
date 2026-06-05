@@ -353,6 +353,7 @@ export class ProductService {
         return {
           ...productObject,
           image_url: resolvedImageUrl,
+          image_key: productObject.image_url,
         };
       }),
     );
@@ -373,6 +374,7 @@ export class ProductService {
       image_url: product.image_url
         ? await this.s3Service.getImageUrl(product.image_url)
         : undefined,
+      image_key: product.image_url,
     };
   }
 }

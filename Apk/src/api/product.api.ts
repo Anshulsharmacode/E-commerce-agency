@@ -16,6 +16,7 @@ export interface Product {
   selling_price_box: number;
   purchase_price_box: number;
   image_url: string;
+  image_key?: string;
   is_active: boolean;
   created_at: Date;
   updated_at: Date;
