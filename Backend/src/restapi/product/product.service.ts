@@ -41,7 +41,6 @@ export class ProductService {
       selling_price_box,
       purchase_price_box,
       image_key,
-      image_file_type,
       is_active,
     } = createProductDto;
 
@@ -89,31 +88,8 @@ export class ProductService {
       );
     }
 
-    if (Array.isArray(createProductDto.image_file_type)) {
-      apiError(
-        'Only one image_file_type is allowed for a product',
-        null,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     const normalizedName = name.toLowerCase().trim();
-    const normalizedImageKey = image_key?.trim() || undefined;
-    const normalizedImageFileType = image_file_type?.trim() || undefined;
-
-    if (normalizedImageKey && normalizedImageFileType) {
-      apiError(
-        'Provide either image_key or image_file_type, not both',
-        null,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const imageUploadData = normalizedImageFileType
-      ? await this.s3Service.getUploadUrl(normalizedImageFileType)
-      : undefined;
-
-    const imageKeyToPersist = imageUploadData?.key ?? normalizedImageKey;
+    const imageKeyToPersist = image_key?.trim() || undefined;
 
     const categoryQuery = isValidObjectId(category_id)
       ? { $or: [{ _id: category_id }, { category_id }] }
@@ -152,7 +128,6 @@ export class ProductService {
           ? await this.s3Service.getImageUrl(productObject.image_key)
           : undefined,
         image_key: productObject.image_key,
-        image_upload: imageUploadData,
       };
     } catch (error: unknown) {
       apiError('Error creating product', error, HttpStatus.BAD_REQUEST);
@@ -233,35 +208,9 @@ export class ProductService {
       );
     }
 
-    if (Array.isArray(updateProductDto.image_file_type)) {
-      apiError(
-        'Only one image_file_type is allowed for a product',
-        null,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
     const normalizedImageKey = updateProductDto.image_key?.trim() || undefined;
-    const normalizedImageFileType =
-      updateProductDto.image_file_type?.trim() || undefined;
 
-    if (normalizedImageKey && normalizedImageFileType) {
-      apiError(
-        'Provide either image_key or image_file_type, not both',
-        null,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const imageUploadData = normalizedImageFileType
-      ? await this.s3Service.getUploadUrl(normalizedImageFileType)
-      : undefined;
-
-    delete updateProductDto.image_file_type;
-
-    if (imageUploadData) {
-      updateProductDto.image_key = imageUploadData.key;
-    } else if (updateProductDto.image_key !== undefined) {
+    if (normalizedImageKey !== undefined) {
       updateProductDto.image_key = normalizedImageKey;
     }
 
@@ -317,7 +266,6 @@ export class ProductService {
         ? await this.s3Service.getImageUrl(productObject.image_key)
         : undefined,
       image_key: productObject.image_key,
-      image_upload: imageUploadData,
     };
   }
 
