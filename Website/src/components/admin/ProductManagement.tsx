@@ -144,6 +144,11 @@ export default function ProductManagement() {
 
     try {
       setIsImageUploading(true);
+      
+      // Use local object URL for immediate preview (Production Best Practice)
+      const localPreviewUrl = URL.createObjectURL(file);
+      setImageUrl(localPreviewUrl);
+
       const uploadData = await adminApi.getProductImageUploadUrl(file.type);
       if (!uploadData?.uploadUrl || !uploadData?.key) {
         throw new Error("Upload URL not received");
@@ -167,12 +172,12 @@ export default function ProductManagement() {
         );
       }
 
-      setImageUrl(uploadData.viewUrl || uploadData.publicUrl || "");
       setImageStorageValue(uploadData.key);
       setValue("image_key", uploadData.key);
     } catch (error) {
       console.error("Failed to upload product image", error);
       alert("Image upload failed. Check console for exact S3 error.");
+      setImageUrl(""); // Reset preview on failure
     } finally {
       setIsImageUploading(false);
       event.target.value = "";
