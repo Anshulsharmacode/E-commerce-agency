@@ -40,8 +40,7 @@ export class ProductService {
       pieces_per_box,
       selling_price_box,
       purchase_price_box,
-      image_url,
-      image_file_type,
+      image_key,
       is_active,
     } = createProductDto;
 
@@ -81,39 +80,16 @@ export class ProductService {
       );
     }
 
-    if (Array.isArray(createProductDto.image_url)) {
+    if (Array.isArray(createProductDto.image_key)) {
       apiError(
-        'Only one image_url is allowed for a product',
-        null,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    if (Array.isArray(createProductDto.image_file_type)) {
-      apiError(
-        'Only one image_file_type is allowed for a product',
+        'Only one image_key is allowed for a product',
         null,
         HttpStatus.BAD_REQUEST,
       );
     }
 
     const normalizedName = name.toLowerCase().trim();
-    const normalizedImageUrl = image_url?.trim() || undefined;
-    const normalizedImageFileType = image_file_type?.trim() || undefined;
-
-    if (normalizedImageUrl && normalizedImageFileType) {
-      apiError(
-        'Provide either image_url or image_file_type, not both',
-        null,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const imageUploadData = normalizedImageFileType
-      ? await this.s3Service.getUploadUrl(normalizedImageFileType)
-      : undefined;
-
-    const imageKeyToPersist = imageUploadData?.key ?? normalizedImageUrl;
+    const imageKeyToPersist = image_key?.trim() || undefined;
 
     const categoryQuery = isValidObjectId(category_id)
       ? { $or: [{ _id: category_id }, { category_id }] }
@@ -141,18 +117,17 @@ export class ProductService {
         pieces_per_box,
         selling_price_box,
         purchase_price_box,
-        image_url: imageKeyToPersist,
+        image_key: imageKeyToPersist,
         is_active: is_active ?? true,
       });
 
       const productObject = createdProduct.toObject();
       return {
         ...productObject,
-        image_url: productObject.image_url
-          ? await this.s3Service.getImageUrl(productObject.image_url)
+        image_url: productObject.image_key
+          ? await this.s3Service.getImageUrl(productObject.image_key)
           : undefined,
-        image_key: productObject.image_url,
-        image_upload: imageUploadData,
+        image_key: productObject.image_key,
       };
     } catch (error: unknown) {
       apiError('Error creating product', error, HttpStatus.BAD_REQUEST);
@@ -225,44 +200,18 @@ export class ProductService {
       updateProductDto.description = updateProductDto.description?.trim() || '';
     }
 
-    if (Array.isArray(updateProductDto.image_url)) {
+    if (Array.isArray(updateProductDto.image_key)) {
       apiError(
-        'Only one image_url is allowed for a product',
+        'Only one image_key is allowed for a product',
         null,
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    if (Array.isArray(updateProductDto.image_file_type)) {
-      apiError(
-        'Only one image_file_type is allowed for a product',
-        null,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    const normalizedImageKey = updateProductDto.image_key?.trim() || undefined;
 
-    const normalizedImageUrl = updateProductDto.image_url?.trim() || undefined;
-    const normalizedImageFileType =
-      updateProductDto.image_file_type?.trim() || undefined;
-
-    if (normalizedImageUrl && normalizedImageFileType) {
-      apiError(
-        'Provide either image_url or image_file_type, not both',
-        null,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    const imageUploadData = normalizedImageFileType
-      ? await this.s3Service.getUploadUrl(normalizedImageFileType)
-      : undefined;
-
-    delete updateProductDto.image_file_type;
-
-    if (imageUploadData) {
-      updateProductDto.image_url = imageUploadData.key;
-    } else if (updateProductDto.image_url !== undefined) {
-      updateProductDto.image_url = normalizedImageUrl;
+    if (normalizedImageKey !== undefined) {
+      updateProductDto.image_key = normalizedImageKey;
     }
 
     const hasCategoryUpdate = Object.prototype.hasOwnProperty.call(
@@ -313,11 +262,10 @@ export class ProductService {
     const productObject = updatedProduct.toObject();
     return {
       ...productObject,
-      image_url: productObject.image_url
-        ? await this.s3Service.getImageUrl(productObject.image_url)
+      image_url: productObject.image_key
+        ? await this.s3Service.getImageUrl(productObject.image_key)
         : undefined,
-      image_key: productObject.image_url,
-      image_upload: imageUploadData,
+      image_key: productObject.image_key,
     };
   }
 
@@ -347,12 +295,13 @@ export class ProductService {
     const data = await Promise.all(
       products.map(async (product) => {
         const productObject = product.toObject();
-        const resolvedImageUrl = productObject.image_url
-          ? await this.s3Service.getImageUrl(productObject.image_url)
+        const resolvedImageUrl = productObject.image_key
+          ? await this.s3Service.getImageUrl(productObject.image_key)
           : undefined;
         return {
           ...productObject,
           image_url: resolvedImageUrl,
+          image_key: productObject.image_key,
         };
       }),
     );
@@ -370,9 +319,10 @@ export class ProductService {
     const product = data.toObject();
     return {
       ...product,
-      image_url: product.image_url
-        ? await this.s3Service.getImageUrl(product.image_url)
+      image_url: product.image_key
+        ? await this.s3Service.getImageUrl(product.image_key)
         : undefined,
+      image_key: product.image_key,
     };
   }
 }

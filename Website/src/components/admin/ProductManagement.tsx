@@ -38,6 +38,7 @@ interface Product {
   category_id: string;
   description?: string;
   image_url?: string;
+  image_key?: string;
   selling_price_box: number;
   purchase_price_box: number;
   unit_weight: number;
@@ -62,18 +63,6 @@ export default function ProductManagement() {
   const [imageStorageValue, setImageStorageValue] = useState("");
 
   const { register, handleSubmit, reset, setValue } = useForm();
-
-  const extractS3Key = (value?: string) => {
-    if (!value) return "";
-    if (!/^https?:\/\//i.test(value)) return value;
-
-    try {
-      const parsed = new URL(value);
-      return decodeURIComponent(parsed.pathname.replace(/^\/+/, ""));
-    } catch {
-      return value;
-    }
-  };
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -107,14 +96,14 @@ export default function ProductManagement() {
           purchase_price_box: Number(data.purchase_price_box),
           unit_weight: Number(data.unit_weight),
           pieces_per_box: Number(data.pieces_per_box),
-          image_url: imageStorageValue || undefined,
+          image_key: imageStorageValue || undefined,
         };
 
         await adminApi.updateProduct(editingProduct._id, payload);
       } else {
         const payload = {
           ...data,
-          image_url: imageStorageValue || undefined,
+          image_key: imageStorageValue || undefined,
         };
         await adminApi.createProduct(payload);
       }
@@ -144,9 +133,9 @@ export default function ProductManagement() {
     setValue("unit_weight", product.unit_weight);
     setValue("pieces_per_box", product.pieces_per_box);
     setValue("unit", product.unit);
-    setValue("image_url", product.image_url ?? "");
+    setValue("image_key", product.image_key ?? "");
     setImageUrl(product.image_url ?? "");
-    setImageStorageValue(extractS3Key(product.image_url));
+    setImageStorageValue(product.image_key ?? "");
   };
 
   const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -155,6 +144,11 @@ export default function ProductManagement() {
 
     try {
       setIsImageUploading(true);
+      
+      // Use local object URL for immediate preview (Production Best Practice)
+      const localPreviewUrl = URL.createObjectURL(file);
+      setImageUrl(localPreviewUrl);
+
       const uploadData = await adminApi.getProductImageUploadUrl(file.type);
       if (!uploadData?.uploadUrl || !uploadData?.key) {
         throw new Error("Upload URL not received");
@@ -178,12 +172,12 @@ export default function ProductManagement() {
         );
       }
 
-      setImageUrl(uploadData.viewUrl || uploadData.publicUrl || "");
       setImageStorageValue(uploadData.key);
-      setValue("image_url", uploadData.key);
+      setValue("image_key", uploadData.key);
     } catch (error) {
       console.error("Failed to upload product image", error);
       alert("Image upload failed. Check console for exact S3 error.");
+      setImageUrl(""); // Reset preview on failure
     } finally {
       setIsImageUploading(false);
       event.target.value = "";
@@ -424,7 +418,7 @@ export default function ProductManagement() {
                     disabled={isImageUploading}
                     className="rounded-xl border-slate-200 h-11"
                   />
-                  <input type="hidden" {...register("image_url")} />
+                  <input type="hidden" {...register("image_key")} />
                   {isImageUploading ? (
                     <p className="text-xs text-indigo-600 font-semibold">
                       Uploading image...
