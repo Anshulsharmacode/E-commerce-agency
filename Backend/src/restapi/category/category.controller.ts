@@ -20,6 +20,8 @@ import { UserRole } from 'src/db/schema/user.schema';
 import { CreateCategoryDto, UpdateCategoryDto } from './category.dto';
 import { CategoryService } from './category.service';
 
+import { AuthUser } from 'src/common/types/types';
+
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
@@ -30,10 +32,9 @@ export class CategoryController {
   @HttpCode(HttpStatus.CREATED)
   async createCategory(
     @Body() createCategoryDto: CreateCategoryDto,
-    @Req() req: Request & { user?: Record<string, unknown> },
+    @Req() req: Request & { user?: AuthUser },
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string
-    const createdBy = String(req.user?.sub ?? '');
+    const createdBy = req.user?._id ?? '';
     const category = await this.categoryService.createCategory(
       createCategoryDto,
       createdBy,
