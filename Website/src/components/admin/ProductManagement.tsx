@@ -96,14 +96,14 @@ export default function ProductManagement() {
           purchase_price_box: Number(data.purchase_price_box),
           unit_weight: Number(data.unit_weight),
           pieces_per_box: Number(data.pieces_per_box),
-          image_url: imageStorageValue || undefined,
+          image_key: imageStorageValue || undefined,
         };
 
         await adminApi.updateProduct(editingProduct._id, payload);
       } else {
         const payload = {
           ...data,
-          image_url: imageStorageValue || undefined,
+          image_key: imageStorageValue || undefined,
         };
         await adminApi.createProduct(payload);
       }
@@ -133,7 +133,7 @@ export default function ProductManagement() {
     setValue("unit_weight", product.unit_weight);
     setValue("pieces_per_box", product.pieces_per_box);
     setValue("unit", product.unit);
-    setValue("image_url", product.image_url ?? "");
+    setValue("image_key", product.image_key ?? "");
     setImageUrl(product.image_url ?? "");
     setImageStorageValue(product.image_key ?? "");
   };
@@ -169,7 +169,7 @@ export default function ProductManagement() {
 
       setImageUrl(uploadData.viewUrl || uploadData.publicUrl || "");
       setImageStorageValue(uploadData.key);
-      setValue("image_url", uploadData.key);
+      setValue("image_key", uploadData.key);
     } catch (error) {
       console.error("Failed to upload product image", error);
       alert("Image upload failed. Check console for exact S3 error.");
@@ -413,7 +413,7 @@ export default function ProductManagement() {
                     disabled={isImageUploading}
                     className="rounded-xl border-slate-200 h-11"
                   />
-                  <input type="hidden" {...register("image_url")} />
+                  <input type="hidden" {...register("image_key")} />
                   {isImageUploading ? (
                     <p className="text-xs text-indigo-600 font-semibold">
                       Uploading image...
