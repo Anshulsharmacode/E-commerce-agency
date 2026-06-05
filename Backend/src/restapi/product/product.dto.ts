@@ -10,7 +10,7 @@ export class CreateProductDto {
   pieces_per_box: number;
   selling_price_box: number;
   purchase_price_box: number;
-  image_url?: string;
+  image_key?: string;
   image_file_type?: string;
   is_active?: boolean;
 }
@@ -24,7 +24,7 @@ export class UpdateProductDto {
   pieces_per_box?: number;
   selling_price_box?: number;
   purchase_price_box?: number;
-  image_url?: string;
+  image_key?: string;
   image_file_type?: string;
   is_active?: boolean;
   is_activate?: boolean;
