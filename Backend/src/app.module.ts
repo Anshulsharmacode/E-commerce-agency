@@ -19,18 +19,17 @@ import { UserController } from './restapi/user/user.controller';
 import { UserService } from './restapi/user/user.service';
 import { WishlistController } from './restapi/wishlist/wishlist.controller';
 import { WishlistService } from './restapi/wishlist/wishlist.service';
-import { getRuntimeConfig } from './common/config/app-config';
 import { RateLimitGuard } from 'src/common/guards/rate-limit.guard';
 import { S3Service } from 'src/common/utils/bucket.awsservice';
-
-const runtimeConfig = getRuntimeConfig();
 
 @Module({
   imports: [
     DataBaseModule,
     JwtModule.register({
-      secret: runtimeConfig.jwt.secret,
-      signOptions: { expiresIn: runtimeConfig.jwt.expiresIn as StringValue },
+      secret: process.env.JWT_SECRET ?? 'JWT_SECRET',
+      signOptions: {
+        expiresIn: (process.env.JWT_EXPIRES_IN ?? '7d') as StringValue,
+      },
     }),
   ],
   controllers: [

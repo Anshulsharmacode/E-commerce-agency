@@ -1,3 +1,11 @@
+import * as dotenv from 'dotenv';
+import { join } from 'path';
+
+// Load environment-specific file if it exists, otherwise fallback to default .env
+const nodeEnv = process.env.NODE_ENV || 'development';
+dotenv.config({ path: join(process.cwd(), `.env.${nodeEnv}`) });
+dotenv.config();
+
 import mongoose, { Model, Schema } from 'mongoose';
 import {
   Bill,
@@ -22,7 +30,6 @@ import {
   Wishlist,
   WishlistSchema,
 } from 'src/db/schema';
-import { getRuntimeConfig } from 'src/common/config/app-config';
 import { hashedPassword } from 'src/utills/utills';
 
 type AnyModel<T> = Model<T>;
@@ -87,13 +94,22 @@ async function ensureOne<T>(
 }
 
 async function main() {
-  const runtimeConfig = getRuntimeConfig();
-  const uri = process.env.MONGO_URI ?? runtimeConfig.mongo.uri;
-  const dbName = process.env.MONGO_DB ?? runtimeConfig.mongo.dbName;
+  const uri =
+    process.env.MONGOURL ??
+    process.env.MONGO_URL ??
+    process.env.MONGO_URI ??
+    '';
+
+  const dbName = process.env.MONGO_DB ?? 'Marketing_E';
+
   const shouldReset =
     process.argv.includes('--reset') ||
     process.env.SEED_RESET === 'true' ||
     process.env.SEED_RESET === '1';
+
+  if (!uri) {
+    throw new Error('Mongo URI missing. Set it in environment variables.');
+  }
 
   await mongoose.connect(uri, { dbName });
 

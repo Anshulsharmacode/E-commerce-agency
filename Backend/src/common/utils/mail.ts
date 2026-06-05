@@ -1,5 +1,4 @@
 import nodemailer, { Transporter } from 'nodemailer';
-import { getRuntimeConfig } from 'src/common/config/app-config';
 
 interface SendEmailOptions {
   to: string;
@@ -7,15 +6,15 @@ interface SendEmailOptions {
   template: string;
   variables?: Record<string, string | number>;
 }
-const runtimeConfig = getRuntimeConfig();
 
 const transporter: Transporter = nodemailer.createTransport({
-  host: runtimeConfig.smtp.host,
-  port: runtimeConfig.smtp.port,
-  secure: runtimeConfig.smtp.secure,
+  host: process.env.SMTP_HOST ?? '',
+  port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 587,
+  secure:
+    process.env.SMTP_SECURE === 'true' || process.env.SMTP_SECURE === '1',
   auth: {
-    user: runtimeConfig.smtp.user,
-    pass: runtimeConfig.smtp.pass,
+    user: process.env.SMTP_USER ?? '',
+    pass: process.env.SMTP_PASS ?? '',
   },
 });
 
@@ -47,7 +46,7 @@ export const sendEmail = async ({
     const html = parseTemplate(template, variables);
 
     const info = await transporter.sendMail({
-      from: `"${runtimeConfig.smtp.fromName}" <${runtimeConfig.smtp.user}>`,
+      from: `"${process.env.SMTP_FROM_NAME ?? 'Your App'}" <${process.env.SMTP_USER ?? ''}>`,
       to,
       subject,
       html,

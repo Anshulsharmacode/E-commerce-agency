@@ -11,7 +11,6 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { getRuntimeConfig } from 'src/common/config/app-config';
 
 type S3Stage = 'dev' | 'prod';
 
@@ -34,8 +33,6 @@ const SUPPORTED_IMAGE_MIME_TYPES = new Set([
   'image/svg+xml',
   'image/avif',
 ]);
-
-const runtimeConfig = getRuntimeConfig();
 
 @Injectable()
 export class S3Service {
@@ -159,11 +156,15 @@ export class S3Service {
   }
 
   private resolveStage(): S3Stage {
-    const explicitStage = process.env.S3_ENV?.trim().toLowerCase();
-    if (explicitStage === 'dev' || explicitStage === 'prod') {
-      return explicitStage;
+    const s3Env = process.env.S3_ENV?.trim().toLowerCase();
+    if (s3Env === 'dev' || s3Env === 'prod') {
+      return s3Env as S3Stage;
     }
-    return runtimeConfig.aws.s3Env;
+    const nodeEnv = process.env.NODE_ENV?.trim().toLowerCase();
+    if (nodeEnv === 'prod' || nodeEnv === 'production') {
+      return 'prod';
+    }
+    return 'dev';
   }
 
   private resolveActiveConfig() {
@@ -175,14 +176,17 @@ export class S3Service {
         ? process.env.AWS_S3_BUCKET_PROD
         : process.env.AWS_S3_BUCKET_DEV;
 
-    const bucket = jsonStageConfig?.bucket ?? envBucket ?? process.env.AWS_S3_BUCKET;
+    const bucket =
+      jsonStageConfig?.bucket ?? envBucket ?? process.env.AWS_S3_BUCKET;
     if (!bucket) {
       throw new InternalServerErrorException(
         'S3 bucket not configured. Add config/s3-buckets.json or AWS_S3_BUCKET_DEV/AWS_S3_BUCKET_PROD.',
       );
     }
 
-    const region = jsonStageConfig?.region ?? process.env.AWS_REGION ?? runtimeConfig.aws.region;
+    const region =
+      jsonStageConfig?.region ?? process.env.AWS_REGION ?? 'ap-south-1'; // Default region
+
     if (!region) {
       throw new InternalServerErrorException(
         'AWS region not configured. Add region in config/s3-buckets.json or AWS_REGION.',

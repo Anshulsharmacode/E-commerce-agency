@@ -6,7 +6,6 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { getRuntimeConfig } from 'src/common/config/app-config';
 
 type RateLimitRecord = {
   count: number;
@@ -14,12 +13,15 @@ type RateLimitRecord = {
 };
 
 const rateLimitStore = new Map<string, RateLimitRecord>();
-const runtimeConfig = getRuntimeConfig();
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
-  private readonly limit = runtimeConfig.rateLimit.maxRequests;
-  private readonly windowMs = runtimeConfig.rateLimit.windowMs;
+  private readonly limit = process.env.RATE_LIMIT_MAX_REQUESTS
+    ? Number(process.env.RATE_LIMIT_MAX_REQUESTS)
+    : 60;
+  private readonly windowMs = process.env.RATE_LIMIT_WINDOW_MS
+    ? Number(process.env.RATE_LIMIT_WINDOW_MS)
+    : 60_000;
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest<Request>();
