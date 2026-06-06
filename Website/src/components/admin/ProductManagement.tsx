@@ -99,10 +99,14 @@ export default function ProductManagement() {
     try {
       if (editingProduct) {
         const payload = {
-          name: String(data.name ?? "").trim().toLowerCase(),
+          name: String(data.name ?? "")
+            .trim()
+            .toLowerCase(),
           description: String(data.description ?? "").trim(),
           category_id: String(data.category_id ?? "").trim(),
-          unit: String(data.unit ?? "").trim().toLowerCase(),
+          unit: String(data.unit ?? "")
+            .trim()
+            .toLowerCase(),
           selling_price_box: Number(data.selling_price_box),
           purchase_price_box: Number(data.purchase_price_box),
           unit_weight: Number(data.unit_weight),
@@ -155,6 +159,11 @@ export default function ProductManagement() {
 
     try {
       setIsImageUploading(true);
+
+      // Use local object URL for immediate preview (Production Best Practice)
+      const localPreviewUrl = URL.createObjectURL(file);
+      setImageUrl(localPreviewUrl);
+
       const uploadData = await adminApi.getProductImageUploadUrl(file.type);
       if (!uploadData?.uploadUrl || !uploadData?.key) {
         throw new Error("Upload URL not received");
@@ -511,8 +520,10 @@ export default function ProductManagement() {
                             <p className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
                               {product.name}
                             </p>
-                            <p className="text-xs text-slate-400 line-clamp-1">
-                              {product.description || "No description"}
+                            <p className="text-xs text-slate-400">
+                              {product.description
+                                ? `${product.description.split(" ").slice(0, 5).join(" ")}...`
+                                : "No description"}
                             </p>
                           </div>
                         </TableCell>
