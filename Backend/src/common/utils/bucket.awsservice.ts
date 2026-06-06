@@ -171,16 +171,11 @@ export class S3Service {
     const jsonConfig = this.loadS3ConfigFile();
     const jsonStageConfig = jsonConfig?.[this.stage];
 
-    const envBucket =
-      this.stage === 'prod'
-        ? process.env.AWS_S3_BUCKET_PROD
-        : process.env.AWS_S3_BUCKET_DEV;
-
     const bucket =
-      jsonStageConfig?.bucket ?? envBucket ?? process.env.AWS_S3_BUCKET;
+      jsonStageConfig?.bucket ?? process.env.AWS_S3_BUCKET;
     if (!bucket) {
       throw new InternalServerErrorException(
-        'S3 bucket not configured. Add config/s3-buckets.json or AWS_S3_BUCKET_DEV/AWS_S3_BUCKET_PROD.',
+        'S3 bucket not configured. Set AWS_S3_BUCKET in your .env file.',
       );
     }
 
