@@ -48,11 +48,14 @@ export class Product {
   @Prop({ type: String, required: false, trim: true })
   image_key?: string;
 
+  @Prop({ type: String, required: false, trim: true })
+  variant?: string;
+
   @Prop({ required: true, default: true, index: true })
   is_active: boolean;
 
-  // @Prop({ required: false, min: 0, default: 0 })
-  // stock_boxes?: number;
+  @Prop({ required: false, min: 0, default: 0 })
+  stock_boxes?: number;
 
   created_at: Date;
   updated_at: Date;
