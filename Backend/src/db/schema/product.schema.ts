@@ -46,7 +46,7 @@ export class Product {
   // purchase_price_piece: number;
 
   @Prop({ type: String, required: false, trim: true })
-  image_url?: string;
+  image_key?: string;
 
   @Prop({ type: String, required: false, trim: true })
   variant?: string;

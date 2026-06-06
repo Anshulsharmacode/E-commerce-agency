@@ -97,8 +97,6 @@ export class S3Service {
     return {
       uploadUrl,
       key,
-      viewUrl: await this.getImageUrl(key),
-      bucket: this.bucket,
     };
   }
 
