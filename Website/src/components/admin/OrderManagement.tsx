@@ -24,9 +24,20 @@ import {
   TableRow,
 } from "../ui/table";
 
+interface OrderItem {
+  product_id: string;
+  product_name?: string;
+  quantity_boxes: number;
+  price_per_box: number;
+  total_price: number;
+  [key: string]: unknown;
+}
+
 interface Order {
   _id: string;
   user_id: string;
+  customer_name?: string;
+  customer_email?: string;
   status: string;
   final_amount: number;
   assign_to?: string;
@@ -34,7 +45,7 @@ interface Order {
   created_at?: string;
   total_amount?: number;
   total_discount?: number;
-  items?: Record<string, unknown>[];
+  items?: OrderItem[];
   applied_offers?: Record<string, unknown>[];
   delivery_address?: Record<string, unknown>;
   notes?: string;
@@ -278,6 +289,12 @@ export default function OrderManagement() {
                     <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">
                       Order
                     </TableHead>
+                    {/* <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">
+                      Customer
+                    </TableHead> */}
+                    <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">
+                      Products
+                    </TableHead>
                     <TableHead className="py-5 font-bold text-slate-900 uppercase tracking-wider text-[10px]">
                       Date
                     </TableHead>
@@ -299,7 +316,7 @@ export default function OrderManagement() {
                   {orders.length === 0 ? (
                     <TableRow>
                       <TableCell
-                        colSpan={6}
+                        colSpan={8}
                         className="text-center h-48 text-slate-400 font-medium"
                       >
                         No orders found in the system.
@@ -326,6 +343,31 @@ export default function OrderManagement() {
                               <span className="text-[10px] uppercase tracking-widest text-slate-400 font-black">
                                 {order._id}
                               </span>
+                            </div>
+                          </TableCell>
+                          {/* <TableCell>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-bold text-slate-900">
+                                {order.customer_name || "Unknown"}
+                              </span>
+                              <span className="text-xs text-slate-500 font-medium">
+                                {order.customer_email || "No email"}
+                              </span>
+                            </div>
+                          </TableCell> */}
+                          <TableCell className="max-w-[200px]">
+                            <div className="flex flex-col gap-0.5">
+                              {order.items?.map((item, idx) => (
+                                <span
+                                  key={idx}
+                                  className="text-xs font-semibold text-slate-700 truncate"
+                                >
+                                  {item.product_name || item.product_id}{" "}
+                                  <span className="text-slate-400">
+                                    x{item.quantity_boxes}
+                                  </span>
+                                </span>
+                              ))}
                             </div>
                           </TableCell>
                           <TableCell className="text-slate-500 font-semibold text-xs">

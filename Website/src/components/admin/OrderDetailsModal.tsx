@@ -14,6 +14,8 @@ import {
 interface Order {
   _id: string;
   user_id: string;
+  customer_name?: string;
+  customer_email?: string;
   status: string;
   final_amount: number;
   total_amount?: number;
@@ -320,10 +322,10 @@ export default function OrderDetailsModal({
                   Customer
                 </p>
                 <p className="text-sm font-bold text-slate-800 break-all">
-                  {resolveUserName(order.user_id)}
+                  {order.customer_name || resolveUserName(order.user_id)}
                 </p>
                 <p className="text-xs text-slate-500">
-                  {resolveUserEmail(order.user_id)}
+                  {order.customer_email || resolveUserEmail(order.user_id)}
                 </p>
                 <p className="mt-1 text-xs text-slate-500 font-semibold">
                   Created By: {resolveUserName(order.created_by)}
