@@ -11,7 +11,7 @@ export function HeroSection({
   activeOfferCount,
   isLoadingOffers,
 }: HeroProps) {
-  const apkDownloadUrl = `${import.meta.env.BASE_URL}app.apk`;
+  const apkDownloadUrl = `${import.meta.env.BASE_URL}app-debug.apk`;
 
   const totalDiscountValue = offers.reduce(
     (sum, o) => sum + (o.discount_value || 0),
