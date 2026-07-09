@@ -43,50 +43,54 @@ export class OrderService {
     private readonly userModel: Model<User>,
   ) {}
 
-  private async appendProductNamesToOrders(
-    orders: Array<Record<string, any>>,
-  ) {
+  private async appendNamesToOrders(orders: Array<Record<string, any>>) {
     const productIds = new Set<string>();
+    const userIds = new Set<string>();
+
     orders.forEach((order) => {
       const items = Array.isArray(order.items) ? order.items : [];
       items.forEach((item) => {
         const productId = item?.product_id;
-        if (productId) {
-          const normalizedId = String(productId).trim();
-          if (normalizedId) {
-            productIds.add(normalizedId);
-          }
-        }
+        if (productId) productIds.add(String(productId).trim());
       });
+      if (order.user_id) userIds.add(String(order.user_id).trim());
     });
 
-    if (productIds.size === 0) {
-      return orders;
-    }
-
-    const products = await this.productModel
-      .find({ _id: { $in: Array.from(productIds) } })
-      .select('name');
+    const [products, users] = await Promise.all([
+      productIds.size > 0
+        ? this.productModel
+            .find({ _id: { $in: Array.from(productIds) } })
+            .select('name')
+        : [],
+      userIds.size > 0
+        ? this.userModel
+            .find({ _id: { $in: Array.from(userIds) } })
+            .select('name email')
+        : [],
+    ]);
 
     const productMap = new Map(
       products.map((product) => [String(product._id), product.name]),
+    );
+    const userMap = new Map(
+      users.map((user) => [String(user._id), { name: user.name, email: user.email }]),
     );
 
     return orders.map((order) => {
       const items = Array.isArray(order.items) ? order.items : [];
       const nextItems = items.map((item) => {
         const productId = item?.product_id;
-        if (productId) {
-          const normalizedId = String(productId);
-          const name = productMap.get(normalizedId);
-          if (name) {
-            return { ...item, product_name: name };
-          }
-        }
-        return item;
+        const name = productMap.get(String(productId));
+        return name ? { ...item, product_name: name } : item;
       });
 
-      return { ...order, items: nextItems };
+      const user = userMap.get(String(order.user_id));
+      return {
+        ...order,
+        items: nextItems,
+        customer_name: user?.name || 'Unknown',
+        customer_email: user?.email || '',
+      };
     });
   }
 
@@ -151,7 +155,12 @@ export class OrderService {
       apiError('User not found in token', null, HttpStatus.UNAUTHORIZED);
     }
 
-    return this.orderModel.find({ user_id: user_id }).sort({ created_at: -1 });
+    const orders = await this.orderModel
+      .find({ user_id: user_id })
+      .sort({ created_at: -1 })
+      .lean();
+
+    return this.appendNamesToOrders(orders as any);
   }
 
   async getAllOrders(page?: number, limit?: number) {
@@ -167,7 +176,7 @@ export class OrderService {
       this.orderModel.countDocuments(),
     ]);
 
-    const data = await this.appendProductNamesToOrders(
+    const data = await this.appendNamesToOrders(
       orders as Array<Record<string, any>>,
     );
 
@@ -178,13 +187,14 @@ export class OrderService {
   }
 
   async getOrderById(order_id: string) {
-    const order = await this.orderModel.findOne({ _id: order_id });
+    const order = await this.orderModel.findOne({ _id: order_id }).lean();
 
     if (!order) {
       throw new NotFoundException('Order not found');
     }
 
-    return order;
+    const enriched = await this.appendNamesToOrders([order as any]);
+    return enriched[0];
   }
 
   async getMyOrderById(order_id: string, user_id: string) {
@@ -328,7 +338,7 @@ export class OrderService {
     const updatedOrder = await this.orderModel.findOneAndUpdate(
       { _id: order._id },
       {
-        assign_to: employee.name,
+        assign_to: employee._id,
         assign_by: actorId,
       },
       { returnDocument: 'after' },
@@ -346,8 +356,12 @@ export class OrderService {
       apiError('User not found in token', null, HttpStatus.UNAUTHORIZED);
     }
 
-    return this.orderModel
+    const orders = await this.orderModel
       .find({ assign_to: user_id })
-      .sort({ created_at: -1 });
+      .sort({ created_at: -1 })
+      .lean();
+
+    return this.appendNamesToOrders(orders as any);
   }
 }
+
