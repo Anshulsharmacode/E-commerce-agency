@@ -240,13 +240,11 @@ async function main() {
   const adminId = admin._id.toString();
 
   const categorySeeds = [
-    { name: 'Fresh Produce', description: 'Fruits and vegetables' },
-    { name: 'Dairy & Eggs', description: 'Milk, yogurt, cheese, eggs' },
-    { name: 'Staples', description: 'Grains, flour, lentils, oils' },
-    { name: 'Snacks', description: 'Chips, nuts, ready to eat' },
-    { name: 'Beverages', description: 'Juices and soft drinks' },
-    { name: 'Personal Care', description: 'Soap, shampoo, daily care' },
-    { name: 'Household', description: 'Cleaning and home essentials' },
+    { name: 'Electronics', description: 'Latest gadgets and electronic devices' },
+    { name: 'Groceries', description: 'Daily essential grocery items' },
+    { name: 'Beverages', description: 'Refreshing drinks, tea, and coffee' },
+    { name: 'Home & Kitchen', description: 'Appliances and home decor' },
+    { name: 'Beauty & Personal Care', description: 'Skincare, haircare, and grooming' },
   ];
 
   const categories: Record<string, WithId<Category>> = {};
@@ -264,139 +262,134 @@ async function main() {
   }
 
   const productsSeed: ProductSeed[] = [
+    // Electronics
     {
-      category_id: categories['Fresh Produce']._id.toString(),
-      name: 'Banana',
-      description: 'Fresh yellow bananas',
-      unit: ProductUnit.KG,
-      unit_weight: 1,
-      pieces_per_box: 10,
-      selling_price_box: 320,
-      purchase_price_box: 240,
-      is_active: true,
-    },
-    {
-      category_id: categories['Fresh Produce']._id.toString(),
-      name: 'Tomato',
-      description: 'Farm tomatoes',
-      unit: ProductUnit.KG,
-      unit_weight: 1,
-      pieces_per_box: 10,
-      selling_price_box: 280,
-      purchase_price_box: 200,
-      is_active: true,
-    },
-    {
-      category_id: categories['Dairy & Eggs']._id.toString(),
-      name: 'Full Cream Milk 1L',
-      description: 'Dairy milk 1 liter packs',
-      unit: ProductUnit.LITER,
-      unit_weight: 1,
-      pieces_per_box: 12,
-      selling_price_box: 720,
-      purchase_price_box: 600,
-      is_active: true,
-    },
-    {
-      category_id: categories['Dairy & Eggs']._id.toString(),
-      name: 'Eggs 30 Pack',
-      description: 'Tray of 30 eggs',
+      category_id: categories['Electronics']._id.toString(),
+      name: 'Smartphone Pro Max',
+      description: 'Latest 5G smartphone with 256GB storage and triple camera system.',
       unit: ProductUnit.PIECE,
-      unit_weight: 1,
-      pieces_per_box: 10,
-      selling_price_box: 1500,
-      purchase_price_box: 1200,
+      unit_weight: 0.2,
+      pieces_per_box: 1,
+      selling_price_box: 89999,
+      purchase_price_box: 82000,
       is_active: true,
     },
     {
-      category_id: categories['Staples']._id.toString(),
-      name: 'Basmati Rice 5kg',
-      description: 'Premium basmati rice',
+      category_id: categories['Electronics']._id.toString(),
+      name: 'Wireless Noise Cancelling Headphones',
+      description: 'Premium over-ear headphones with 40-hour battery life.',
+      unit: ProductUnit.PIECE,
+      unit_weight: 0.3,
+      pieces_per_box: 1,
+      selling_price_box: 15999,
+      purchase_price_box: 12000,
+      is_active: true,
+    },
+    {
+      category_id: categories['Electronics']._id.toString(),
+      name: 'Smart Watch Series 7',
+      description: 'Health tracking, GPS, and water resistance up to 50m.',
+      unit: ProductUnit.PIECE,
+      unit_weight: 0.1,
+      pieces_per_box: 1,
+      selling_price_box: 24999,
+      purchase_price_box: 20000,
+      is_active: true,
+    },
+    // Groceries
+    {
+      category_id: categories['Groceries']._id.toString(),
+      name: 'Premium Basmati Rice',
+      description: 'Long grain aromatic basmati rice, aged for 2 years.',
       unit: ProductUnit.KG,
       unit_weight: 5,
       pieces_per_box: 4,
-      selling_price_box: 2200,
-      purchase_price_box: 1800,
-      is_active: true,
-    },
-    {
-      category_id: categories['Staples']._id.toString(),
-      name: 'Whole Wheat Atta 5kg',
-      description: 'Fresh milled wheat flour',
-      unit: ProductUnit.KG,
-      unit_weight: 5,
-      pieces_per_box: 4,
-      selling_price_box: 1800,
-      purchase_price_box: 1400,
-      is_active: true,
-    },
-    {
-      category_id: categories['Snacks']._id.toString(),
-      name: 'Potato Chips 50g',
-      description: 'Classic salted chips',
-      unit: ProductUnit.GRAM,
-      unit_weight: 50,
-      pieces_per_box: 24,
-      selling_price_box: 720,
-      purchase_price_box: 480,
-      is_active: true,
-    },
-    {
-      category_id: categories['Snacks']._id.toString(),
-      name: 'Salted Peanuts 200g',
-      description: 'Roasted peanuts',
-      unit: ProductUnit.GRAM,
-      unit_weight: 200,
-      pieces_per_box: 12,
-      selling_price_box: 900,
+      selling_price_box: 750,
       purchase_price_box: 600,
       is_active: true,
     },
     {
-      category_id: categories['Beverages']._id.toString(),
-      name: 'Cola 1L',
-      description: 'Sparkling cola',
+      category_id: categories['Groceries']._id.toString(),
+      name: 'Organic Cold Pressed Coconut Oil',
+      description: '100% pure and organic coconut oil for cooking and skin.',
       unit: ProductUnit.LITER,
       unit_weight: 1,
       pieces_per_box: 12,
-      selling_price_box: 960,
-      purchase_price_box: 720,
+      selling_price_box: 450,
+      purchase_price_box: 350,
       is_active: true,
     },
+    // Beverages
     {
       category_id: categories['Beverages']._id.toString(),
-      name: 'Orange Juice 1L',
-      description: 'Fresh orange juice',
-      unit: ProductUnit.LITER,
-      unit_weight: 1,
-      pieces_per_box: 12,
-      selling_price_box: 1200,
-      purchase_price_box: 900,
-      is_active: true,
-    },
-    {
-      category_id: categories['Personal Care']._id.toString(),
-      name: 'Bath Soap 100g',
-      description: 'Moisturizing soap bar',
+      name: 'Assam Gold Tea',
+      description: 'Strong and refreshing black tea from the gardens of Assam.',
       unit: ProductUnit.GRAM,
+      unit_weight: 500,
+      pieces_per_box: 24,
+      selling_price_box: 280,
+      purchase_price_box: 210,
+      is_active: true,
+    },
+    {
+      category_id: categories['Beverages']._id.toString(),
+      name: 'Roasted Coffee Beans',
+      description: 'Medium roast arabica coffee beans with chocolatey notes.',
+      unit: ProductUnit.GRAM,
+      unit_weight: 250,
+      pieces_per_box: 20,
+      selling_price_box: 550,
+      purchase_price_box: 400,
+      is_active: true,
+    },
+    // Home & Kitchen
+    {
+      category_id: categories['Home & Kitchen']._id.toString(),
+      name: 'Digital Air Fryer',
+      description: '6L capacity, 8 preset programs, easy to clean.',
+      unit: ProductUnit.PIECE,
+      unit_weight: 4.5,
+      pieces_per_box: 1,
+      selling_price_box: 6999,
+      purchase_price_box: 5500,
+      is_active: true,
+    },
+    {
+      category_id: categories['Home & Kitchen']._id.toString(),
+      name: 'Non-Stick Cookware Set',
+      description: '3-piece set including fry pan, kadhai, and tawa.',
+      unit: ProductUnit.PIECE,
+      unit_weight: 2.8,
+      pieces_per_box: 1,
+      selling_price_box: 3499,
+      purchase_price_box: 2800,
+      is_active: true,
+    },
+    // Beauty & Personal Care
+    {
+      category_id: categories['Beauty & Personal Care']._id.toString(),
+      name: 'Hydrating Face Moisturizer',
+      description: 'Deep hydration for 24 hours with hyaluronic acid.',
+      unit: ProductUnit.ML,
       unit_weight: 100,
       pieces_per_box: 48,
-      selling_price_box: 1440,
-      purchase_price_box: 1000,
+      selling_price_box: 399,
+      purchase_price_box: 250,
       is_active: true,
     },
     {
-      category_id: categories['Household']._id.toString(),
-      name: 'Dishwash Liquid 500ml',
-      description: 'Lemon fresh dishwash',
+      category_id: categories['Beauty & Personal Care']._id.toString(),
+      name: 'Charcoal Face Wash',
+      description: 'Deep cleansing and oil control with activated charcoal.',
       unit: ProductUnit.ML,
-      unit_weight: 500,
-      pieces_per_box: 12,
-      selling_price_box: 1500,
-      purchase_price_box: 1100,
+      unit_weight: 150,
+      pieces_per_box: 36,
+      selling_price_box: 249,
+      purchase_price_box: 150,
       is_active: true,
     },
   ];
+
 
   const products: Record<string, WithId<Product>> = {};
   const productById = new Map<string, WithId<Product>>();
@@ -437,14 +430,14 @@ async function main() {
 
   await ensureOne(
     OfferModel,
-    { offer_code: 'DAIRY50' },
+    { offer_code: 'BEVERAGE50' },
     {
-      offer_name: 'Dairy Flat 50',
-      offer_code: 'DAIRY50',
+      offer_name: 'Beverage Flat 50',
+      offer_code: 'BEVERAGE50',
       offer_type: OfferType.CATEGORY,
       discount_type: OfferDiscountType.FLAT,
       discount_value: 50,
-      applicable_category_ids: [categories['Dairy & Eggs']._id.toString()],
+      applicable_category_ids: [categories['Beverages']._id.toString()],
       min_order_boxes: 1,
       start_date: startDate,
       end_date: endDate,
@@ -464,10 +457,10 @@ async function main() {
       offer_type: OfferType.BXGY,
       discount_type: OfferDiscountType.FREE_PRODUCT,
       discount_value: 0,
-      applicable_product_ids: [products['Basmati Rice 5kg']._id.toString()],
+      applicable_product_ids: [products['Premium Basmati Rice']._id.toString()],
       buy_quantity: 2,
       free_quantity: 1,
-      free_product_id: products['Basmati Rice 5kg']._id.toString(),
+      free_product_id: products['Premium Basmati Rice']._id.toString(),
       start_date: startDate,
       end_date: endDate,
       usage_limit: 100,
@@ -479,42 +472,43 @@ async function main() {
 
   const cartOneItems: CartItemSeed[] = [
     {
-      product_id: products['Banana']._id.toString(),
-      quantity_boxes: 2,
-      price_per_box: products['Banana'].selling_price_box,
-      total_price: 2 * products['Banana'].selling_price_box,
+      product_id: products['Smartphone Pro Max']._id.toString(),
+      quantity_boxes: 1,
+      price_per_box: products['Smartphone Pro Max'].selling_price_box,
+      total_price: products['Smartphone Pro Max'].selling_price_box,
     },
     {
-      product_id: products['Cola 1L']._id.toString(),
-      quantity_boxes: 1,
-      price_per_box: products['Cola 1L'].selling_price_box,
-      total_price: products['Cola 1L'].selling_price_box,
+      product_id: products['Assam Gold Tea']._id.toString(),
+      quantity_boxes: 2,
+      price_per_box: products['Assam Gold Tea'].selling_price_box,
+      total_price: 2 * products['Assam Gold Tea'].selling_price_box,
     },
   ];
 
   const cartTwoItems: CartItemSeed[] = [
     {
-      product_id: products['Basmati Rice 5kg']._id.toString(),
+      product_id: products['Premium Basmati Rice']._id.toString(),
       quantity_boxes: 1,
-      price_per_box: products['Basmati Rice 5kg'].selling_price_box,
-      total_price: products['Basmati Rice 5kg'].selling_price_box,
+      price_per_box: products['Premium Basmati Rice'].selling_price_box,
+      total_price: products['Premium Basmati Rice'].selling_price_box,
     },
     {
-      product_id: products['Full Cream Milk 1L']._id.toString(),
+      product_id: products['Organic Cold Pressed Coconut Oil']._id.toString(),
       quantity_boxes: 1,
-      price_per_box: products['Full Cream Milk 1L'].selling_price_box,
-      total_price: products['Full Cream Milk 1L'].selling_price_box,
+      price_per_box: products['Organic Cold Pressed Coconut Oil'].selling_price_box,
+      total_price: products['Organic Cold Pressed Coconut Oil'].selling_price_box,
     },
   ];
 
   const cartThreeItems: CartItemSeed[] = [
     {
-      product_id: products['Potato Chips 50g']._id.toString(),
-      quantity_boxes: 2,
-      price_per_box: products['Potato Chips 50g'].selling_price_box,
-      total_price: 2 * products['Potato Chips 50g'].selling_price_box,
+      product_id: products['Smartphone Pro Max']._id.toString(),
+      quantity_boxes: 1,
+      price_per_box: products['Smartphone Pro Max'].selling_price_box,
+      total_price: products['Smartphone Pro Max'].selling_price_box,
     },
   ];
+
 
   const cartOneTotals = calcTotals(cartOneItems);
   const cartTwoTotals = calcTotals(cartTwoItems);
@@ -592,11 +586,11 @@ async function main() {
   await WishlistModel.findOneAndUpdate(
     {
       user_id: customerOne._id.toString(),
-      product_id: products['Orange Juice 1L']._id.toString(),
+      product_id: products['Assam Gold Tea']._id.toString(),
     },
     {
       user_id: customerOne._id.toString(),
-      product_id: products['Orange Juice 1L']._id.toString(),
+      product_id: products['Assam Gold Tea']._id.toString(),
     },
     { upsert: true, returnDocument: 'after' },
   );
@@ -604,11 +598,11 @@ async function main() {
   await WishlistModel.findOneAndUpdate(
     {
       user_id: customerTwo._id.toString(),
-      product_id: products['Bath Soap 100g']._id.toString(),
+      product_id: products['Charcoal Face Wash']._id.toString(),
     },
     {
       user_id: customerTwo._id.toString(),
-      product_id: products['Bath Soap 100g']._id.toString(),
+      product_id: products['Charcoal Face Wash']._id.toString(),
     },
     { upsert: true, returnDocument: 'after' },
   );
@@ -616,11 +610,11 @@ async function main() {
   await WishlistModel.findOneAndUpdate(
     {
       user_id: customerThree._id.toString(),
-      product_id: products['Dishwash Liquid 500ml']._id.toString(),
+      product_id: products['Digital Air Fryer']._id.toString(),
     },
     {
       user_id: customerThree._id.toString(),
-      product_id: products['Dishwash Liquid 500ml']._id.toString(),
+      product_id: products['Digital Air Fryer']._id.toString(),
     },
     { upsert: true, returnDocument: 'after' },
   );
